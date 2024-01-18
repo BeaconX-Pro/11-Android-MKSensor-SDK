@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
-import com.moko.bxp.s.c.R;
-import com.moko.bxp.s.c.databinding.DialogLoadingMessageDBinding;
+import com.moko.bxp.s.R;
+import com.moko.bxp.s.databinding.DialogLoadingMessageDBinding;
 import com.moko.bxp.s.view.ProgressDrawable;
 
 public class LoadingMessageDialog extends MokoBaseDialog<DialogLoadingMessageDBinding> {

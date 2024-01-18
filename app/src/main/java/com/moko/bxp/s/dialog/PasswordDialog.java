@@ -8,8 +8,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
-import com.moko.bxp.s.c.R;
-import com.moko.bxp.s.c.databinding.DialogPasswordDBinding;
+import com.moko.bxp.s.R;
+import com.moko.bxp.s.databinding.DialogPasswordDBinding;
 import com.moko.bxp.s.utils.ToastUtils;
 
 public class PasswordDialog extends MokoBaseDialog<DialogPasswordDBinding> {

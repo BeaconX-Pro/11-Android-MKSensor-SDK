@@ -4,17 +4,17 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.moko.bxp.s.c.databinding.ACDialogBottomBinding;
+import com.moko.bxp.s.databinding.DialogBottomBinding;
 
 import java.util.ArrayList;
 
-public class BottomDialog extends MokoBaseDialog<ACDialogBottomBinding> {
+public class BottomDialog extends MokoBaseDialog<DialogBottomBinding> {
     private ArrayList<String> mDatas;
     private int mIndex;
 
     @Override
-    protected ACDialogBottomBinding getViewBind(LayoutInflater inflater, ViewGroup container) {
-        return ACDialogBottomBinding.inflate(inflater, container, false);
+    protected DialogBottomBinding getViewBind(LayoutInflater inflater, ViewGroup container) {
+        return DialogBottomBinding.inflate(inflater, container, false);
     }
 
     @Override

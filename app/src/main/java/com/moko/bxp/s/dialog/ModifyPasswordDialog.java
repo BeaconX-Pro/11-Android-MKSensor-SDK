@@ -9,10 +9,10 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
-import com.moko.bxp.s.c.R;
-import com.moko.bxp.s.c.databinding.ACDialogChangePasswordBinding;
+import com.moko.bxp.s.R;
+import com.moko.bxp.s.databinding.DialogChangePasswordBinding;
 
-public class ModifyPasswordDialog extends MokoBaseDialog<ACDialogChangePasswordBinding> {
+public class ModifyPasswordDialog extends MokoBaseDialog<DialogChangePasswordBinding> {
     public static final String TAG = ModifyPasswordDialog.class.getSimpleName();
 
     private final String FILTER_ASCII = "[ -~]*";
@@ -21,8 +21,8 @@ public class ModifyPasswordDialog extends MokoBaseDialog<ACDialogChangePasswordB
     private boolean confirmPasswordEnable;
 
     @Override
-    protected ACDialogChangePasswordBinding getViewBind(LayoutInflater inflater, ViewGroup container) {
-        return ACDialogChangePasswordBinding.inflate(inflater, container, false);
+    protected DialogChangePasswordBinding getViewBind(LayoutInflater inflater, ViewGroup container) {
+        return DialogChangePasswordBinding.inflate(inflater, container, false);
     }
 
     @Override

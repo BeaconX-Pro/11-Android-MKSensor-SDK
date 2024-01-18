@@ -1,12 +1,14 @@
 package com.moko.bxp.s.fragment;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.moko.bxp.s.c.databinding.FragmentAoaSettingBinding;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.moko.bxp.s.databinding.FragmentAoaSettingBinding;
 
 public class SettingFragment extends Fragment {
     private FragmentAoaSettingBinding mBind;
@@ -20,7 +22,7 @@ public class SettingFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mBind = FragmentAoaSettingBinding.inflate(inflater, container, false);
         setPwdShown(showPwd);
         return mBind.getRoot();

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.widget.SeekBar;
 
-import com.moko.bxp.s.c.databinding.DialogScanFilterACBinding;
+import com.moko.bxp.s.databinding.DialogScanFilterACBinding;
 
 public class ScanFilterDialog extends BaseDialog<DialogScanFilterACBinding> {
     private int filterRssi;

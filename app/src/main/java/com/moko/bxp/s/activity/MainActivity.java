@@ -26,10 +26,10 @@ import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.bxp.s.AppConstants;
-import com.moko.bxp.s.c.BuildConfig;
-import com.moko.bxp.s.c.R;
+import com.moko.bxp.s.BuildConfig;
+import com.moko.bxp.s.R;
 import com.moko.bxp.s.adapter.DeviceListAdapter;
-import com.moko.bxp.s.c.databinding.ACActivityMainBinding;
+import com.moko.bxp.s.databinding.ActivityMainBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.LoadingDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
@@ -39,8 +39,8 @@ import com.moko.bxp.s.entity.AdvInfo;
 import com.moko.bxp.s.utils.AdvInfoAnalysisImpl;
 import com.moko.bxp.s.utils.SPUtiles;
 import com.moko.bxp.s.utils.ToastUtils;
-import com.moko.support.s.MokoSupport;
 import com.moko.support.s.MokoBleScanner;
+import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
 import com.moko.support.s.callback.MokoScanDeviceCallback;
 import com.moko.support.s.entity.DeviceInfo;
@@ -58,8 +58,8 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class AOACMainActivity extends BaseActivity implements MokoScanDeviceCallback, BaseQuickAdapter.OnItemChildClickListener {
-    private ACActivityMainBinding mBind;
+public class MainActivity extends BaseActivity implements MokoScanDeviceCallback, BaseQuickAdapter.OnItemChildClickListener {
+    private ActivityMainBinding mBind;
     private boolean mReceiverTag = false;
     private ConcurrentHashMap<String, AdvInfo> advInfoHashMap;
     private ArrayList<AdvInfo> advInfoList;
@@ -74,19 +74,19 @@ public class AOACMainActivity extends BaseActivity implements MokoScanDeviceCall
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ACActivityMainBinding.inflate(getLayoutInflater());
+        mBind = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         // 初始化Xlog
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             // 优先保存到SD卡中
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                PATH_LOGCAT = getExternalFilesDir(null).getAbsolutePath() + File.separator + (BuildConfig.IS_LIBRARY ? "mokoBeaconXPro" : "BXP_A_C");
+                PATH_LOGCAT = getExternalFilesDir(null).getAbsolutePath() + File.separator + (BuildConfig.IS_LIBRARY ? "mokoBeaconXPro" : "BXP_S");
             } else {
-                PATH_LOGCAT = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + (BuildConfig.IS_LIBRARY ? "mokoBeaconXPro" : "BXP_A_C");
+                PATH_LOGCAT = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + (BuildConfig.IS_LIBRARY ? "mokoBeaconXPro" : "BXP_S");
             }
         } else {
             // 如果SD卡不存在，就保存到本应用的目录下
-            PATH_LOGCAT = getFilesDir().getAbsolutePath() + File.separator + (BuildConfig.IS_LIBRARY ? "mokoBeaconXPro" : "BXP_A_C");
+            PATH_LOGCAT = getFilesDir().getAbsolutePath() + File.separator + (BuildConfig.IS_LIBRARY ? "mokoBeaconXPro" : "BXP_S");
         }
         MokoSupport.getInstance().init(getApplicationContext());
         advInfoHashMap = new ConcurrentHashMap<>();
@@ -295,7 +295,7 @@ public class AOACMainActivity extends BaseActivity implements MokoScanDeviceCall
 
     @Override
     public void onStopScan() {
-        findViewById(R.id.iv_refresh).clearAnimation();
+        mBind.ivRefresh.clearAnimation();
         animation = null;
     }
 
@@ -344,7 +344,7 @@ public class AOACMainActivity extends BaseActivity implements MokoScanDeviceCall
             return;
         }
         animation = AnimationUtils.loadAnimation(this, R.anim.rotate_refresh);
-        findViewById(R.id.iv_refresh).startAnimation(animation);
+        mBind.ivRefresh.startAnimation(animation);
         advInfoAnalysisImpl = new AdvInfoAnalysisImpl();
         mokoBleScanner.startScanDevice(this);
     }
@@ -452,7 +452,7 @@ public class AOACMainActivity extends BaseActivity implements MokoScanDeviceCall
         scanFilterDialog.setFilterMac(filterMac);
         scanFilterDialog.setFilterRssi(filterRssi);
         scanFilterDialog.setOnScanFilterListener((filterMac, filterRssi) -> {
-            AOACMainActivity.this.filterMac = filterMac;
+            MainActivity.this.filterMac = filterMac;
             String showFilterMac;
             if (filterMac.length() == 12) {
                 StringBuilder stringBuffer = new StringBuilder(filterMac);
@@ -465,7 +465,7 @@ public class AOACMainActivity extends BaseActivity implements MokoScanDeviceCall
             } else {
                 showFilterMac = filterMac;
             }
-            AOACMainActivity.this.filterRssi = filterRssi;
+            MainActivity.this.filterRssi = filterRssi;
             if (!TextUtils.isEmpty(showFilterMac) || filterRssi != -100) {
                 mBind.rlFilter.setVisibility(View.VISIBLE);
                 mBind.rlEditFilter.setVisibility(View.GONE);

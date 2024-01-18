@@ -8,8 +8,8 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 
-import com.moko.bxp.s.c.BuildConfig;
-import com.moko.bxp.s.activity.AOACMainActivity;
+import com.moko.bxp.s.BuildConfig;
+import com.moko.bxp.s.activity.MainActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class Utils {
 
 
     public static File getFile(String fileName) {
-        String devicePath = AOACMainActivity.PATH_LOGCAT + File.separator + fileName;
+        String devicePath = MainActivity.PATH_LOGCAT + File.separator + fileName;
         File deviceListFile = new File(devicePath);
         if (!deviceListFile.exists()) {
             try {

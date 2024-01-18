@@ -24,9 +24,9 @@ import java.io.Writer;
 
 public class BaseApplication extends Application {
 
-    private static final String TAG = "BXP_A_C";
-    private static final String LOG_FILE = "BXP_A_C.txt";
-    private static final String LOG_FOLDER = "BXP_A_C";
+    private static final String TAG = "BXP_S";
+    private static final String LOG_FILE = "BXP_S.txt";
+    private static final String LOG_FOLDER = "BXP_S";
     public static String PATH_LOGCAT;
 
     @Override

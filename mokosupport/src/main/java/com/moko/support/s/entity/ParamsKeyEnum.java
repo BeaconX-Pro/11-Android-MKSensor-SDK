@@ -15,6 +15,8 @@ public enum ParamsKeyEnum implements Serializable {
     KEY_PASSWORD(0x51),
     KEY_MODIFY_PASSWORD(0x52),
     KEY_VERIFY_PASSWORD_ENABLE(0x53),
+
+    KEY_ALL_SLOT_ADV_TYPE(0x6C),
     ;
 
     private final int paramsKey;

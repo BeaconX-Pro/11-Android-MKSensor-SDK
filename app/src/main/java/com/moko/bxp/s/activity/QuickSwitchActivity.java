@@ -14,7 +14,8 @@ import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.bxp.s.AppConstants;
-import com.moko.bxp.s.c.databinding.ACActivityQuickSwitchBinding;
+import com.moko.bxp.s.R;
+import com.moko.bxp.s.databinding.ActivityQuickSwitchBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
@@ -31,14 +32,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuickSwitchActivity extends BaseActivity {
-    private ACActivityQuickSwitchBinding mBind;
+    private ActivityQuickSwitchBinding mBind;
     private boolean enablePasswordVerify;
     private boolean enableLedIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ACActivityQuickSwitchBinding.inflate(getLayoutInflater());
+        mBind = ActivityQuickSwitchBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         EventBus.getDefault().register(this);
 

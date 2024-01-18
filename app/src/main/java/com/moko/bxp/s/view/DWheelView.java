@@ -17,7 +17,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.moko.bxp.s.c.R;
+import com.moko.bxp.s.R;
 
 import java.util.ArrayList;
 

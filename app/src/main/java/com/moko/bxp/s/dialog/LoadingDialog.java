@@ -6,8 +6,8 @@ import android.view.ViewGroup;
 
 import androidx.core.content.ContextCompat;
 
-import com.moko.bxp.s.c.R;
-import com.moko.bxp.s.c.databinding.DialogLoadingDBinding;
+import com.moko.bxp.s.R;
+import com.moko.bxp.s.databinding.DialogLoadingDBinding;
 import com.moko.bxp.s.view.ProgressDrawable;
 
 public class LoadingDialog extends MokoBaseDialog<DialogLoadingDBinding> {

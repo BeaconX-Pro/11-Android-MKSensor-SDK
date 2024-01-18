@@ -12,8 +12,8 @@ import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
-import com.moko.bxp.s.c.R;
-import com.moko.bxp.s.c.databinding.ACActivityPowerSavingConfigBinding;
+import com.moko.bxp.s.R;
+import com.moko.bxp.s.databinding.ActivityPowerSavingConfigBinding;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
@@ -29,13 +29,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class PowerSavingConfigActivity extends BaseActivity {
-    private ACActivityPowerSavingConfigBinding mBind;
+    private ActivityPowerSavingConfigBinding mBind;
     public boolean isEnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ACActivityPowerSavingConfigBinding.inflate(getLayoutInflater());
+        mBind = ActivityPowerSavingConfigBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         EventBus.getDefault().register(this);
         mBind.etStaticTriggerTime.addTextChangedListener(new TextWatcher() {

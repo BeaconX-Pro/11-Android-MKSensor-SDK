@@ -16,8 +16,8 @@ import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
-import com.moko.bxp.s.c.R;
-import com.moko.bxp.s.c.databinding.ACActivityAccDataBinding;
+import com.moko.bxp.s.R;
+import com.moko.bxp.s.databinding.ActivityAccDataBinding;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
@@ -32,14 +32,14 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 
 public class AccDataActivity extends BaseActivity {
-    private ACActivityAccDataBinding mBind;
+    private ActivityAccDataBinding mBind;
     private boolean mReceiverTag = false;
     private boolean isSync;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ACActivityAccDataBinding.inflate(getLayoutInflater());
+        mBind = ActivityAccDataBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         EventBus.getDefault().register(this);
         // 注册广播接收器

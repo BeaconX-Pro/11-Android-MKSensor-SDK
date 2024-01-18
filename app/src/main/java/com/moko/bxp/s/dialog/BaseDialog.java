@@ -8,7 +8,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 
-import com.moko.bxp.s.c.R;
+import com.moko.bxp.s.R;
 
 import androidx.viewbinding.ViewBinding;
 

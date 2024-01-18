@@ -1,15 +1,17 @@
 package com.moko.bxp.s.fragment;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.moko.bxp.s.c.databinding.ACFragmentDeviceBinding;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.moko.bxp.s.databinding.FragmentDeviceBinding;
 
 public class DeviceFragment extends Fragment {
-    private ACFragmentDeviceBinding mBind;
+    private FragmentDeviceBinding mBind;
 
     public DeviceFragment() {
     }
@@ -19,8 +21,8 @@ public class DeviceFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBind = ACFragmentDeviceBinding.inflate(inflater, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mBind = FragmentDeviceBinding.inflate(inflater, container, false);
         return mBind.getRoot();
     }
 

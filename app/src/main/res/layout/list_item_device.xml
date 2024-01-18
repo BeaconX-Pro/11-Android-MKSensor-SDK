@@ -1,31 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/shape_radius_white_bg"
     android:orientation="vertical"
-    android:paddingBottom="15dp"
-    android:paddingStart="10dp"
-    android:paddingEnd="10dp"
-    android:paddingTop="15dp">
+    tools:viewBindingIgnore="true"
+    android:padding="15dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/tv_mac"
+            android:id="@+id/tv_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
             android:layout_toLeftOf="@id/tv_connect"
             android:layout_toRightOf="@id/tv_rssi"
+            android:text="N/A"
             android:textColor="@color/black_333333"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:includeFontPadding="false"
-            tools:text="AA:BB:CC:DD:EE:FF" />
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_rssi"
@@ -34,7 +32,7 @@
             android:layout_centerVertical="true"
             android:layout_marginTop="5dp"
             android:drawableTop="@drawable/rssi"
-            android:drawablePadding="2dp"
+            android:drawablePadding="5dp"
             android:text="-80"
             android:textColor="@color/grey_666666" />
 
@@ -42,47 +40,76 @@
             android:id="@+id/tv_connect"
             android:layout_width="wrap_content"
             android:layout_height="35dp"
-            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
             android:background="@drawable/shape_radius_blue_bg"
             android:gravity="center"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
             android:text="CONNECT"
             android:textColor="@color/white_ffffff" />
+
     </RelativeLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:gravity="center_vertical">
 
         <ImageView
+            android:id="@+id/iv_battery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="-2dp"
+            android:layout_marginTop="4dp"
             android:src="@drawable/battery_1" />
 
         <TextView
             android:id="@+id/tv_battery"
-            android:layout_width="0px"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="start"
-            android:paddingStart="12dp"
+            android:layout_alignBaseline="@id/tv_tag_id"
+            android:text="N/A"
             android:textColor="@color/grey_666666"
-            android:textSize="12sp"
-            tools:text="3326mV" />
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/tv_mac"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@id/iv_battery"
+            android:includeFontPadding="false"
+            android:text="MAC:AA:BB:CC:DD:EE:FF"
+            android:textColor="@color/grey_666666"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_tag_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_mac"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_toRightOf="@id/iv_battery"
+            android:includeFontPadding="false"
+            android:text="Tag ID ： 0x010203040A0B0C0D"
+            android:textColor="@color/grey_666666"
+            android:textSize="10sp"
+            android:visibility="invisible" />
+
 
         <TextView
             android:id="@+id/tv_interval_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingEnd="10dp"
+            android:layout_alignBaseline="@id/tv_tag_id"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="5dp"
+            android:text=""
             android:textColor="@color/grey_666666"
-            android:textSize="12sp"
-            tools:text="1234ms" />
-    </LinearLayout>
+            android:textSize="10sp" />
+    </RelativeLayout>
 
     <View
         style="@style/divider_line"
@@ -92,5 +119,5 @@
         android:id="@+id/ll_adv_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"/>
+        android:orientation="vertical"></LinearLayout>
 </LinearLayout>

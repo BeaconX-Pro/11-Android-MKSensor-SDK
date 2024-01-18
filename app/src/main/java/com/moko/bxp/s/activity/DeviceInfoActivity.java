@@ -1,6 +1,5 @@
 package com.moko.bxp.s.activity;
 
-import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ActivityNotFoundException;
@@ -18,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.elvishew.xlog.XLog;
@@ -28,12 +28,12 @@ import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.AppConstants;
-import com.moko.bxp.s.c.R;
-import com.moko.bxp.s.c.databinding.ACActivityDeviceInfoBinding;
+import com.moko.bxp.s.R;
+import com.moko.bxp.s.databinding.ActivityDeviceInfoBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.dialog.ModifyPasswordDialog;
-import com.moko.bxp.s.fragment.AdvertisementFragment;
+import com.moko.bxp.s.fragment.SlotFragment;
 import com.moko.bxp.s.fragment.DeviceFragment;
 import com.moko.bxp.s.fragment.SettingFragment;
 import com.moko.bxp.s.service.DfuService;
@@ -60,10 +60,9 @@ import no.nordicsemi.android.dfu.DfuServiceListenerHelper;
 
 public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnCheckedChangeListener {
     public static final int REQUEST_CODE_SELECT_FIRMWARE = 0x10;
-
-    private ACActivityDeviceInfoBinding mBind;
+    private ActivityDeviceInfoBinding mBind;
     private FragmentManager fragmentManager;
-    private AdvertisementFragment alarmFragment;
+    private SlotFragment slotFragment;
     private SettingFragment settingFragment;
     private DeviceFragment deviceFragment;
     public String mDeviceMac;
@@ -76,9 +75,9 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ACActivityDeviceInfoBinding.inflate(getLayoutInflater());
+        mBind = ActivityDeviceInfoBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
-        fragmentManager = getFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         initFragment();
         mBind.rgOptions.setOnCheckedChangeListener(this);
         EventBus.getDefault().register(this);
@@ -244,14 +243,14 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                                     case KEY_NORMAL_ADV_PARAMS:
                                         if (length == 8) {
                                             int interval = MokoUtils.toInt(Arrays.copyOfRange(value, 4, 6));
-                                            alarmFragment.setAdvInterval(interval);
-                                            alarmFragment.updateAdvTxPower(value[6]);
+                                            slotFragment.setAdvInterval(interval);
+                                            slotFragment.updateAdvTxPower(value[6]);
                                             int advDuration = MokoUtils.toInt(Arrays.copyOfRange(value, 7, 9));
-                                            alarmFragment.setAdvDuration(advDuration);
+                                            slotFragment.setAdvDuration(advDuration);
                                             int standbyTime = MokoUtils.toInt(Arrays.copyOfRange(value, 9, 11));
-                                            alarmFragment.setStandByDuration(standbyTime);
+                                            slotFragment.setStandByDuration(standbyTime);
                                             int channel = value[11] & 0xff;
-                                            alarmFragment.setAdvChannel(channel);
+                                            slotFragment.setAdvChannel(channel);
                                         }
                                         break;
                                     case KEY_BUTTON_TRIGGER_PARAMS:
@@ -260,7 +259,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                                             int txPower = value[6];
                                             int advDuration = MokoUtils.toInt(Arrays.copyOfRange(value, 7, 9));
                                             int triggerType = value[9];
-                                            alarmFragment.setTriggerData(advInterval, txPower, advDuration, triggerType);
+                                            slotFragment.setTriggerData(advInterval, txPower, advDuration, triggerType);
                                         }
                                         break;
 
@@ -426,26 +425,26 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
     }
 
     private void initFragment() {
-        alarmFragment = AdvertisementFragment.newInstance();
+        slotFragment = SlotFragment.newInstance();
         settingFragment = SettingFragment.newInstance();
         deviceFragment = DeviceFragment.newInstance();
         fragmentManager.beginTransaction()
-                .add(R.id.frame_container, alarmFragment)
+                .add(R.id.frame_container, slotFragment)
                 .add(R.id.frame_container, settingFragment)
                 .add(R.id.frame_container, deviceFragment)
-                .show(alarmFragment)
+                .show(slotFragment)
                 .hide(settingFragment)
                 .hide(deviceFragment)
                 .commit();
     }
 
     private void showSlotFragment() {
-        if (alarmFragment != null) {
+        if (slotFragment != null) {
             mBind.ivSave.setVisibility(View.VISIBLE);
             fragmentManager.beginTransaction()
                     .hide(settingFragment)
                     .hide(deviceFragment)
-                    .show(alarmFragment)
+                    .show(slotFragment)
                     .commit();
         }
         mBind.tvTitle.setText("ADVERTISEMENT");
@@ -455,7 +454,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         if (settingFragment != null) {
             mBind.ivSave.setVisibility(View.GONE);
             fragmentManager.beginTransaction()
-                    .hide(alarmFragment)
+                    .hide(slotFragment)
                     .hide(deviceFragment)
                     .show(settingFragment)
                     .commit();
@@ -467,7 +466,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         if (deviceFragment != null) {
             mBind.ivSave.setVisibility(View.GONE);
             fragmentManager.beginTransaction()
-                    .hide(alarmFragment)
+                    .hide(slotFragment)
                     .hide(settingFragment)
                     .show(deviceFragment)
                     .commit();
@@ -479,7 +478,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
         if (checkedId == R.id.radioBtn_alarm) {
             showSlotFragment();
-            getAdvertiseMent();
+            getSlot();
         } else if (checkedId == R.id.radioBtn_setting) {
             showSettingFragment();
         } else if (checkedId == R.id.radioBtn_device) {
@@ -488,7 +487,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         }
     }
 
-    private void getAdvertiseMent() {
+    private void getSlot() {
         showSyncingProgressDialog();
         List<OrderTask> orderTasks = new ArrayList<>(4);
         orderTasks.add(OrderTaskAssembler.getNormalAdvParams());
@@ -525,14 +524,14 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
 
     public void onSave(View view) {
         if (isWindowLocked()) return;
-        if (alarmFragment.isValid()) {
+        if (slotFragment.isValid()) {
             showSyncingProgressDialog();
             List<OrderTask> orderTasks = new ArrayList<>(4);
-            orderTasks.add(OrderTaskAssembler.setNormalAdvParams(alarmFragment.getSelectedAdvInterval(), alarmFragment.getTxPower(), alarmFragment.getAdvDuration(),
-                    alarmFragment.getStandbyTime(), alarmFragment.getSelectedAdvChannel()));
-            int type = alarmFragment.isTrigger() ? alarmFragment.getSelectTriggerType() : 0;
-            orderTasks.add(OrderTaskAssembler.setButtonTriggerParams(alarmFragment.getSelectedTriggerAdvInterval(), alarmFragment.getTriggerTxPower(),
-                    alarmFragment.getTriggerAdvDuration(), type));
+            orderTasks.add(OrderTaskAssembler.setNormalAdvParams(slotFragment.getSelectedAdvInterval(), slotFragment.getTxPower(), slotFragment.getAdvDuration(),
+                    slotFragment.getStandbyTime(), slotFragment.getSelectedAdvChannel()));
+            int type = slotFragment.isTrigger() ? slotFragment.getSelectTriggerType() : 0;
+            orderTasks.add(OrderTaskAssembler.setButtonTriggerParams(slotFragment.getSelectedTriggerAdvInterval(), slotFragment.getTriggerTxPower(),
+                    slotFragment.getTriggerAdvDuration(), type));
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         } else {
             ToastUtils.showToast(this, "Para error!");

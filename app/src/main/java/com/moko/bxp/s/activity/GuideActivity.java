@@ -12,7 +12,7 @@ import android.os.Looper;
 import android.provider.Settings;
 
 import com.elvishew.xlog.XLog;
-import com.moko.bxp.s.c.R;
+import com.moko.bxp.s.R;
 import com.moko.bxp.s.dialog.PermissionDialog;
 import com.moko.bxp.s.utils.Utils;
 import com.permissionx.guolindev.PermissionX;
@@ -82,7 +82,7 @@ public class GuideActivity extends BaseActivity {
 
     private void gotoMain() {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            startActivity(new Intent(this, AOACMainActivity.class));
+            startActivity(new Intent(this, MainActivity.class));
             finish();
         }, 1000);
     }

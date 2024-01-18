@@ -10,8 +10,8 @@ import android.view.ViewGroup;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
-import com.moko.bxp.s.c.R;
-import com.moko.bxp.s.c.databinding.DialogAlertBinding;
+import com.moko.bxp.s.R;
+import com.moko.bxp.s.databinding.DialogAlertBinding;
 
 public class AlertMessageDialog extends MokoBaseDialog<DialogAlertBinding> {
     public static final String TAG = AlertMessageDialog.class.getSimpleName();

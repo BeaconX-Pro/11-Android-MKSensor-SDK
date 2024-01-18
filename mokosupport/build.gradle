@@ -28,7 +28,6 @@ dependencies {
     api 'org.greenrobot:eventbus:3.2.0'
     api 'com.elvishew:xlog:1.6.1'
     implementation 'no.nordicsemi.android:ble:2.5.1'
-    implementation 'androidx.appcompat:appcompat:1.0.0'
 }
 
 //修改jar名字+将指定jar生成的地方
