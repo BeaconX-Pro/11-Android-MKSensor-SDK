@@ -1,0 +1,93 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    tools:background="@color/white_ffffff">
+
+    <TextView
+        android:id="@+id/tvAcc"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:clickable="true"
+        android:drawableRight="@drawable/arrow_right"
+        android:gravity="center_vertical"
+        android:onClick="onAcc"
+        android:text="3-axis accelerometer"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp" />
+
+    <View
+        android:id="@+id/lineAcc"
+        style="@style/divider_line" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:clickable="true"
+        android:drawableRight="@drawable/arrow_right"
+        android:gravity="center_vertical"
+        android:onClick="onQuickSwitch"
+        android:text="Quick switch"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp" />
+
+    <View style="@style/divider_line" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableRight="@drawable/arrow_right"
+        android:gravity="center_vertical"
+        android:onClick="onResetBeacon"
+        android:text="Reset Beacon"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp" />
+
+    <View style="@style/divider_line" />
+
+    <TextView
+        android:id="@+id/tvModifyPwd"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableRight="@drawable/arrow_right"
+        android:gravity="center_vertical"
+        android:onClick="onModifyPassword"
+        android:text="Modify password"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp" />
+
+    <View
+        android:id="@+id/lineModifyPwd"
+        style="@style/divider_line" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableRight="@drawable/arrow_right"
+        android:gravity="center_vertical"
+        android:onClick="onDFU"
+        android:text="DFU"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp" />
+
+    <View style="@style/divider_line" />
+
+    <TextView
+        android:id="@+id/tvPowerSave"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:clickable="true"
+        android:drawableRight="@drawable/arrow_right"
+        android:gravity="center_vertical"
+        android:onClick="onPowerSavingConfig"
+        android:text="Power saving configuration"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp" />
+
+    <View
+        android:id="@+id/linePowerSave"
+        style="@style/divider_line" />
+</LinearLayout>

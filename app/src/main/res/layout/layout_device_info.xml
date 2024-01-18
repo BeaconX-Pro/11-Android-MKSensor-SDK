@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imgArrow"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/blue_arrows"
+        app:layout_constraintBottom_toBottomOf="@+id/tvParamsInfo"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvParamsInfo" />
+
+    <TextView
+        android:id="@+id/tvParamsInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="15dp"
+        android:text="Device info"
+        android:textColor="@color/black_333333"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/imgArrow"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/layoutAdvChannel"
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="@+id/tvParamsInfo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvParamsInfo">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Adv channel"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvAdvChannel"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp"
+            tools:text="2402MHZ" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutAdvInterval"
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="@+id/tvParamsInfo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutAdvChannel">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Adv interval"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvAdvInterval"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp"
+            tools:text="1000ms" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutTxPower"
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="@+id/tvParamsInfo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutAdvInterval">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Tx Power"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvTxPower"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp"
+            tools:text="0dBm" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutAlarmStatus"
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="@+id/tvParamsInfo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutTxPower">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Alarm status"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvAlarmStatus"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp"
+            tools:text="Standy / Triggerd" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutAlarmCount"
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="@+id/tvParamsInfo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutAlarmStatus">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Alarm count"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvAlarmCount"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp"
+            tools:text="111" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="@+id/tvParamsInfo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutAlarmCount">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Chip temperature"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvTemp"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp"
+            tools:text="17.5℃" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

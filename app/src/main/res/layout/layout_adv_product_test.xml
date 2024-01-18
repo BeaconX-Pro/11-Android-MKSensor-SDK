@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imgArrow"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/blue_arrows"
+        app:layout_constraintBottom_toBottomOf="@+id/tvParamsInfo"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvParamsInfo" />
+
+    <TextView
+        android:id="@+id/tvParamsInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="15dp"
+        android:text="Parameter info"
+        android:textColor="@color/black_333333"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/imgArrow"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/layoutAdvChannel"
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="@+id/tvParamsInfo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvParamsInfo">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Adv channel"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvAdvChannel"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp"
+            tools:text="2402MHZ" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutAdvInterval"
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="@+id/tvParamsInfo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutAdvChannel">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Adv interval"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvAdvInterval"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp"
+            tools:text="1000ms" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0px"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="@+id/tvParamsInfo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutAdvInterval">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Tx Power"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvTxPower"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/grey_666666"
+            android:textSize="12sp"
+            tools:text="0dBm" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

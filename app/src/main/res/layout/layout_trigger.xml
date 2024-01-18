@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="@drawable/shape_radius_white_bg"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Trigger type"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvTriggerType"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:background="@drawable/shape_radius_blue_btn_bg"
+            android:gravity="center"
+            android:minWidth="100dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:textColor="@color/white_ffffff"
+            android:textSize="15sp"
+            tools:text="Single click button" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Adv interval"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvTriggerAdvInterval"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:background="@drawable/shape_radius_blue_btn_bg"
+            android:gravity="center"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:minWidth="60dp"
+            android:textColor="@color/white_ffffff"
+            android:textSize="15sp"
+            tools:text="1000" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="ms"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Adv duration"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <EditText
+            android:id="@+id/etTriggerAdvDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="35dp"
+            android:gravity="center"
+            android:hint="1-65535"
+            android:minWidth="110dp"
+            android:inputType="number"
+            android:maxLength="5"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="s"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:paddingBottom="15dp">
+
+        <TextView
+            android:id="@+id/tx_power"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tx power"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/tx_power"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/tx_power"
+            android:text="(-40, -30, -20, -16, -12, -8, -4, 0, +3, +4)"
+            android:textColor="@color/grey_b3b3b3"
+            android:textSize="12sp" />
+
+        <SeekBar
+            android:id="@+id/sb_trigger_tx_power"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tx_power"
+            android:layout_marginTop="10dp"
+            android:layout_toLeftOf="@+id/tv_Trigger_tx_power"
+            android:max="9"
+            android:progress="0" />
+
+        <TextView
+            android:id="@id/tv_Trigger_tx_power"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tx_power"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="15dp"
+            android:gravity="right"
+            android:text="0dBm"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+    </RelativeLayout>
+</LinearLayout>

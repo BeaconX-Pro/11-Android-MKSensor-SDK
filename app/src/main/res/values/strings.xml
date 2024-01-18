@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">BXP-S</string>
+
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="ok">OK</string>
+
+    <string name="permission_storage_close_content">Please find it in cellphone setting- permission, and allow BXP-S use the Storage and location permission</string>
+    <string name="permission_ble_close_content">Please find it in cellphone setting- permission, and allow BXP-S use the bluetooth and location permission</string>
+    <string name="permission_open">OK</string>
+    <string name="permission_storage_need_content">BXP-S requires access to Storage and location permission. If the permissions are not on, BXP-S cannot be used normally.</string>
+    <string name="location_need_title">Turn on Location permission</string>
+    <string name="location_need_content">After that, BXP-S could search and connect with the BXP-S</string>
+    <string name="permission_location_close_content">Please find it in cellphone setting- permission, and allow BXP-S use the Location permission</string>
+    <string name="permission_location_need_content">BXP-S requires access to Location permission. If the permissions are not on, BXP-S cannot be used normally.</string>
+    <string name="permission_ble_content">BXP-S requires access to bluetooth scan contract and location permission. If the permissions are not on, BXP-S cannot be used normally.</string>
+
+    <string name="main_exit_tips">Are you sure you want to quit?</string>
+    <string name="setting_syncing">syncing</string>
+
+    <string name="company_name">MOKO TECHNOLOGY LTD.</string>
+    <string name="about_title">ABOUT</string>
+
+    <string name="company_website">www.mokoblue.com</string>
+    <string name="please_enter_password">Please enter password</string>
+    <string name="alarm_title">ALARM</string>
+    <string name="setting_title">SETTING</string>
+    <string name="device_title">DEVICE</string>
+    <string name="password_null">Password cannot be empty!</string>
+    <!--    <string name="t_h_tips_1"><![CDATA[*The device stores T&H data when the temperature changes arbitrarily or humidity changed ≥ %s%%.]]></string>-->
+    <!--    <string name="t_h_tips_2"><![CDATA[*The device stores T&H data when the temperature changed ≥ %s ℃ or humidity changes arbitrarily.]]></string>-->
+    <!--    <string name="t_h_tips_3"><![CDATA[*The device stores T&H data when the temperature or humidity changes arbitrarily.]]></string>-->
+    <!--    <string name="trigger_tapped_tips_3">*The Beacon will always stop advertising after press button %s times.</string>-->
+    <string name="rssi_filter_tips">* RSSI filtering is the highest priority filtering condition. BLE Name and MAC Address filtering must first meet the RSSI filtering condition.</string>
+    <string name="abnormal_inactivity_time_tips">*After device keep static for %ss, abnormal inactivity alarm will be triggered and start advertising for %ss.</string>
+    <string name="static_trigger_time_tips">*After device keep static for %ss, it will stop advertising and disable alarm mode to enter into power saving mode until device moves.</string>
+    <string-array name="alarm_notify_type_d">
+        <item>Silent</item>
+        <item>LED</item>
+        <item>Buzzer</item>
+        <item>LED+Buzzer</item>
+    </string-array>
+</resources>
