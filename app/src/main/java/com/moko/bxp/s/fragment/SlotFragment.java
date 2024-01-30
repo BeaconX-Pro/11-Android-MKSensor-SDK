@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.moko.bxp.s.databinding.FragmentSlotBinding;
+import com.moko.bxp.s.utils.SlotAdvType;
 
 public class SlotFragment extends Fragment {
     private FragmentSlotBinding mBind;
@@ -26,6 +27,32 @@ public class SlotFragment extends Fragment {
         return mBind.getRoot();
     }
 
+    public void setSlot1(byte[] bytes, int afterTriggerType) {
+        if (afterTriggerType != 0) {
+            //有触发
+            mBind.tvSlot1.setText(SlotAdvType.getSlotAdvType(bytes[0] & 0xff) + "/" + SlotAdvType.getSlotAdvType(bytes[3] & 0xff));
+        }else {
+            mBind.tvSlot1.setText(SlotAdvType.getSlotAdvType(bytes[0] & 0xff));
+        }
+    }
+
+    public void setSlot2(byte[] bytes, int afterTriggerType) {
+        if (afterTriggerType != 0) {
+            //有触发
+            mBind.tvSlot2.setText(SlotAdvType.getSlotAdvType(bytes[1] & 0xff) + "/" + SlotAdvType.getSlotAdvType(bytes[1] & 0xff));
+        }else {
+            mBind.tvSlot2.setText(SlotAdvType.getSlotAdvType(bytes[1] & 0xff));
+        }
+    }
+
+    public void setSlot3(byte[] bytes, int afterTriggerType) {
+        if (afterTriggerType != 0) {
+            //有触发
+            mBind.tvSlot3.setText(SlotAdvType.getSlotAdvType(bytes[2] & 0xff) + "/" + SlotAdvType.getSlotAdvType(bytes[5] & 0xff));
+        }else {
+            mBind.tvSlot3.setText(SlotAdvType.getSlotAdvType(bytes[2] & 0xff));
+        }
+    }
 
 
 }

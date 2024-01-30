@@ -50,6 +50,54 @@ public class OrderTaskAssembler {
         return new GetFirmwareRevisionTask();
     }
 
+    public static OrderTask getHistoryHallData(){
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_HALL_HISTORY_DATA);
+        return task;
+    }
+
+    public static OrderTask getTHStore(){
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_TH_STORE);
+        return task;
+    }
+
+    public static OrderTask setTHStore(@IntRange(from = 0,to = 1) int enable,@IntRange(from = 1,to = 65535) int interval){
+        ParamsTask task = new ParamsTask();
+        task.setTHStore(enable,interval);
+        return task;
+    }
+
+    public static OrderTask getTHSampleInterval(){
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_TH_SAMPLE_RATE);
+        return task;
+    }
+
+    public static OrderTask setTHSampleInterval(@IntRange(from = 1,to = 65535) int interval){
+        ParamsTask task = new ParamsTask();
+        task.setTHSampleInterval(interval);
+        return task;
+    }
+
+    public static OrderTask getCurrentTime(){
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_SYNC_CURRENT_TIME);
+        return task;
+    }
+
+    public static OrderTask getMotionTriggerCount() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_MOTION_TRIGGER_COUNT);
+        return task;
+    }
+
+    public static OrderTask clearMotionTriggerCount() {
+        ParamsTask task = new ParamsTask();
+        task.setData(ParamsKeyEnum.KEY_MOTION_TRIGGER_COUNT);
+        return task;
+    }
+
     /**
      * 获取软件版本
      */
@@ -57,6 +105,17 @@ public class OrderTaskAssembler {
         return new GetSoftwareRevisionTask();
     }
 
+    public static OrderTask getHallStoreEnable(){
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_HALL_STORE_ENABLE);
+        return task;
+    }
+
+    public static OrderTask getMagneticTriggerCount(){
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_MAGNETIC_TRIGGER_COUNT);
+        return task;
+    }
 
     public static OrderTask getDeviceMac() {
         ParamsTask task = new ParamsTask();
@@ -108,6 +167,24 @@ public class OrderTaskAssembler {
         return task;
     }
 
+    public static OrderTask getHallPowerEnable() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_HALL_POWER_ENABLE);
+        return task;
+    }
+
+    public static OrderTask getAdvMode() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_ADV_MODE);
+        return task;
+    }
+
+    public static OrderTask setAdvMode(int advMode) {
+        ParamsTask task = new ParamsTask();
+        task.setAdvMode(advMode);
+        return task;
+    }
+
     public static OrderTask getVerifyPasswordEnable() {
         PasswordTask task = new PasswordTask();
         task.setData(ParamsKeyEnum.KEY_VERIFY_PASSWORD_ENABLE);
@@ -129,6 +206,30 @@ public class OrderTaskAssembler {
     public static OrderTask getTriggerLedStatus() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_TRIGGER_LED_STATUS);
+        return task;
+    }
+
+    public static OrderTask getConnectStatus() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_CONNECT_ENABLE);
+        return task;
+    }
+
+    public static OrderTask getTagIdAutoFillStatus() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_TAG_ID_AUTO_FILL_ENABLE);
+        return task;
+    }
+
+    public static OrderTask getResetByButtonStatus() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_RESET_BY_BUTTON_ENABLE);
+        return task;
+    }
+
+    public static OrderTask getTurnOffByButtonStatus() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_HALL_POWER_ENABLE);
         return task;
     }
 
@@ -165,6 +266,87 @@ public class OrderTaskAssembler {
     public static OrderTask setTriggerLedStatus(@IntRange(from = 0, to = 1) int enable) {
         ParamsTask task = new ParamsTask();
         task.setTriggerLedStatus(enable);
+        return task;
+    }
+
+
+    //新增
+    public static OrderTask getAllSlotAdvType(){
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_ALL_SLOT_ADV_TYPE);
+        return task;
+    }
+
+    public static OrderTask getSlotTriggerType(int slot){
+        ParamsTask task = new ParamsTask();
+        task.getSlotTriggerType(slot);
+        return task;
+    }
+
+    public static OrderTask setRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
+                                              @IntRange(from = 1, to = 600) int time) {
+        ParamsTask task = new ParamsTask();
+        task.setRemoteReminder(interval, time);
+        return task;
+    }
+
+    public static OrderTask setConnectStatus(int status){
+        ParamsTask task = new ParamsTask();
+        task.setStatus(status,ParamsKeyEnum.KEY_CONNECT_ENABLE);
+        return task;
+    }
+
+    public static OrderTask setTriggerIndicatorStatus(int status){
+        ParamsTask task = new ParamsTask();
+        task.setStatus(status,ParamsKeyEnum.KEY_TRIGGER_LED_ENABLE);
+        return task;
+    }
+    
+    public static OrderTask setTagIdAutoFill(int status){
+        ParamsTask task = new ParamsTask();
+        task.setStatus(status, ParamsKeyEnum.KEY_TAG_ID_AUTO_FILL_ENABLE);
+        return task;
+    }
+
+    public static OrderTask setResetByButton(int status){
+        ParamsTask task = new ParamsTask();
+        task.setStatus(status, ParamsKeyEnum.KEY_RESET_BY_BUTTON_ENABLE);
+        return task;
+    }
+
+    public static OrderTask setTurnOffByButton(int status){
+        ParamsTask task = new ParamsTask();
+        task.setStatus(status, ParamsKeyEnum.KEY_HALL_POWER_ENABLE);
+        return task;
+    }
+
+    public static OrderTask clearMagneticTriggerCount(){
+        ParamsTask task = new ParamsTask();
+        task.setData(ParamsKeyEnum.KEY_MAGNETIC_TRIGGER_COUNT);
+        return task;
+    }
+
+    public static OrderTask setHallStoreEnable(int enable){
+        ParamsTask task = new ParamsTask();
+        task.setHallStoreEnable(enable);
+        return task;
+    }
+
+    public static OrderTask setCurrentTime(){
+        ParamsTask task = new ParamsTask();
+        task.setCurrentTime();
+        return task;
+    }
+
+    public static OrderTask clearHallHistory(){
+        ParamsTask task = new ParamsTask();
+        task.setData(ParamsKeyEnum.KEY_CLEAR_HISTORY_HALL);
+        return task;
+    }
+
+    public static OrderTask clearHistoryTHData(){
+        ParamsTask task = new ParamsTask();
+        task.setData(ParamsKeyEnum.KEY_CLEAR_HISTORY_TH);
         return task;
     }
 

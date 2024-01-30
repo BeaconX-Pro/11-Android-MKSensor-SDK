@@ -20,6 +20,8 @@
 
     <string name="company_name">MOKO TECHNOLOGY LTD.</string>
     <string name="about_title">ABOUT</string>
+    <string name="th_chart_total">Total Data Points:%d</string>
+    <string name="th_chart_display">Window Display Points:%d</string>
 
     <string name="company_website">www.mokoblue.com</string>
     <string name="please_enter_password">Please enter password</string>

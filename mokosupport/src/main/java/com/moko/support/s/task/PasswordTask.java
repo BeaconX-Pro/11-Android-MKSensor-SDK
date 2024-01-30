@@ -27,6 +27,17 @@ public class PasswordTask extends OrderTask {
         data = new byte[]{(byte) 0xEA, (byte) 0x00, (byte) paramsKey, (byte) 0x00};
     }
 
+    public void setAdvMode(int advMode) {
+        data = new byte[]{
+                (byte) 0xEA,
+                (byte) 0x01,
+                (byte) ParamsKeyEnum.KEY_ADV_MODE.getParamsKey(),
+                (byte) 0x01,
+                (byte) advMode
+        };
+        response.responseValue = data;
+    }
+
     public void setPassword(String password) {
         byte[] passwordBytes = password.getBytes();
         int length = passwordBytes.length;

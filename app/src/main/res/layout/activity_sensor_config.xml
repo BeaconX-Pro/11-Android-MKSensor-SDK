@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/grey_f2f2f2"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="@color/blue_2f84d0">
+
+        <TextView
+            android:id="@+id/tv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:drawableLeft="@drawable/back"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:onClick="onBack"
+            android:paddingLeft="16dp"
+            android:textColor="@color/white_ffffff"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Sensor configurations"
+            android:textColor="@color/white_ffffff"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_acc_config"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:drawableRight="@drawable/arrow_right"
+        android:gravity="center_vertical"
+        android:onClick="onAccConfig"
+        android:text="3-axis accelerometer"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp" />
+
+    <View style="@style/divider_line"
+        android:id="@+id/lineAcc"/>
+
+    <TextView
+        android:id="@+id/tvHall"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:drawableRight="@drawable/arrow_right"
+        android:gravity="center_vertical"
+        android:onClick="onHallSensorConfig"
+        android:text="Hall sensor"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp" />
+
+    <View style="@style/divider_line"
+        android:id="@+id/lineHall"/>
+
+    <TextView
+        android:id="@+id/tvTH"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:drawableRight="@drawable/arrow_right"
+        android:gravity="center_vertical"
+        android:onClick="onTHSensorConfig"
+        android:text="Temperature &amp; Humidity"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp" />
+
+    <View style="@style/divider_line"
+        android:id="@+id/lineTH"/>
+</LinearLayout>

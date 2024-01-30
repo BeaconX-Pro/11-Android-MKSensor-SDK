@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
@@ -35,6 +37,11 @@ public class QuickSwitchActivity extends BaseActivity {
     private ActivityQuickSwitchBinding mBind;
     private boolean enablePasswordVerify;
     private boolean enableLedIndicator;
+    private boolean enableConnect;
+    private boolean enableTagIdAutoFill;
+    private boolean resetBeaconByButton;
+    private boolean turnOffByButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +59,16 @@ public class QuickSwitchActivity extends BaseActivity {
             MokoSupport.getInstance().enableBluetooth();
         } else {
             showSyncingProgressDialog();
-            ArrayList<OrderTask> orderTasks = new ArrayList<>();
+            ArrayList<OrderTask> orderTasks = new ArrayList<>(8);
+            orderTasks.add(OrderTaskAssembler.getConnectStatus());
             orderTasks.add(OrderTaskAssembler.getTriggerLedStatus());
             orderTasks.add(OrderTaskAssembler.getVerifyPasswordEnable());
+            orderTasks.add(OrderTaskAssembler.getTagIdAutoFillStatus());
+            orderTasks.add(OrderTaskAssembler.getResetByButtonStatus());
+            orderTasks.add(OrderTaskAssembler.getTurnOffByButtonStatus());
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         }
+        setListener();
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 200)
@@ -75,8 +87,6 @@ public class QuickSwitchActivity extends BaseActivity {
         EventBus.getDefault().cancelEventDelivery(event);
         final String action = event.getAction();
         runOnUiThread(() -> {
-            if (MokoConstants.ACTION_ORDER_TIMEOUT.equals(action)) {
-            }
             if (MokoConstants.ACTION_ORDER_FINISH.equals(action)) {
                 dismissSyncProgressDialog();
             }
@@ -97,19 +107,47 @@ public class QuickSwitchActivity extends BaseActivity {
                             if (flag == 0x01 && length == 0x01) {
                                 // write
                                 int result = value[4] & 0xFF;
-                                if (configKeyEnum == ParamsKeyEnum.KEY_TRIGGER_LED_STATUS) {
-                                    if (result != 0xAA) {
-                                        ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
-                                    } else {
-                                        ToastUtils.showToast(this, "Success");
-                                    }
+                                switch (configKeyEnum) {
+                                    case KEY_TRIGGER_LED_STATUS:
+                                    case KEY_CONNECT_ENABLE:
+                                    case KEY_TAG_ID_AUTO_FILL_ENABLE:
+                                    case KEY_RESET_BY_BUTTON_ENABLE:
+                                    case KEY_HALL_POWER_ENABLE:
+                                        if (result != 0xAA) {
+                                            ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
+                                        } else {
+                                            ToastUtils.showToast(this, "Success");
+                                        }
+                                        break;
                                 }
-                            }
-                            if (flag == 0x00 && length == 1) {
+                            } else if (flag == 0x00 && length == 1) {
                                 // read
                                 int result = value[4] & 0xFF;
-                                if (configKeyEnum == ParamsKeyEnum.KEY_TRIGGER_LED_STATUS) {
-                                    setLedIndicatorEnable(result);
+                                switch (configKeyEnum) {
+                                    case KEY_TRIGGER_LED_STATUS:
+                                        this.enableLedIndicator = result == 1;
+                                        setStatus(enableLedIndicator, mBind.ivTriggerLed, mBind.tvTriggerLed);
+                                        break;
+
+                                    case KEY_CONNECT_ENABLE:
+                                        this.enableConnect = result == 1;
+                                        setStatus(enableConnect, mBind.ivEnableConnect, mBind.tvConnectEnableStatus);
+                                        break;
+
+                                    case KEY_TAG_ID_AUTO_FILL_ENABLE:
+                                        this.enableTagIdAutoFill = result == 1;
+                                        setStatus(enableTagIdAutoFill, mBind.ivEnableTagId, mBind.tvTagIdEnableStatus);
+                                        break;
+
+                                    case KEY_RESET_BY_BUTTON_ENABLE:
+                                        this.resetBeaconByButton = result == 1;
+                                        setStatus(resetBeaconByButton, mBind.ivEnableReset, mBind.tvResetEnableStatus);
+                                        break;
+
+                                    case KEY_HALL_POWER_ENABLE:
+                                        this.turnOffByButton = result == 1;
+                                        setStatus(turnOffByButton, mBind.ivEnableTurnOff, mBind.tvTurnOffEnableStatus);
+                                        break;
                                 }
                             }
                         }
@@ -133,13 +171,11 @@ public class QuickSwitchActivity extends BaseActivity {
                                         ToastUtils.showToast(this, "Success");
                                     }
                                 }
-                            }
-                            if (flag == 0x00 && length == 1) {
+                            } else if (flag == 0x00 && length == 1) {
                                 // read
                                 int result = value[4] & 0xFF;
-                                if (configKeyEnum == ParamsKeyEnum.KEY_VERIFY_PASSWORD_ENABLE) {
-                                    setPasswordVerify(result);
-                                }
+                                this.enablePasswordVerify = result == 1;
+                                setStatus(enablePasswordVerify, mBind.ivEnablePwd, mBind.tvPwdEnableStatus);
                             }
                         }
                         break;
@@ -148,41 +184,99 @@ public class QuickSwitchActivity extends BaseActivity {
         });
     }
 
-    private void setPasswordVerify(int enable) {
-        this.enablePasswordVerify = enable == 1;
-        mBind.ivEnablePwd.setImageResource(enable == 1 ? R.drawable.ic_checked : R.drawable.ic_unchecked);
-        mBind.tvPwdEnableStatus.setText(enablePasswordVerify ? "Enable" : "Disable");
-        mBind.tvPwdEnableStatus.setEnabled(enablePasswordVerify);
+    private void setListener() {
+        mBind.ivEnableConnect.setOnClickListener(v -> {
+            if (enableConnect) {
+                AlertMessageDialog dialog = new AlertMessageDialog();
+                dialog.setTitle("Warning！");
+                dialog.setMessage("Are you sure to set the Beacon non-connectable？");
+                dialog.setConfirm("OK");
+                dialog.setOnAlertConfirmListener(() -> setConnectEnable(true));
+                dialog.show(getSupportFragmentManager());
+            } else {
+                setConnectEnable(false);
+            }
+        });
+        mBind.ivTriggerLed.setOnClickListener(v -> {
+            showSyncingProgressDialog();
+            List<OrderTask> orderTasks = new ArrayList<>(2);
+            orderTasks.add(OrderTaskAssembler.setTriggerLedStatus(enableLedIndicator ? 0 : 1));
+            orderTasks.add(OrderTaskAssembler.getTriggerLedStatus());
+            MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
+        });
+        mBind.ivEnablePwd.setOnClickListener(v -> {
+            if (enablePasswordVerify) {
+                final AlertMessageDialog dialog = new AlertMessageDialog();
+                dialog.setTitle("Warning！");
+                dialog.setMessage("If Password verification is disabled, it will not need password to connect the Beacon.");
+                dialog.setConfirm("OK");
+                dialog.setOnAlertConfirmListener(() -> setVerifyPasswordEnable(false));
+                dialog.show(getSupportFragmentManager());
+            } else {
+                setVerifyPasswordEnable(true);
+            }
+        });
+        mBind.ivEnableTagId.setOnClickListener(v -> {
+            showSyncingProgressDialog();
+            List<OrderTask> orderTasks = new ArrayList<>(2);
+            orderTasks.add(OrderTaskAssembler.setTagIdAutoFill(enableTagIdAutoFill ? 0 : 1));
+            orderTasks.add(OrderTaskAssembler.getTagIdAutoFillStatus());
+            MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+        });
+        mBind.ivEnableReset.setOnClickListener(v -> {
+            if (resetBeaconByButton) {
+                AlertMessageDialog dialog = new AlertMessageDialog();
+                dialog.setTitle("Warning！");
+                dialog.setMessage("If Button reset is disabled, you cannot reset the Beacon by button operation.");
+                dialog.setConfirm("OK");
+                dialog.setOnAlertConfirmListener(() -> setResetBeaconByButton(true));
+                dialog.show(getSupportFragmentManager());
+            } else {
+                setResetBeaconByButton(false);
+            }
+        });
+        mBind.ivEnableTurnOff.setOnClickListener(v -> {
+            if (turnOffByButton) {
+                AlertMessageDialog dialog = new AlertMessageDialog();
+                dialog.setTitle("Warning！");
+                dialog.setMessage("If this function is disabled, you cannot power off the Beacon by button.");
+                dialog.setConfirm("OK");
+                dialog.setOnAlertConfirmListener(() -> setTurnOffByButton(true));
+                dialog.show(getSupportFragmentManager());
+            } else {
+                setTurnOffByButton(false);
+            }
+        });
     }
 
-    private void setLedIndicatorEnable(int enable) {
-        this.enableLedIndicator = enable == 1;
-        mBind.ivTriggerLed.setImageResource(enable == 1 ? R.drawable.ic_checked : R.drawable.ic_unchecked);
-        mBind.tvTriggerLed.setText(enableLedIndicator ? "Enable" : "Disable");
-        mBind.tvTriggerLed.setEnabled(enableLedIndicator);
-    }
-
-    public void onChangePwdEnable(View view) {
-        if (isWindowLocked()) return;
-        if (enablePasswordVerify) {
-            final AlertMessageDialog dialog = new AlertMessageDialog();
-            dialog.setTitle("Warning！");
-            dialog.setMessage("If Password verification is disabled, it will not need password to connect the Beacon.");
-            dialog.setConfirm(R.string.ok);
-            dialog.setOnAlertConfirmListener(() -> setVerifyPasswordEnable(false));
-            dialog.show(getSupportFragmentManager());
-        } else {
-            setVerifyPasswordEnable(true);
-        }
-    }
-
-    public void onTriggerLed(View view) {
-        if (isWindowLocked()) return;
+    private void setTurnOffByButton(boolean enable) {
         showSyncingProgressDialog();
         List<OrderTask> orderTasks = new ArrayList<>(2);
-        orderTasks.add(OrderTaskAssembler.setTriggerLedStatus(enableLedIndicator ? 0 : 1));
-        orderTasks.add(OrderTaskAssembler.getTriggerLedStatus());
-        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
+        orderTasks.add(OrderTaskAssembler.setTurnOffByButton(enable ? 0 : 1));
+        orderTasks.add(OrderTaskAssembler.getTurnOffByButtonStatus());
+        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+    }
+
+    private void setResetBeaconByButton(boolean enable) {
+        showSyncingProgressDialog();
+        List<OrderTask> orderTasks = new ArrayList<>(2);
+        orderTasks.add(OrderTaskAssembler.setResetByButton(enable ? 0 : 1));
+        orderTasks.add(OrderTaskAssembler.getResetByButtonStatus());
+        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+    }
+
+    private void setConnectEnable(boolean enable) {
+        showSyncingProgressDialog();
+        List<OrderTask> orderTasks = new ArrayList<>(2);
+        orderTasks.add(OrderTaskAssembler.setConnectStatus(enable ? 0 : 1));
+        orderTasks.add(OrderTaskAssembler.getConnectStatus());
+        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+    }
+
+    private void setStatus(boolean enable, ImageView imageView, TextView textView) {
+        imageView.setImageResource(enable ? R.drawable.ic_checked : R.drawable.ic_unchecked);
+        textView.setText(enable ? "Enable" : "Disable");
+        textView.setEnabled(enable);
     }
 
     public void setVerifyPasswordEnable(boolean enable) {
@@ -194,7 +288,6 @@ public class QuickSwitchActivity extends BaseActivity {
     }
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent != null) {
@@ -242,7 +335,8 @@ public class QuickSwitchActivity extends BaseActivity {
 
     private void back() {
         Intent intent = new Intent();
-        intent.putExtra(AppConstants.EXTRA_KEY_PASSWORD_VERIFICATION, enablePasswordVerify);
+        intent.putExtra("pwdEnable", enablePasswordVerify);
+        intent.putExtra("hallEnable", turnOffByButton);
         setResult(RESULT_OK, intent);
         finish();
     }

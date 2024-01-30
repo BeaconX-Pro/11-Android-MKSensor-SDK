@@ -126,7 +126,6 @@ public class MokoSupport extends MokoBleLib {
         return responseUUID.equals(orderCHAR.getUuid());
     }
 
-
     @Override
     public boolean orderNotify(BluetoothGattCharacteristic characteristic, byte[] value) {
         final UUID responseUUID = characteristic.getUuid();
@@ -137,8 +136,16 @@ public class MokoSupport extends MokoBleLib {
         if (responseUUID.equals(OrderCHAR.CHAR_ACC.getUuid())) {
             orderCHAR = OrderCHAR.CHAR_ACC;
         }
-        if (orderCHAR == null)
-            return false;
+        if (responseUUID.equals(OrderCHAR.CHAR_HALL.getUuid())) {
+            orderCHAR = OrderCHAR.CHAR_HALL;
+        }
+        if (responseUUID.equals(OrderCHAR.CHAR_TH_NOTIFY.getUuid())){
+            orderCHAR = OrderCHAR.CHAR_TH_NOTIFY;
+        }
+        if (responseUUID.equals(OrderCHAR.CHAR_TH_HISTORY.getUuid())){
+            orderCHAR = OrderCHAR.CHAR_TH_HISTORY;
+        }
+        if (orderCHAR == null) return false;
         XLog.i(orderCHAR.name());
         OrderTaskResponse response = new OrderTaskResponse();
         response.orderCHAR = orderCHAR;
@@ -150,6 +157,16 @@ public class MokoSupport extends MokoBleLib {
         return true;
     }
 
+    public void enableHallStatusNotify() {
+        if (mBleConfig != null)
+            mBleConfig.enableHallStatusNotify();
+    }
+
+    public void disableHallStatusNotify() {
+        if (mBleConfig != null)
+            mBleConfig.disableHallStatusNotify();
+    }
+
     public void enableAccNotify() {
         if (mBleConfig != null)
             mBleConfig.enableAccNotify();
@@ -158,6 +175,28 @@ public class MokoSupport extends MokoBleLib {
     public void disableAccNotify() {
         if (mBleConfig != null)
             mBleConfig.disableAccNotify();
+    }
+
+    public void enableTHNotify(){
+        if (null != mBleConfig) {
+            mBleConfig.enableTHNotify();
+        }
+    }
+
+    public void disableTHNotify(){
+        if (null != mBleConfig) mBleConfig.disableTHNotify();
+    }
+
+    public void enableHistoryThNotify(){
+        if (null != mBleConfig){
+            mBleConfig.enableHistoryTHNotify();
+        }
+    }
+
+    public void disableHistoryThNotify(){
+        if (null != mBleConfig){
+            mBleConfig.disableHistoryTHNotify();
+        }
     }
 
     public ArrayList<ExportData> exportSingleEvents;

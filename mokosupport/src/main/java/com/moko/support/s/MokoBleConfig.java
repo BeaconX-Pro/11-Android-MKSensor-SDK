@@ -24,6 +24,9 @@ final class MokoBleConfig extends MokoBleManager {
     private BluetoothGattCharacteristic disconnectCharacteristic;
     private BluetoothGattCharacteristic accCharacteristic;
     private BluetoothGattCharacteristic passwordCharacteristic;
+    private BluetoothGattCharacteristic hallCharacteristic;
+    private BluetoothGattCharacteristic thCharacteristic;
+    private BluetoothGattCharacteristic historyTHCharacteristic;
 
     public MokoBleConfig(@NonNull Context context, MokoResponseCallback callback) {
         super(context);
@@ -37,6 +40,9 @@ final class MokoBleConfig extends MokoBleManager {
             paramsCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_PARAMS.getUuid());
             disconnectCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_DISCONNECT.getUuid());
             accCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_ACC.getUuid());
+            hallCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_HALL.getUuid());
+            thCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_TH_NOTIFY.getUuid());
+            historyTHCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_TH_HISTORY.getUuid());
             passwordCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_PASSWORD.getUuid());
             enableParamsNotify();
             enableDisconnectNotify();
@@ -147,5 +153,47 @@ final class MokoBleConfig extends MokoBleManager {
 
     public void disableAccNotify() {
         disableNotifications(accCharacteristic).enqueue();
+    }
+
+    public void enableHallStatusNotify() {
+        setIndicationCallback(hallCharacteristic).with((device, data) -> {
+            final byte[] value = data.getValue();
+            XLog.e("onDataReceived");
+            XLog.e("device to app : " + MokoUtils.bytesToHexString(value));
+            mMokoResponseCallback.onCharacteristicChanged(hallCharacteristic, value);
+        });
+        enableNotifications(hallCharacteristic).enqueue();
+    }
+
+    public void disableHallStatusNotify() {
+        disableNotifications(hallCharacteristic).enqueue();
+    }
+
+    public void enableTHNotify() {
+        setIndicationCallback(thCharacteristic).with((device, data) -> {
+            final byte[] value = data.getValue();
+            XLog.e("onDataReceived");
+            XLog.e("device to app : " + MokoUtils.bytesToHexString(value));
+            mMokoResponseCallback.onCharacteristicChanged(thCharacteristic, value);
+        });
+        enableNotifications(thCharacteristic).enqueue();
+    }
+
+    public void disableTHNotify() {
+        disableNotifications(thCharacteristic).enqueue();
+    }
+
+    public void enableHistoryTHNotify() {
+        setIndicationCallback(historyTHCharacteristic).with((device, data) -> {
+            final byte[] value = data.getValue();
+            XLog.e("onDataReceived");
+            XLog.e("device to app : " + MokoUtils.bytesToHexString(value));
+            mMokoResponseCallback.onCharacteristicChanged(historyTHCharacteristic, value);
+        });
+        enableNotifications(historyTHCharacteristic).enqueue();
+    }
+
+    public void disableHistoryTHNotify() {
+        disableNotifications(historyTHCharacteristic).enqueue();
     }
 }

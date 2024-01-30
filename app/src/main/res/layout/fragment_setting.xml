@@ -8,45 +8,45 @@
     tools:background="@color/white_ffffff">
 
     <TextView
-        android:id="@+id/tvAcc"
+        android:id="@+id/tvSensor"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:clickable="true"
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
-        android:onClick="onAcc"
-        android:text="3-axis accelerometer"
+        android:text="Sensor configurations"
         android:textColor="@color/black_333333"
         android:textSize="15sp" />
 
     <View
-        android:id="@+id/lineAcc"
+        android:id="@+id/lineSensor"
         style="@style/divider_line" />
 
     <TextView
+        android:id="@+id/tvQuickSwitch"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:clickable="true"
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
-        android:onClick="onQuickSwitch"
         android:text="Quick switch"
+        android:onClick="onQuickClick"
         android:textColor="@color/black_333333"
         android:textSize="15sp" />
 
     <View style="@style/divider_line" />
 
     <TextView
+        android:id="@+id/tvResetBeacon"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
-        android:onClick="onResetBeacon"
         android:text="Reset Beacon"
         android:textColor="@color/black_333333"
         android:textSize="15sp" />
 
-    <View style="@style/divider_line" />
+    <View
+        android:id="@+id/lineResetBeacon"
+        style="@style/divider_line" />
 
     <TextView
         android:id="@+id/tvModifyPwd"
@@ -54,7 +54,6 @@
         android:layout_height="50dp"
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
-        android:onClick="onModifyPassword"
         android:text="Modify password"
         android:textColor="@color/black_333333"
         android:textSize="15sp" />
@@ -76,18 +75,45 @@
     <View style="@style/divider_line" />
 
     <TextView
-        android:id="@+id/tvPowerSave"
+        android:id="@+id/tvRemoteMinder"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:clickable="true"
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
-        android:onClick="onPowerSavingConfig"
-        android:text="Power saving configuration"
+        android:text="Remote reminder"
         android:textColor="@color/black_333333"
         android:textSize="15sp" />
 
-    <View
-        android:id="@+id/linePowerSave"
-        style="@style/divider_line" />
+    <View style="@style/divider_line" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="ADV mode"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvAdvMode"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@drawable/shape_radius_blue_btn_bg"
+            android:gravity="center"
+            android:minWidth="80dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="Legacy"
+            android:textColor="@color/white_ffffff"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <View style="@style/divider_line" />
 </LinearLayout>

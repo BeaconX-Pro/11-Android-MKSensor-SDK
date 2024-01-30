@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey_f2f2f2"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="@color/blue_2f84d0">
+
+        <TextView
+            android:id="@+id/tv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:drawableLeft="@drawable/back"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:onClick="onBack"
+            android:paddingLeft="16dp"
+            android:textColor="@color/white_ffffff"
+            android:textSize="15sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Remote reminder"
+            android:textColor="@color/white_ffffff"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:background="@drawable/shape_radius_white_bg"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingBottom="20dp">
+
+        <TextView
+            android:id="@+id/tvLedNotification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="35dp"
+            android:text="LED notification"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btnRemind"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:background="@drawable/shape_radius_blue_btn_bg"
+            android:text="Remind"
+            android:textColor="@color/white_ffffff"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tvLedNotification"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <View
+            android:id="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/grey_f2f2f2"
+            app:layout_constraintTop_toBottomOf="@+id/tvLedNotification" />
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="Blinking time"
+            android:textSize="16sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/line" />
+
+        <TextView
+            android:id="@+id/tvTimeUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="x 1s"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tvTime"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvTime" />
+
+        <EditText
+            android:id="@+id/etTime"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:gravity="center"
+            android:hint="1~600"
+            android:inputType="number"
+            android:maxLength="3"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tvTimeUnit"
+            app:layout_constraintRight_toLeftOf="@+id/tvTimeUnit"
+            app:layout_constraintTop_toTopOf="@+id/tvTimeUnit" />
+
+        <TextView
+            android:id="@+id/tvInterval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Blinking interval"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTime" />
+
+        <TextView
+            android:id="@+id/tvIntervalUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="x 100ms"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tvInterval"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvInterval" />
+
+        <EditText
+            android:id="@+id/etInterval"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:gravity="center"
+            android:hint="1~100"
+            android:inputType="number"
+            android:maxLength="3"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tvIntervalUnit"
+            app:layout_constraintRight_toLeftOf="@+id/tvIntervalUnit"
+            app:layout_constraintTop_toTopOf="@+id/tvIntervalUnit" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
