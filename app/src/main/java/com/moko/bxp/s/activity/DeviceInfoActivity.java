@@ -57,7 +57,6 @@ import no.nordicsemi.android.dfu.DfuServiceInitiator;
 import no.nordicsemi.android.dfu.DfuServiceListenerHelper;
 
 public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnCheckedChangeListener {
-    public static final int REQUEST_CODE_SELECT_FIRMWARE = 0x10;
     private ActivityDeviceInfoBinding mBind;
     private FragmentManager fragmentManager;
     private SlotFragment slotFragment;

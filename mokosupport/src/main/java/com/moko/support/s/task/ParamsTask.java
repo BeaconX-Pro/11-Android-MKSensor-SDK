@@ -42,6 +42,60 @@ public class ParamsTask extends OrderTask {
         data = new byte[]{(byte) 0xEA, (byte) 0x01, (byte) paramsKey, (byte) 0x00};
     }
 
+    public void getSlotAdvParams(@IntRange(from = 0, to = 5) int slot) {
+        response.responseValue = data = new byte[]{
+                (byte) 0xEA,
+                (byte) 0x00,
+                (byte) ParamsKeyEnum.KEY_SLOT_ADV_PARAMS.getParamsKey(),
+                (byte) 0x01,
+                (byte) slot
+        };
+    }
+
+    public void getTriggerBeforeSlotParams(@IntRange(from = 0, to = 5) int slot) {
+        response.responseValue = data = new byte[]{
+                (byte) 0xEA,
+                (byte) 0x00,
+                (byte) ParamsKeyEnum.KEY_SLOT_PARAMS_BEFORE.getParamsKey(),
+                (byte) 0x01,
+                (byte) slot
+        };
+    }
+
+    public void getTriggerAfterSlotParams(@IntRange(from = 0, to = 5) int slot) {
+        response.responseValue = data = new byte[]{
+                (byte) 0xEA,
+                (byte) 0x00,
+                (byte) ParamsKeyEnum.KEY_SLOT_PARAMS_AFTER.getParamsKey(),
+                (byte) 0x01,
+                (byte) slot
+        };
+    }
+
+    public void setSlotAdvParams(@IntRange(from = 0, to = 5) int slot,
+                                 @IntRange(from = 1, to = 100) int interval,
+                                 @IntRange(from = 1, to = 65535) int duration,
+                                 @IntRange(from = 0, to = 65535) int standbyDuration,
+                                 @IntRange(from = -100, to = 0) int rssi,
+                                 @IntRange(from = -40, to = 4) int txPower) {
+        byte[] durationBytes = MokoUtils.toByteArray(duration, 2);
+        byte[] standbyDurationBytes = MokoUtils.toByteArray(standbyDuration, 2);
+        response.responseValue = data = new byte[]{
+                (byte) 0xEA,
+                (byte) 0x01,
+                (byte) ParamsKeyEnum.KEY_SLOT_ADV_PARAMS.getParamsKey(),
+                (byte) 0x08,
+                (byte) slot,
+                (byte) interval,
+                durationBytes[0],
+                durationBytes[1],
+                standbyDurationBytes[0],
+                standbyDurationBytes[1],
+                (byte) rssi,
+                (byte) txPower
+        };
+    }
+
     public void setTHStore(@IntRange(from = 0, to = 1) int enable, @IntRange(from = 1, to = 65535) int interval) {
         byte[] bytes = MokoUtils.toByteArray(interval, 2);
         response.responseValue = data = new byte[]{
@@ -130,6 +184,17 @@ public class ParamsTask extends OrderTask {
                 (byte) ParamsKeyEnum.KEY_SLOT_TRIGGER_TYPE.getParamsKey(),
                 (byte) 0x01,
                 (byte) slot
+        };
+    }
+
+    public void setSlotTriggerType(int slot, int triggerType) {
+        response.responseValue = data = new byte[]{
+                (byte) 0xEA,
+                (byte) 0x01,
+                (byte) ParamsKeyEnum.KEY_SLOT_TRIGGER_TYPE.getParamsKey(),
+                (byte) 0x02,
+                (byte) slot,
+                (byte) triggerType
         };
     }
 

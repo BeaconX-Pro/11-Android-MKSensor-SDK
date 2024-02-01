@@ -17,9 +17,9 @@ public class SlotAdvType {
             case 0x50:
                 return "iBeacon";
             case 0x70:
-                return "T&H_INFOR";
+                return "T&H_INFO";
             case 0x80:
-                return "Tag";
+                return "Sensor info";
             case 0xFF:
                 return "No data";
         }

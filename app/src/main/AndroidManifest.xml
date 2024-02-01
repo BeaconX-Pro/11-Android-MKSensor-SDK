@@ -61,6 +61,15 @@
             android:name=".activity.ExportTHDataActivity"
             android:screenOrientation="portrait" />
 
+        <activity android:name=".activity.TriggerStep1Activity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".activity.TriggerStep2Activity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".activity.TriggerStep3Activity"
+            android:screenOrientation="portrait"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.moko.bxp.s.fileprovider"

@@ -50,37 +50,37 @@ public class OrderTaskAssembler {
         return new GetFirmwareRevisionTask();
     }
 
-    public static OrderTask getHistoryHallData(){
+    public static OrderTask getHistoryHallData() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_HALL_HISTORY_DATA);
         return task;
     }
 
-    public static OrderTask getTHStore(){
+    public static OrderTask getTHStore() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_TH_STORE);
         return task;
     }
 
-    public static OrderTask setTHStore(@IntRange(from = 0,to = 1) int enable,@IntRange(from = 1,to = 65535) int interval){
+    public static OrderTask setTHStore(@IntRange(from = 0, to = 1) int enable, @IntRange(from = 1, to = 65535) int interval) {
         ParamsTask task = new ParamsTask();
-        task.setTHStore(enable,interval);
+        task.setTHStore(enable, interval);
         return task;
     }
 
-    public static OrderTask getTHSampleInterval(){
+    public static OrderTask getTHSampleInterval() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_TH_SAMPLE_RATE);
         return task;
     }
 
-    public static OrderTask setTHSampleInterval(@IntRange(from = 1,to = 65535) int interval){
+    public static OrderTask setTHSampleInterval(@IntRange(from = 1, to = 65535) int interval) {
         ParamsTask task = new ParamsTask();
         task.setTHSampleInterval(interval);
         return task;
     }
 
-    public static OrderTask getCurrentTime(){
+    public static OrderTask getCurrentTime() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_SYNC_CURRENT_TIME);
         return task;
@@ -105,13 +105,19 @@ public class OrderTaskAssembler {
         return new GetSoftwareRevisionTask();
     }
 
-    public static OrderTask getHallStoreEnable(){
+    public static OrderTask getDeviceType() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_DEVICE_TYPE);
+        return task;
+    }
+
+    public static OrderTask getHallStoreEnable() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_HALL_STORE_ENABLE);
         return task;
     }
 
-    public static OrderTask getMagneticTriggerCount(){
+    public static OrderTask getMagneticTriggerCount() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_MAGNETIC_TRIGGER_COUNT);
         return task;
@@ -271,13 +277,13 @@ public class OrderTaskAssembler {
 
 
     //新增
-    public static OrderTask getAllSlotAdvType(){
+    public static OrderTask getAllSlotAdvType() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_ALL_SLOT_ADV_TYPE);
         return task;
     }
 
-    public static OrderTask getSlotTriggerType(int slot){
+    public static OrderTask getSlotTriggerType(int slot) {
         ParamsTask task = new ParamsTask();
         task.getSlotTriggerType(slot);
         return task;
@@ -290,63 +296,98 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask setConnectStatus(int status){
+    public static OrderTask setConnectStatus(int status) {
         ParamsTask task = new ParamsTask();
-        task.setStatus(status,ParamsKeyEnum.KEY_CONNECT_ENABLE);
+        task.setStatus(status, ParamsKeyEnum.KEY_CONNECT_ENABLE);
         return task;
     }
 
-    public static OrderTask setTriggerIndicatorStatus(int status){
+    public static OrderTask setTriggerIndicatorStatus(int status) {
         ParamsTask task = new ParamsTask();
-        task.setStatus(status,ParamsKeyEnum.KEY_TRIGGER_LED_ENABLE);
+        task.setStatus(status, ParamsKeyEnum.KEY_TRIGGER_LED_ENABLE);
         return task;
     }
-    
-    public static OrderTask setTagIdAutoFill(int status){
+
+    public static OrderTask setTagIdAutoFill(int status) {
         ParamsTask task = new ParamsTask();
         task.setStatus(status, ParamsKeyEnum.KEY_TAG_ID_AUTO_FILL_ENABLE);
         return task;
     }
 
-    public static OrderTask setResetByButton(int status){
+    public static OrderTask setResetByButton(int status) {
         ParamsTask task = new ParamsTask();
         task.setStatus(status, ParamsKeyEnum.KEY_RESET_BY_BUTTON_ENABLE);
         return task;
     }
 
-    public static OrderTask setTurnOffByButton(int status){
+    public static OrderTask setTurnOffByButton(int status) {
         ParamsTask task = new ParamsTask();
         task.setStatus(status, ParamsKeyEnum.KEY_HALL_POWER_ENABLE);
         return task;
     }
 
-    public static OrderTask clearMagneticTriggerCount(){
+    public static OrderTask clearMagneticTriggerCount() {
         ParamsTask task = new ParamsTask();
         task.setData(ParamsKeyEnum.KEY_MAGNETIC_TRIGGER_COUNT);
         return task;
     }
 
-    public static OrderTask setHallStoreEnable(int enable){
+    public static OrderTask setHallStoreEnable(int enable) {
         ParamsTask task = new ParamsTask();
         task.setHallStoreEnable(enable);
         return task;
     }
 
-    public static OrderTask setCurrentTime(){
+    public static OrderTask setCurrentTime() {
         ParamsTask task = new ParamsTask();
         task.setCurrentTime();
         return task;
     }
 
-    public static OrderTask clearHallHistory(){
+    public static OrderTask clearHallHistory() {
         ParamsTask task = new ParamsTask();
         task.setData(ParamsKeyEnum.KEY_CLEAR_HISTORY_HALL);
         return task;
     }
 
-    public static OrderTask clearHistoryTHData(){
+    public static OrderTask clearHistoryTHData() {
         ParamsTask task = new ParamsTask();
         task.setData(ParamsKeyEnum.KEY_CLEAR_HISTORY_TH);
+        return task;
+    }
+
+    public static OrderTask getSlotAdvParams(@IntRange(from = 0, to = 5) int slot) {
+        ParamsTask task = new ParamsTask();
+        task.getSlotAdvParams(slot);
+        return task;
+    }
+
+    public static OrderTask setSlotAdvParams(@IntRange(from = 0, to = 5) int slot,
+                                             @IntRange(from = 1, to = 100) int interval,
+                                             @IntRange(from = 1, to = 65535) int duration,
+                                             @IntRange(from = 0, to = 65535) int standbyDuration,
+                                             @IntRange(from = -100, to = 0) int rssi,
+                                             @IntRange(from = -40, to = 4) int txPower) {
+        ParamsTask task = new ParamsTask();
+        task.setSlotAdvParams(slot, interval, duration, standbyDuration, rssi, txPower);
+        return task;
+    }
+
+    public static OrderTask getTriggerBeforeSlotParams(@IntRange(from = 0, to = 5) int slot) {
+        ParamsTask task = new ParamsTask();
+        task.getTriggerBeforeSlotParams(slot);
+        return task;
+    }
+
+    public static OrderTask getTriggerAfterSlotParams(@IntRange(from = 0, to = 5) int slot) {
+        ParamsTask task = new ParamsTask();
+        task.getTriggerAfterSlotParams(slot);
+        return task;
+    }
+
+    public static OrderTask setSlotTriggerType(int slot, int triggerType) {
+        ParamsTask task = new ParamsTask();
+        task.setSlotTriggerType(slot, triggerType);
         return task;
     }
 

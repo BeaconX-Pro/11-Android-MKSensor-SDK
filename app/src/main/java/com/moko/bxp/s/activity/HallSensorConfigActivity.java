@@ -111,7 +111,7 @@ public class HallSensorConfigActivity extends BaseActivity {
                 OrderTaskResponse response = event.getResponse();
                 OrderCHAR orderCHAR = (OrderCHAR) response.orderCHAR;
                 byte[] value = response.responseValue;
-                if (Objects.requireNonNull(orderCHAR) == OrderCHAR.CHAR_PARAMS) {
+                if (orderCHAR == OrderCHAR.CHAR_PARAMS) {
                     if (value.length > 4) {
                         int header = value[0] & 0xFF;// 0xEB
                         int flag = value[1] & 0xFF;// read or write

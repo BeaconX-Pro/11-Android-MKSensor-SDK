@@ -34,6 +34,10 @@ public enum ParamsKeyEnum implements Serializable {
     KEY_TH_SAMPLE_RATE(0x41),
     KEY_TH_STORE(0x40),
     KEY_CLEAR_HISTORY_TH(0x42),
+    KEY_SLOT_ADV_PARAMS(0x22),
+    KEY_SLOT_PARAMS_BEFORE(0x23),
+    KEY_SLOT_PARAMS_AFTER(0x24),
+    KEY_DEVICE_TYPE(0x2F),
 
 
     ;
