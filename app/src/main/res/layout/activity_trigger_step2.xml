@@ -212,7 +212,7 @@
                 android:layout_alignBaseline="@id/tvTemperature"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@id/tvTemperature"
-                android:text="(-20℃~60℃)"
+                android:text="(-40℃~150℃)"
                 android:textColor="@color/grey_b3b3b3"
                 android:textSize="12sp" />
 
@@ -223,7 +223,7 @@
                 android:layout_below="@id/tvTemperature"
                 android:layout_marginTop="10dp"
                 android:layout_toLeftOf="@+id/tvTempValue"
-                android:max="80"
+                android:max="190"
                 android:progress="0" />
 
             <TextView

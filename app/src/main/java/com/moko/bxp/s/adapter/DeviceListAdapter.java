@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -17,8 +18,8 @@ import com.elvishew.xlog.XLog;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.entity.AdvIBeacon;
 import com.moko.bxp.s.entity.AdvInfo;
+import com.moko.bxp.s.entity.AdvSensorInfo;
 import com.moko.bxp.s.entity.AdvTLM;
-import com.moko.bxp.s.entity.AdvTag;
 import com.moko.bxp.s.entity.AdvUID;
 import com.moko.bxp.s.entity.AdvURL;
 import com.moko.bxp.s.utils.AdvInfoParser;
@@ -60,8 +61,8 @@ public class DeviceListAdapter extends BaseQuickAdapter<AdvInfo, BaseViewHolder>
                 beaconXiBeacon.txPower = validData.txPower == Integer.MIN_VALUE ? "N/A" : String.valueOf(validData.txPower);
                 parent.addView(createIBeaconView(beaconXiBeacon, parent));
             }
-            if (validData.type == AdvInfo.VALID_DATA_FRAME_TYPE_TAG_INFO) {
-                parent.addView(createTagView(AdvInfoParser.getTagInfo(validData.data), parent));
+            if (validData.type == AdvInfo.VALID_DATA_FRAME_TYPE_SENSOR_INFO) {
+                parent.addView(createSensorView(AdvInfoParser.getSensorInfo(validData.data), parent));
                 helper.setVisible(R.id.tv_tag_id, true);
                 helper.setText(R.id.tv_tag_id, String.format("Tag ID:0x%s", validData.data.substring(36)));
             }
@@ -126,14 +127,18 @@ public class DeviceListAdapter extends BaseQuickAdapter<AdvInfo, BaseViewHolder>
         return view;
     }
 
-    private View createTagView(AdvTag tag, ViewGroup parent) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.adv_slot_tag_info, parent, false);
+    private View createSensorView(AdvSensorInfo tag, ViewGroup parent) {
+        View view = LayoutInflater.from(mContext).inflate(R.layout.adv_slot_sensor_info, parent, false);
         TextView tvMagneticStatus = view.findViewById(R.id.tv_magnetic_status);
         TextView tvMagneticTriggerCount = view.findViewById(R.id.tv_magnetic_trigger_count);
         LinearLayout llAccInfo = view.findViewById(R.id.ll_acc_info);
         TextView tvMotionStatus = view.findViewById(R.id.tv_motion_status);
         TextView tvMotionTriggerCount = view.findViewById(R.id.tv_motion_trigger_count);
         TextView tvAcc = view.findViewById(R.id.tv_acc);
+        TextView tvTemp = view.findViewById(R.id.tvTemp);
+        TextView tvHum = view.findViewById(R.id.tvHum);
+        RelativeLayout layoutTemp = view.findViewById(R.id.layoutTemp);
+        RelativeLayout layoutHum = view.findViewById(R.id.layoutHum);
         tvMagneticStatus.setText(tag.hallStatus);
         tvMagneticTriggerCount.setText(tag.hallTriggerCount);
         if (tag.isAccEnable) {
@@ -143,6 +148,18 @@ public class DeviceListAdapter extends BaseQuickAdapter<AdvInfo, BaseViewHolder>
             tvAcc.setText(String.format("%s;%s;%s", tag.accX, tag.accY, tag.accZ));
         } else {
             llAccInfo.setVisibility(View.GONE);
+        }
+        if (tag.tempEnable) {
+            layoutTemp.setVisibility(View.VISIBLE);
+            tvTemp.setText(tag.temp);
+        } else {
+            layoutTemp.setVisibility(View.GONE);
+        }
+        if (tag.humEnable) {
+            layoutHum.setVisibility(View.VISIBLE);
+            tvHum.setText(tag.hum);
+        } else {
+            layoutHum.setVisibility(View.GONE);
         }
         return view;
     }

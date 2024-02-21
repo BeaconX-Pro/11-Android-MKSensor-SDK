@@ -1,5 +1,16 @@
 package com.moko.bxp.s.activity;
 
+import static com.moko.bxp.s.utils.SlotAdvType.HALL_TRIGGER;
+import static com.moko.bxp.s.utils.SlotAdvType.HUM_TRIGGER;
+import static com.moko.bxp.s.utils.SlotAdvType.I_BEACON;
+import static com.moko.bxp.s.utils.SlotAdvType.MOTION_TRIGGER;
+import static com.moko.bxp.s.utils.SlotAdvType.SENSOR_INFO;
+import static com.moko.bxp.s.utils.SlotAdvType.TEMP_TRIGGER;
+import static com.moko.bxp.s.utils.SlotAdvType.TH;
+import static com.moko.bxp.s.utils.SlotAdvType.TLM;
+import static com.moko.bxp.s.utils.SlotAdvType.UID;
+import static com.moko.bxp.s.utils.SlotAdvType.URL;
+
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,6 +34,7 @@ import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep3Binding;
+import com.moko.bxp.s.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.BottomDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.entity.TriggerStep1Bean;
@@ -39,6 +51,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author: jun.liu
@@ -65,6 +78,7 @@ public class TriggerStep3Activity extends BaseActivity implements SeekBar.OnSeek
     private EditText et1;
     private EditText et2;
     private EditText et3;
+    private boolean isParamsError;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -145,11 +159,11 @@ public class TriggerStep3Activity extends BaseActivity implements SeekBar.OnSeek
                 }
                 step3Bean.major = Integer.parseInt(et1.getText().toString());
                 step3Bean.minor = Integer.parseInt(et2.getText().toString());
-                step3Bean.uuid = et3.getText().toString();
                 if (step3Bean.major > 65535 || step3Bean.minor > 65535 || step3Bean.uuid.length() != 32) {
                     ToastUtils.showToast(this, "Data format incorrect!");
                     return;
                 }
+                step3Bean.uuid = et3.getText().toString();
             } else if (currentFrameType == 0x80) {
                 //sensor info
                 if (TextUtils.isEmpty(et1.getText()) || TextUtils.isEmpty(et2.getText())) {
@@ -160,8 +174,89 @@ public class TriggerStep3Activity extends BaseActivity implements SeekBar.OnSeek
                 step3Bean.tagId = et2.getText().toString();
             }
             //下发参数配置协议
-
+            if (TextUtils.isEmpty(mBind.etAdvInterval.getText()) || TextUtils.isEmpty(mBind.etAdvDuration.getText())) {
+                ToastUtils.showToast(this, "Data format incorrect!");
+                return;
+            }
+            int interval = Integer.parseInt(mBind.etAdvInterval.getText().toString());
+            int duration = Integer.parseInt(mBind.etAdvDuration.getText().toString());
+            if (interval < 1 || interval > 100 || duration > 65535) {
+                ToastUtils.showToast(this, "Data format incorrect!");
+                return;
+            }
+            step3Bean.advInterval = interval * 100;
+            step3Bean.advDuration = duration;
+            step3Bean.rssi = mBind.sbRssi.getProgress() - 100;
+            if (isC112) {
+                step3Bean.txPower = txPowerC112[mBind.sbTxPower.getProgress()];
+            } else {
+                step3Bean.txPower = txPower[mBind.sbTxPower.getProgress()];
+            }
+            sendParams();
         });
+    }
+
+    private void sendParams() {
+        showSyncingProgressDialog();
+        List<OrderTask> orderTasks = new ArrayList<>();
+        //先下发第一步的参数
+        //根据类型下发参数
+        isParamsError = false;
+        if (!step1Bean.advBeforeTrigger) {
+            orderTasks.add(OrderTaskAssembler.setSlotParamsNoData(slot));
+        } else {
+            if (step1Bean.frameType == UID) {
+                orderTasks.add(OrderTaskAssembler.setSlotParamsUID(slot, step1Bean.namespaceId, step1Bean.instanceId));
+            } else if (step1Bean.frameType == URL) {
+                orderTasks.add(OrderTaskAssembler.setSlotParamsURL(slot, step1Bean.urlScheme, step1Bean.url));
+            } else if (step1Bean.frameType == TLM) {
+                orderTasks.add(OrderTaskAssembler.setSlotParamsTLM(slot));
+            } else if (step1Bean.frameType == I_BEACON) {
+                orderTasks.add(OrderTaskAssembler.setSlotParamsIBeacon(slot, step1Bean.major, step1Bean.minor, step1Bean.uuid));
+            } else if (step1Bean.frameType == SENSOR_INFO) {
+                orderTasks.add(OrderTaskAssembler.setSlotParamsTagInfo(slot, step1Bean.deviceName, step1Bean.tagId));
+            } else if (step1Bean.frameType == TH) {
+                orderTasks.add(OrderTaskAssembler.setSlotParamsTH(slot));
+            }
+//            if (step1Bean.isLowPowerMode) {
+            orderTasks.add(OrderTaskAssembler.setSlotAdvParamsBefore(slot, step1Bean.advInterval, step1Bean.advDuration,
+                    step1Bean.standByDuration, step1Bean.rssi, step1Bean.txPower));
+//            } else {
+//                orderTasks.add(OrderTaskAssembler.setSlotAdvParamsBefore(slot, step1Bean.advInterval, 1, 0, 0, step1Bean.txPower));
+//            }
+        }
+        //下发第二步触发类型的参数
+        orderTasks.add(OrderTaskAssembler.setSlotTriggerType(slot, step2Bean.triggerType));
+        if (step2Bean.triggerType == TEMP_TRIGGER) {
+            //温度触发
+            orderTasks.add(OrderTaskAssembler.setTempTriggerEvent(slot, step2Bean.triggerEventSelect, step2Bean.tempThreshold));
+        } else if (step2Bean.triggerType == HUM_TRIGGER) {
+            //湿度触发
+            orderTasks.add(OrderTaskAssembler.setHumTriggerEvent(slot, step2Bean.triggerEventSelect, step2Bean.humThreshold));
+        } else if (step2Bean.triggerType == MOTION_TRIGGER) {
+            //移动触发
+            orderTasks.add(OrderTaskAssembler.setAxisTriggerEvent(slot, step2Bean.triggerEventSelect, step2Bean.axisStaticPeriod));
+        } else if (step2Bean.triggerType == HALL_TRIGGER) {
+            //霍尔触发
+            orderTasks.add(OrderTaskAssembler.setHallTriggerEvent(slot, step2Bean.triggerEventSelect));
+        }
+        //3、配置触发后的参数
+        if (step3Bean.frameType == UID) {
+            orderTasks.add(OrderTaskAssembler.setSlotParamsUID(slot + 3, step3Bean.namespaceId, step3Bean.instanceId));
+        } else if (step3Bean.frameType == URL) {
+            orderTasks.add(OrderTaskAssembler.setSlotParamsURL(slot + 3, step3Bean.urlScheme, step3Bean.url));
+        } else if (step3Bean.frameType == TLM) {
+            orderTasks.add(OrderTaskAssembler.setSlotParamsTLM(slot + 3));
+        } else if (step3Bean.frameType == I_BEACON) {
+            orderTasks.add(OrderTaskAssembler.setSlotParamsIBeacon(slot + 3, step3Bean.major, step3Bean.minor, step3Bean.uuid));
+        } else if (step3Bean.frameType == SENSOR_INFO) {
+            orderTasks.add(OrderTaskAssembler.setSlotParamsTagInfo(slot + 3, step3Bean.deviceName, step3Bean.tagId));
+        } else if (step3Bean.frameType == TH) {
+            orderTasks.add(OrderTaskAssembler.setSlotParamsTH(slot + 3));
+        }
+        orderTasks.add(OrderTaskAssembler.setSlotAdvParamsAfter(slot + 3, step3Bean.advInterval, step3Bean.advDuration,
+                step3Bean.rssi, step3Bean.txPower));
+        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 500)
@@ -235,6 +330,26 @@ public class TriggerStep3Activity extends BaseActivity implements SeekBar.OnSeek
                                     }
                                     break;
                             }
+                        } else if (flag == 1) {
+                            switch (configKeyEnum) {
+                                case KEY_SLOT_ADV_PARAMS:
+                                case KEY_SLOT_PARAMS_BEFORE:
+                                case KEY_SLOT_TRIGGER_TYPE:
+                                case KEY_TEMP_TRIGGER_EVENT:
+                                case KEY_HUM_TRIGGER_EVENT:
+                                case KEY_AXIS_TRIGGER_EVENT:
+                                case KEY_HALL_TRIGGER_EVENT:
+                                    if ((value[4] & 0xff) != 0xAA) isParamsError = true;
+                                    break;
+                                case KEY_SLOT_PARAMS_AFTER:
+                                    if ((value[4] & 0xff) != 0xAA) isParamsError = true;
+                                    if (isParamsError) {
+                                        ToastUtils.showToast(this, "set up fail");
+                                    } else {
+                                        showTips();
+                                    }
+                                    break;
+                            }
                         }
                     }
                 }
@@ -242,8 +357,121 @@ public class TriggerStep3Activity extends BaseActivity implements SeekBar.OnSeek
         });
     }
 
+    private void showTips() {
+        String tips = "";
+        if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 1 && !step1Bean.advBeforeTrigger && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will start advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after door open, and stop advertising immediately when door is closed.";
+        } else if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 1 && !step1Bean.advBeforeTrigger && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after device moves, and stop advertising immediately when door is closed.";
+        } else if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 0 && !step1Bean.advBeforeTrigger && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will start advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms  after door is closed, and stop advertising immediately when door is opened.";
+        } else if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 0 && !step1Bean.advBeforeTrigger && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms  after door is closed, and stop advertising immediately when door is opened.";
+        } else if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step3Bean.advDuration > 0 && step1Bean.standByDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after door open, and advertising for " +
+                    step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when door is closed";
+        } else if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step3Bean.advDuration > 0 && step1Bean.standByDuration == 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after door open, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when door is closed";
+        } else if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step3Bean.advDuration == 0 && step1Bean.standByDuration > 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after door open, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when door is closed";
+        } else if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step3Bean.advDuration == 0 && step1Bean.standByDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after door open, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when door is closed";
+        } else if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after door is closed, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when door is opened.";
+        } else if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration > 0) {
+            tips = " *The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after door is closed, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when door is opened.";
+        } else if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration == 0) {
+            tips = " *The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after door is closed, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when door is opened.";
+        } else if (step2Bean.triggerType == 4 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after door is closed, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when door is opened.";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 0 && !step1Bean.advBeforeTrigger && step3Bean.standByDuration > 0) {
+            tips = "*The Beacon will start advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after device moves, and stop advertising immediately after device keep stationary for " + step2Bean.axisStaticPeriod + "s";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 0 && !step1Bean.advBeforeTrigger && step3Bean.standByDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after device moves, and stop advertising immediately after device keep stationary for " + step2Bean.axisStaticPeriod + "s";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 1 && !step1Bean.advBeforeTrigger && step3Bean.standByDuration > 0) {
+            tips = "*The Beacon will start advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after device keep stationary for " + step2Bean.axisStaticPeriod + "s, and stop advertising immediately when device moves.";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 1 && !step1Bean.advBeforeTrigger && step3Bean.standByDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after device keep stationary for " + step2Bean.axisStaticPeriod + "s, and stop advertising immediately when device moves.";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after device moves, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when device keep stationary for " + step2Bean.axisStaticPeriod + "s";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after device moves, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when device keep stationary for " + step2Bean.axisStaticPeriod + "s";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after device moves, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when device keep stationary for " + step2Bean.axisStaticPeriod + "s";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after device moves, and keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when device keep stationary for " + step2Bean.axisStaticPeriod + "s";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms when device keep stationary for " + step2Bean.axisStaticPeriod + "s, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms after device moves";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms when device keep stationary for " + step2Bean.axisStaticPeriod + "s, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms after device moves";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms when device keep stationary for " + step2Bean.axisStaticPeriod + "s, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms after device moves";
+        } else if (step2Bean.triggerType == 3 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms when device keep stationary for " + step2Bean.axisStaticPeriod + "s, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms after device moves";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 0 && !step1Bean.advBeforeTrigger && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will start advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after device temperature is more than or equal to " + step2Bean.tempThreshold + "℃, and stop advertising immediately after device temperature is less than " + step2Bean.tempThreshold + "℃";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 0 && !step1Bean.advBeforeTrigger && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after device temperature is more than or equal to " + step2Bean.tempThreshold + "℃, and stop advertising immediately after device temperature is less than " + step2Bean.tempThreshold + "℃";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 1 && !step1Bean.advBeforeTrigger && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will start advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after device temperature is less than " + step2Bean.tempThreshold + "℃, and stop advertising immediately when device temperature is more than or equal to " + step2Bean.tempThreshold + "℃.";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 1 && !step1Bean.advBeforeTrigger && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after device temperature is less than " + step2Bean.tempThreshold + "℃, and stop advertising immediately when device temperature is more than or equal to " + step2Bean.tempThreshold + "℃.";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms when device temperature is more than or equal to " + step2Bean.tempThreshold + "℃, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when device temperature is less than " + step2Bean.tempThreshold + "℃";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms when device temperature is more than or equal to " + step2Bean.tempThreshold + "℃, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when device temperature is less than " + step2Bean.tempThreshold + "℃";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms when device temperature is more than or equal to " + step2Bean.tempThreshold + "℃, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when device temperature is less than " + step2Bean.tempThreshold + "℃";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms when device temperature is more than or equal to " + step2Bean.tempThreshold + "℃, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when device temperature is less than " + step2Bean.tempThreshold + "℃";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms when device temperature is less than " + step2Bean.tempThreshold + "℃, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when device temperature is more than or equal to " + step2Bean.tempThreshold + "℃";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms when device temperature is less than " + step2Bean.tempThreshold + "℃, and keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when device temperature is more than or equal to " + step2Bean.tempThreshold + "℃";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms when device temperature is less than " + step2Bean.tempThreshold + "℃, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when device temperature is more than or equal to " + step2Bean.tempThreshold + "℃";
+        } else if (step2Bean.triggerType == 1 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms when device temperature is less than " + step2Bean.tempThreshold + "℃, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when device temperature is more than or equal to " + step2Bean.tempThreshold + "℃";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 0 && !step1Bean.advBeforeTrigger && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will start advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after device humidity is more than or equal to " + step2Bean.humThreshold + "%, and stop advertising immediately after device humidity is less than " + step2Bean.humThreshold + "%";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 0 && !step1Bean.advBeforeTrigger && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising after at the interval of " + step3Bean.advInterval * 100 + "ms device humidity is more than or equal to " + step2Bean.humThreshold + "%, and stop advertising immediately after device humidity is less than " + step2Bean.humThreshold + "%";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 1 && !step1Bean.advBeforeTrigger && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will start advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms after device humidity is less than " + step2Bean.humThreshold + "%, and stop advertising immediately when device humidity is more than or equal to " + step2Bean.humThreshold + "%.";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 1 && !step1Bean.advBeforeTrigger && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms after device humidity is less than " + step2Bean.humThreshold + "%, and stop advertising immediately when device humidity is more than or equal to " + step2Bean.humThreshold + "%.";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms when device humidity is more than or equal to " + step2Bean.humThreshold + "%, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when device humidity is less than " + step2Bean.humThreshold + "%";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms when device humidity is more than or equal to " + step2Bean.humThreshold + "%, and keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when device humidity is less than " + step2Bean.humThreshold + "%";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms when device humidity is more than or equal to " + step2Bean.humThreshold + "%, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when device humidity is less than " + step2Bean.humThreshold + "%";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 0 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms when device humidity is more than or equal to " + step2Bean.humThreshold + "%, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when device humidity is less than " + step2Bean.humThreshold + "%";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms when device humidity is less than " + step2Bean.humThreshold + "%, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when device humidity is more than or equal to " + step2Bean.humThreshold + "%";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration > 0) {
+            tips = "*The Beacon will advertising for " + step3Bean.advDuration + "s at the interval of " + step3Bean.advInterval * 100 + "ms when device humidity is less than " + step2Bean.humThreshold + "%, and keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when device humidity is more than or equal to " + step2Bean.humThreshold + "%";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration > 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms when device humidity is less than " + step2Bean.humThreshold + "%, and advertising for " + step1Bean.advDuration + "s every " + step1Bean.standByDuration + "s at the interval of " + step1Bean.advInterval * 100 + "ms when device humidity is more than or equal to " + step2Bean.humThreshold + "%";
+        } else if (step2Bean.triggerType == 2 && step2Bean.triggerEventSelect == 1 && step1Bean.advBeforeTrigger && step1Bean.standByDuration == 0 && step3Bean.advDuration == 0) {
+            tips = "*The Beacon will keep advertising at the interval of " + step3Bean.advInterval * 100 + "ms when device humidity is less than " + step2Bean.humThreshold + "%, and  keep advertising at the interval of " + step1Bean.advInterval * 100 + "ms when device humidity more than or equal to " + step2Bean.humThreshold + "%";
+        }
+        AlertMessageDialog dialog = new AlertMessageDialog();
+        dialog.setMessage(tips);
+        dialog.setCancelGone();
+        dialog.setConfirm("OK");
+        dialog.setOnAlertConfirmListener(() -> {
+            //返回通道页面
+            Intent intent = new Intent(this, DeviceInfoActivity.class);
+            startActivity(intent);
+            finish();
+        });
+        dialog.show(getSupportFragmentManager());
+    }
+
     private int getSlotIndex(int slotType) {
-        //NO DATA", "UID", "URL", "TLM", "iBeacon", "Sensor info", "T&H
+        //"UID", "URL", "TLM", "iBeacon", "Sensor info", "T&H
         currentFrameType = slotType;
         switch (slotType) {
             case 0x00:
@@ -263,10 +491,11 @@ public class TriggerStep3Activity extends BaseActivity implements SeekBar.OnSeek
     }
 
     private void setSlotParams(int index, byte[] value) {
-        //NO DATA", "UID", "URL", "TLM", "iBeacon", "Sensor info", "T&H
+        //"UID", "URL", "TLM", "iBeacon", "Sensor info", "T&H
         mBind.layoutDeviceName.removeAllViews();
         if (index == 0) {
             //uid
+            mBind.tvAdvContent.setVisibility(View.VISIBLE);
             currentFrameType = 0x00;
             View view = LayoutInflater.from(this).inflate(R.layout.layout_uid, mBind.layoutDeviceName);
             EditText etNameSpace = view.findViewById(R.id.et_namespace);
@@ -283,6 +512,7 @@ public class TriggerStep3Activity extends BaseActivity implements SeekBar.OnSeek
         } else if (index == 1) {
             //url
             currentFrameType = 0x10;
+            mBind.tvAdvContent.setVisibility(View.VISIBLE);
             View view = LayoutInflater.from(this).inflate(R.layout.layout_url, mBind.layoutDeviceName);
             EditText etUrl = view.findViewById(R.id.et_url);
             TextView tvUrlScheme = view.findViewById(R.id.tv_url_scheme);
@@ -308,9 +538,11 @@ public class TriggerStep3Activity extends BaseActivity implements SeekBar.OnSeek
         } else if (index == 2) {
             //tlm
             currentFrameType = 0x20;
+            mBind.tvAdvContent.setVisibility(View.GONE);
         } else if (index == 3) {
             //iBeacon
             currentFrameType = 0x50;
+            mBind.tvAdvContent.setVisibility(View.VISIBLE);
             View view = LayoutInflater.from(this).inflate(R.layout.layout_ibeacon, mBind.layoutDeviceName);
             EditText etMajor = view.findViewById(R.id.et_major);
             EditText etMinor = view.findViewById(R.id.et_minor);
@@ -329,6 +561,7 @@ public class TriggerStep3Activity extends BaseActivity implements SeekBar.OnSeek
             mBind.layoutDeviceName.addView(view);
         } else if (index == 4) {
             currentFrameType = 0x80;
+            mBind.tvAdvContent.setVisibility(View.VISIBLE);
             View view = LayoutInflater.from(this).inflate(R.layout.layout_sensor_info, mBind.layoutDeviceName);
             EditText etDeviceName = view.findViewById(R.id.et_device_name);
             EditText etTagId = view.findViewById(R.id.et_tag_id);
@@ -344,6 +577,7 @@ public class TriggerStep3Activity extends BaseActivity implements SeekBar.OnSeek
             mBind.layoutDeviceName.addView(view);
         } else if (index == 5) {
             currentFrameType = 0x70;
+            mBind.tvAdvContent.setVisibility(View.GONE);
         }
     }
 

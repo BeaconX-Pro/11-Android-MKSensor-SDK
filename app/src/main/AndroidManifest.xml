@@ -31,6 +31,7 @@
         <activity
             android:name=".activity.DeviceInfoActivity"
             android:hardwareAccelerated="true"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
@@ -39,10 +40,6 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".activity.QuickSwitchActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan" />
-        <activity
-            android:name=".activity.PowerSavingConfigActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
@@ -61,13 +58,23 @@
             android:name=".activity.ExportTHDataActivity"
             android:screenOrientation="portrait" />
 
-        <activity android:name=".activity.TriggerStep1Activity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.TriggerStep1Activity"
+            android:screenOrientation="portrait" />
 
-        <activity android:name=".activity.TriggerStep2Activity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.TriggerStep2Activity"
+            android:screenOrientation="portrait" />
 
-        <activity android:name=".activity.TriggerStep3Activity"
+        <activity
+            android:name=".activity.TriggerStep3Activity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.DeviceTypeSelectActivity"
+            android:screenOrientation="portrait" />
+
+        <activity android:name=".activity.ExportHallHistoryDataActivity"
             android:screenOrientation="portrait"/>
 
         <provider

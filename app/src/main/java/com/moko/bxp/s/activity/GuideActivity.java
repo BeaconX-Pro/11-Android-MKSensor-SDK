@@ -11,15 +11,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
+
 import com.elvishew.xlog.XLog;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.dialog.PermissionDialog;
 import com.moko.bxp.s.utils.Utils;
 import com.permissionx.guolindev.PermissionX;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.core.content.ContextCompat;
 
 
 /**
@@ -82,7 +82,7 @@ public class GuideActivity extends BaseActivity {
 
     private void gotoMain() {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            startActivity(new Intent(this, MainActivity.class));
+            startActivity(new Intent(this, DeviceTypeSelectActivity.class));
             finish();
         }, 1000);
     }

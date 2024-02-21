@@ -21,7 +21,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="Unencrypted TLM"
             android:textColor="@color/black_333333"
             android:textSize="14sp"
@@ -36,7 +36,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="Battery voltage"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -45,7 +45,7 @@
             android:id="@+id/tv_vbatt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text=""
             android:textColor="@color/grey_666666"
             android:textSize="12sp" />
@@ -59,7 +59,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="Chip temperature"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -68,7 +68,7 @@
             android:id="@+id/tv_temp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text=""
             android:textColor="@color/grey_666666"
             android:textSize="12sp" />
@@ -82,7 +82,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="ADV count"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -91,7 +91,7 @@
             android:id="@+id/tv_adv_cnt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text=""
             android:textColor="@color/grey_666666"
             android:textSize="12sp" />
@@ -105,7 +105,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="Running time"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -114,7 +114,7 @@
             android:id="@+id/tv_sec_cnt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text=""
             android:textColor="@color/grey_666666"
             android:textSize="12sp" />

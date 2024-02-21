@@ -34,69 +34,217 @@
             android:textSize="17sp" />
     </RelativeLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:background="@drawable/shape_radius_white_bg"
-        android:paddingLeft="25dp"
-        android:paddingTop="10dp"
-        android:paddingRight="25dp"
-        android:paddingBottom="10dp">
+        android:orientation="vertical"
+        android:padding="10dp">
 
         <LinearLayout
-            android:id="@+id/ll_sync"
-            android:layout_width="wrap_content"
+            android:id="@+id/layoutDate"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:onClick="onSync"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/iv_sync"
+            <LinearLayout
+                android:id="@+id/ll_sync"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_sync" />
+                android:onClick="onSync"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/iv_sync"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_sync" />
+
+                <TextView
+                    android:id="@+id/tv_sync"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/iv_sync"
+                    android:text="Sync"
+                    android:textColor="@color/black_333333"
+                    android:textSize="13sp" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/tv_sync"
+                android:id="@+id/tv_empty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/iv_sync"
-                android:text="Sync"
+                android:layout_marginLeft="50dp"
+                android:drawableTop="@drawable/ic_empty"
+                android:onClick="onEmpty"
+                android:text="Erase all"
                 android:textColor="@color/black_333333"
-                android:textSize="13sp" />
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tv_export"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:drawableTop="@drawable/ic_download"
+                android:onClick="onExport"
+                android:text="Export"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_export"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:drawableTop="@drawable/ic_download"
-            android:onClick="onExport"
-            android:text="Export"
-            android:textColor="@color/black_333333"
-            android:textSize="15sp" />
+        <View
+            style="@style/divider_line"
+            android:layout_marginTop="5dp" />
 
-        <TextView
-            android:id="@+id/tv_empty"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:layout_toLeftOf="@id/tv_export"
-            android:drawableTop="@drawable/ic_empty"
-            android:onClick="onEmpty"
-            android:text="Erase all"
-            android:textColor="@color/black_333333"
-            android:textSize="15sp" />
+            android:layout_marginTop="5dp">
+
+            <TextView
+                android:id="@+id/tvStartDateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:text="Start Date:"
+                android:textSize="13sp"
+                android:includeFontPadding="false"
+                android:textColor="@color/black_333333"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvStartDate"
+                android:layout_width="wrap_content"
+                android:minWidth="100dp"
+                android:layout_height="0px"
+                android:layout_marginLeft="2dp"
+                android:paddingRight="2dp"
+                android:background="@drawable/shape_radius3_stroke"
+                android:gravity="center_vertical"
+                android:paddingStart="2dp"
+                android:textColor="@color/black_333333"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/tvStartDateText"
+                app:layout_constraintLeft_toRightOf="@+id/tvStartDateText"
+                app:layout_constraintTop_toTopOf="@+id/tvStartDateText"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:src="@drawable/bxs_calendar"
+                app:layout_constraintBottom_toBottomOf="@+id/tvStartDate"
+                app:layout_constraintLeft_toRightOf="@+id/tvStartDate"
+                app:layout_constraintTop_toTopOf="@+id/tvStartDate" />
+
+            <TextView
+                android:id="@+id/tvEndDateText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:text="End Date:"
+                android:textSize="13sp"
+                android:textColor="@color/black_333333"
+                android:includeFontPadding="false"
+                app:layout_constraintLeft_toLeftOf="@+id/tvStartDateText"
+                app:layout_constraintTop_toBottomOf="@+id/tvStartDateText" />
+
+            <TextView
+                android:id="@+id/tvEndDate"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:textSize="12sp"
+                android:textColor="@color/black_333333"
+                android:gravity="center_vertical"
+                android:paddingStart="2dp"
+                android:background="@drawable/shape_radius3_stroke"
+                app:layout_constraintBottom_toBottomOf="@+id/tvEndDateText"
+                app:layout_constraintLeft_toLeftOf="@+id/tvStartDate"
+                app:layout_constraintRight_toRightOf="@+id/tvStartDate"
+                app:layout_constraintTop_toTopOf="@+id/tvEndDateText" />
+
+            <ImageView
+                android:id="@+id/imgDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="2dp"
+                android:src="@drawable/bxs_calendar"
+                app:layout_constraintBottom_toBottomOf="@+id/tvEndDate"
+                app:layout_constraintLeft_toRightOf="@+id/tvEndDate"
+                app:layout_constraintTop_toTopOf="@+id/tvEndDate" />
+
+            <TextView
+                android:id="@+id/tvCancel"
+                android:layout_width="0px"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/shape_radius_blue_btn_bg"
+                android:gravity="center"
+                android:text="Cancel"
+                android:textColor="@color/white_ffffff"
+                android:textSize="13sp"
+                app:layout_constraintLeft_toLeftOf="@+id/tvEndDateText"
+                app:layout_constraintRight_toLeftOf="@+id/tvStart"
+                app:layout_constraintTop_toBottomOf="@+id/tvEndDate" />
+
+            <TextView
+                android:id="@+id/tvStart"
+                android:layout_width="0px"
+                android:layout_height="30dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/shape_radius_blue_btn_bg"
+                android:gravity="center"
+                android:text="Start"
+                android:textColor="@color/white_ffffff"
+                android:textSize="13sp"
+                app:layout_constraintLeft_toRightOf="@+id/tvCancel"
+                app:layout_constraintRight_toRightOf="@+id/imgDate"
+                app:layout_constraintTop_toBottomOf="@+id/tvEndDate" />
+
+            <TextView
+                android:id="@+id/tvSumRecord"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sum records:N/A"
+                android:textSize="12sp"
+                android:textColor="@color/black_333333"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/tvFilterRecord"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvFilterRecord"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Filtered records:N/A"
+                android:textSize="12sp"
+                android:textColor="@color/black_333333"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvSumRecord" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            style="@style/divider_line"
+            android:layout_marginTop="5dp" />
 
         <LinearLayout
             android:id="@+id/ll_hall_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/ll_sync"
-            android:layout_marginTop="5dp"
             android:orientation="vertical"
             android:visibility="gone"
             tools:visibility="visible">
@@ -119,8 +267,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
                     android:gravity="right"
-                    android:text="Sensor status"
                     android:paddingEnd="20dp"
+                    android:text="Sensor status"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -133,5 +281,5 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_export_hall_data" />
         </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

@@ -7,11 +7,11 @@ import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.entity.AdvIBeacon;
 import com.moko.bxp.s.entity.AdvInfo;
 import com.moko.bxp.s.entity.AdvTLM;
-import com.moko.bxp.s.entity.AdvTag;
+import com.moko.bxp.s.entity.AdvSensorInfo;
 import com.moko.bxp.s.entity.AdvUID;
 import com.moko.bxp.s.entity.AdvURL;
-import com.moko.bxp.s.entity.UrlExpansionEnum;
-import com.moko.bxp.s.entity.UrlSchemeEnum;
+import com.moko.support.s.entity.UrlExpansionEnum;
+import com.moko.support.s.entity.UrlSchemeEnum;
 
 public class AdvInfoParser {
     public static AdvUID getUID(String data) {
@@ -99,7 +99,7 @@ public class AdvInfoParser {
                 distanceDesc = "Far";
             }
             iBeacon.distanceDesc = distanceDesc;
-        }else if (type == AdvInfo.VALID_DATA_TYPE_IBEACON_APPLE){
+        } else if (type == AdvInfo.VALID_DATA_TYPE_IBEACON_APPLE) {
             String uuid = data.substring(4, 36).toLowerCase();
             StringBuilder stringBuilder = new StringBuilder(uuid);
             stringBuilder.insert(8, "-");
@@ -126,17 +126,26 @@ public class AdvInfoParser {
     }
 
     @SuppressLint("DefaultLocale")
-    public static AdvTag getTagInfo(String data) {
-        AdvTag advTag = new AdvTag();
-        advTag.hallStatus = (Integer.parseInt(data.substring(2, 4), 16) & 0x01) == 1 ? "Absent" : "Present";
+    public static AdvSensorInfo getSensorInfo(String data) {
+        AdvSensorInfo advTag = new AdvSensorInfo();
+        advTag.hallStatus = (Integer.parseInt(data.substring(2, 4), 16) & 0x01) == 1 ? "Open" : "Closed";
         advTag.hallTriggerCount = String.valueOf(Integer.parseInt(data.substring(4, 8), 16));
         advTag.isAccEnable = (Integer.parseInt(data.substring(2, 4), 16) & 0x04) == 4;
+        advTag.tempEnable = (Integer.parseInt(data.substring(2, 4), 16) & 0x08) == 8;
+        advTag.humEnable = (Integer.parseInt(data.substring(2, 4), 16) & 16) == 16;
         if (advTag.isAccEnable) {
-            advTag.motionStatus = (Integer.parseInt(data.substring(2, 4), 16) & 0x02) == 2 ? "In progress" : "No Movement";
+            advTag.motionStatus = (Integer.parseInt(data.substring(2, 4), 16) & 0x02) == 2 ? "Moving" : "Stationary";
             advTag.motionTriggerCount = String.valueOf(Integer.parseInt(data.substring(8, 12), 16));
             advTag.accX = String.format("X:%dmg", MokoUtils.toIntSigned(MokoUtils.hex2bytes(data.substring(12, 16))));
             advTag.accY = String.format("Y:%dmg", MokoUtils.toIntSigned(MokoUtils.hex2bytes(data.substring(16, 20))));
             advTag.accZ = String.format("Z:%dmg", MokoUtils.toIntSigned(MokoUtils.hex2bytes(data.substring(20, 24))));
+        }
+        if (advTag.tempEnable) {
+            advTag.temp = MokoUtils.toIntSigned(MokoUtils.hex2bytes(data.substring(24, 28))) / 10.0d + "℃";
+        }
+        if (advTag.humEnable) {
+            //80390000000000000000000000B03A8A0B55000001
+            advTag.hum = MokoUtils.toInt(MokoUtils.hex2bytes(data.substring(28, 32))) / 10.0d + "%RH";
         }
         return advTag;
     }

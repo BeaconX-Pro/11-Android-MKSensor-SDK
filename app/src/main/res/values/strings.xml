@@ -42,4 +42,13 @@
         <item>Buzzer</item>
         <item>LED+Buzzer</item>
     </string-array>
+
+    <string-array name="slot_type">
+        <item>TLM</item>
+        <item>UID</item>
+        <item>URL</item>
+        <item>iBeacon</item>
+        <item>Sensor info</item>
+        <item>No data</item>
+    </string-array>
 </resources>

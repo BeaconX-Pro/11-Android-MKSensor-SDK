@@ -1,4 +1,4 @@
-package com.moko.bxp.s.entity;
+package com.moko.support.s.entity;
 
 
 import java.io.Serializable;

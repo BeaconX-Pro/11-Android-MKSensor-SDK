@@ -108,7 +108,7 @@ public class QuickSwitchActivity extends BaseActivity {
                                 // write
                                 int result = value[4] & 0xFF;
                                 switch (configKeyEnum) {
-                                    case KEY_TRIGGER_LED_STATUS:
+                                    case KEY_TRIGGER_LED_ENABLE:
                                     case KEY_CONNECT_ENABLE:
                                     case KEY_TAG_ID_AUTO_FILL_ENABLE:
                                     case KEY_RESET_BY_BUTTON_ENABLE:
@@ -124,7 +124,7 @@ public class QuickSwitchActivity extends BaseActivity {
                                 // read
                                 int result = value[4] & 0xFF;
                                 switch (configKeyEnum) {
-                                    case KEY_TRIGGER_LED_STATUS:
+                                    case KEY_TRIGGER_LED_ENABLE:
                                         this.enableLedIndicator = result == 1;
                                         setStatus(enableLedIndicator, mBind.ivTriggerLed, mBind.tvTriggerLed);
                                         break;

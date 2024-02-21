@@ -30,7 +30,6 @@ import com.moko.bxp.s.BuildConfig;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.adapter.DeviceListAdapter;
 import com.moko.bxp.s.databinding.ActivityMainBinding;
-import com.moko.bxp.s.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.LoadingDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.dialog.PasswordDialog;
@@ -55,7 +54,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MainActivity extends BaseActivity implements MokoScanDeviceCallback, BaseQuickAdapter.OnItemChildClickListener {
@@ -70,6 +68,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
     private AdvInfoAnalysisImpl advInfoAnalysisImpl;
     public static String PATH_LOGCAT;
     private boolean enablePwd;
+    private int flag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +88,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
             PATH_LOGCAT = getFilesDir().getAbsolutePath() + File.separator + (BuildConfig.IS_LIBRARY ? "mokoBeaconXPro" : "BXP_S");
         }
         MokoSupport.getInstance().init(getApplicationContext());
+        flag = getIntent().getIntExtra("flag", 1);
         advInfoHashMap = new ConcurrentHashMap<>();
         advInfoList = new ArrayList<>();
         adapter = new DeviceListAdapter();
@@ -155,9 +155,9 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
                 if (isPasswordError) {
                     isPasswordError = false;
                 } else {
-                    if (disconnectType == 1){
+                    if (disconnectType == 1) {
                         disconnectType = 0;
-                    }else {
+                    } else {
                         ToastUtils.showToast(this, "Connection failed");
                     }
                 }
@@ -236,7 +236,6 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
                     disconnectType = value[4] & 0xff;
                     if (disconnectType == 1) {
                         //密码验证超时
-                        XLog.i("333333*******************type="+disconnectType);
                         if (null != dialog && dialog.isAdded() && dialog.isVisible())
                             dialog.dismiss();
                         ToastUtils.showToast(this, "Password entry timed out！");
@@ -301,18 +300,34 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
 
     private void updateDevices() {
         advInfoList.clear();
-        if (!TextUtils.isEmpty(filterMac) || filterRssi != -100) {
+        if (!TextUtils.isEmpty(filterName) || !TextUtils.isEmpty(filterMac) || filterRssi != -100 || !TextUtils.isEmpty(filterTagId)) {
             ArrayList<AdvInfo> advInfoListFilter = new ArrayList<>(advInfoHashMap.values());
             Iterator<AdvInfo> iterator = advInfoListFilter.iterator();
             while (iterator.hasNext()) {
                 AdvInfo advInfo = iterator.next();
                 if (advInfo.rssi > filterRssi) {
-                    if (!TextUtils.isEmpty(filterMac) && TextUtils.isEmpty(advInfo.mac)) {
-                        iterator.remove();
-                    } else if (!TextUtils.isEmpty(filterMac) && advInfo.mac.toLowerCase().replaceAll(":", "").contains(filterMac.toLowerCase())) {
+                    if (TextUtils.isEmpty(filterName) && TextUtils.isEmpty(filterMac) && TextUtils.isEmpty(filterTagId)) {
                         continue;
-                    } else if (!TextUtils.isEmpty(filterMac) && !advInfo.mac.toLowerCase().replaceAll(":", "").contains(filterMac.toLowerCase(Locale.ROOT))) {
-                        iterator.remove();
+                    } else {
+                        if (!TextUtils.isEmpty(filterName) && TextUtils.isEmpty(advInfo.name)) {
+                            iterator.remove();
+                        } else if (!TextUtils.isEmpty(filterName) && advInfo.name.toLowerCase().contains(filterName.toLowerCase())) {
+                            continue;
+                        } else if (!TextUtils.isEmpty(filterMac) && TextUtils.isEmpty(advInfo.mac)) {
+                            iterator.remove();
+                        } else if (!TextUtils.isEmpty(filterMac) && advInfo.mac.toLowerCase().replaceAll(":", "").contains(filterMac.toLowerCase())) {
+                            continue;
+                        } else if (!TextUtils.isEmpty(filterTagId) && TextUtils.isEmpty(advInfo.tagId)) {
+                            iterator.remove();
+                        } else if (!TextUtils.isEmpty(filterTagId) && advInfo.tagId.contains(filterTagId)) {
+                            continue;
+                        }
+//                        else if (!TextUtils.isEmpty(filterTagId) && null != validData && !TextUtils.isEmpty(validData.data.substring(36))&& !validData.data.substring(36).contains(filterTagId)){
+//                            iterator.remove();
+//                        }
+                        else {
+                            iterator.remove();
+                        }
                     }
                 } else {
                     iterator.remove();
@@ -335,6 +350,8 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
 
     private Animation animation = null;
     public String filterMac;
+    public String filterName;
+    public String filterTagId;
     public int filterRssi = -100;
 
     private void startScan() {
@@ -345,7 +362,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
         }
         animation = AnimationUtils.loadAnimation(this, R.anim.rotate_refresh);
         mBind.ivRefresh.startAnimation(animation);
-        advInfoAnalysisImpl = new AdvInfoAnalysisImpl();
+        advInfoAnalysisImpl = new AdvInfoAnalysisImpl(flag);
         mokoBleScanner.startScanDevice(this);
     }
 
@@ -451,7 +468,9 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
         ScanFilterDialog scanFilterDialog = new ScanFilterDialog(this);
         scanFilterDialog.setFilterMac(filterMac);
         scanFilterDialog.setFilterRssi(filterRssi);
-        scanFilterDialog.setOnScanFilterListener((filterMac, filterRssi) -> {
+        scanFilterDialog.setFilterName(filterName);
+        scanFilterDialog.setFilterTagId(filterTagId);
+        scanFilterDialog.setOnScanFilterListener((filterName, filterMac, filterRssi, filterTagId) -> {
             MainActivity.this.filterMac = filterMac;
             String showFilterMac;
             if (filterMac.length() == 12) {
@@ -466,17 +485,23 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
                 showFilterMac = filterMac;
             }
             MainActivity.this.filterRssi = filterRssi;
-            if (!TextUtils.isEmpty(showFilterMac) || filterRssi != -100) {
+            MainActivity.this.filterName = filterName;
+            MainActivity.this.filterTagId = filterTagId;
+            if (!TextUtils.isEmpty(showFilterMac) || filterRssi != -100 || !TextUtils.isEmpty(filterName) || !TextUtils.isEmpty(filterTagId)) {
                 mBind.rlFilter.setVisibility(View.VISIBLE);
                 mBind.rlEditFilter.setVisibility(View.GONE);
                 StringBuilder stringBuilder = new StringBuilder();
+                if (!TextUtils.isEmpty(filterName)) {
+                    stringBuilder.append(filterName).append(";");
+                }
                 if (!TextUtils.isEmpty(showFilterMac)) {
-                    stringBuilder.append(showFilterMac);
-                    stringBuilder.append(";");
+                    stringBuilder.append(showFilterMac).append(";");
+                }
+                if (!TextUtils.isEmpty(filterTagId)) {
+                    stringBuilder.append(filterTagId).append(";");
                 }
                 if (filterRssi != -100) {
-                    stringBuilder.append(String.format("%sdBm", filterRssi + ""));
-                    stringBuilder.append(";");
+                    stringBuilder.append(String.format("%sdBm", filterRssi + "")).append(";");
                 }
                 mBind.tvFilter.setText(stringBuilder.toString());
             } else {
@@ -498,14 +523,14 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
             mHandler.removeMessages(0);
             mokoBleScanner.stopScanDevice();
         }
-        if (BuildConfig.IS_LIBRARY) {
-            finish();
-        } else {
-            AlertMessageDialog dialog = new AlertMessageDialog();
-            dialog.setMessage(R.string.main_exit_tips);
-            dialog.setOnAlertConfirmListener(this::finish);
-            dialog.show(getSupportFragmentManager());
-        }
+//        if (BuildConfig.IS_LIBRARY) {
+        finish();
+//        } else {
+//            AlertMessageDialog dialog = new AlertMessageDialog();
+//            dialog.setMessage(R.string.main_exit_tips);
+//            dialog.setOnAlertConfirmListener(this::finish);
+//            dialog.show(getSupportFragmentManager());
+//        }
     }
 
     public void onRefresh(View view) {
@@ -532,6 +557,8 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
         mBind.rlFilter.setVisibility(View.GONE);
         mBind.rlEditFilter.setVisibility(View.VISIBLE);
         filterMac = "";
+        filterName = "";
+        filterTagId = "";
         filterRssi = -100;
         if (isWindowLocked()) return;
         if (animation == null) startScan();

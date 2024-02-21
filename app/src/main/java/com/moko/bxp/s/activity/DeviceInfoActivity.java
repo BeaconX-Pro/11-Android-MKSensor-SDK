@@ -73,6 +73,8 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
     public boolean isSupportTH;
     private boolean isHallPowerEnable;
     private byte[] deviceTypeBytes;
+    private boolean isC112;
+    private boolean enablePwd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +82,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         mBind = ActivityDeviceInfoBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         fragmentManager = getSupportFragmentManager();
+        enablePwd = getIntent().getBooleanExtra("pwdEnable", false);
         initFragment();
         mBind.rgOptions.setOnCheckedChangeListener(this);
         EventBus.getDefault().register(this);
@@ -92,7 +95,22 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
             // 蓝牙未打开，开启蓝牙
             MokoSupport.getInstance().enableBluetooth();
         }
-        boolean enablePwd = getIntent().getBooleanExtra("pwdEnable", false);
+        showSyncingProgressDialog();
+        List<OrderTask> orderTasks = new ArrayList<>(8);
+//        orderTasks.add(OrderTaskAssembler.setHallPowerEnable(0));
+        orderTasks.add(OrderTaskAssembler.getAllSlotAdvType());
+        orderTasks.add(OrderTaskAssembler.getSlotTriggerType(0));
+        orderTasks.add(OrderTaskAssembler.getSlotTriggerType(1));
+        orderTasks.add(OrderTaskAssembler.getSlotTriggerType(2));
+        orderTasks.add(OrderTaskAssembler.getSensorType());
+        orderTasks.add(OrderTaskAssembler.getDeviceType());
+        orderTasks.add(OrderTaskAssembler.getHallPowerEnable());
+        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         showSyncingProgressDialog();
         List<OrderTask> orderTasks = new ArrayList<>(8);
         orderTasks.add(OrderTaskAssembler.getAllSlotAdvType());
@@ -100,11 +118,9 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         orderTasks.add(OrderTaskAssembler.getSlotTriggerType(1));
         orderTasks.add(OrderTaskAssembler.getSlotTriggerType(2));
         orderTasks.add(OrderTaskAssembler.getSensorType());
+        orderTasks.add(OrderTaskAssembler.getDeviceType());
         orderTasks.add(OrderTaskAssembler.getHallPowerEnable());
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
-        //连接时候不需要密码
-        settingFragment.setModifyPasswordShown(enablePwd);
-        settingFragment.setResetVisibility(enablePwd);
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 100)
@@ -229,17 +245,6 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                                 // write
                                 int result = value[4] & 0xFF;
                                 switch (configKeyEnum) {
-                                    case KEY_NORMAL_ADV_PARAMS:
-                                        isAdvParamsSuc = result == 0xAA;
-                                        break;
-                                    case KEY_BUTTON_TRIGGER_PARAMS:
-                                        if (isAdvParamsSuc && result == 0xAA) {
-                                            ToastUtils.showToast(this, "Success");
-                                        } else {
-                                            ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
-                                        }
-                                        break;
-
                                     case KEY_ADV_MODE:
                                         if (result == 0xAA) {
                                             ToastUtils.showToast(this, "Success");
@@ -314,6 +319,27 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                                             settingFragment.setAdvMode(value[4] & 0xff);
                                         }
                                         break;
+
+                                    case KEY_DEVICE_TYPE:
+                                        if (length == 2) {
+                                            isC112 = (value[4] & 0xff) == 0x23;
+                                            slotFragment.setC112(isC112);
+                                        }
+                                        break;
+
+                                    case KEY_SLOT_ADV_PARAMS:
+                                        if (length > 1) {
+                                            byte[] rawDataBytes = Arrays.copyOfRange(value, 4, 4 + length);
+                                            slotFragment.setSlotParams(rawDataBytes);
+                                        }
+                                        break;
+
+                                    case KEY_SLOT_PARAMS_BEFORE:
+                                        if (length == 9) {
+                                            byte[] rawDataBytes = Arrays.copyOfRange(value, 4, 4 + length);
+                                            slotFragment.setSlotAdvParams(rawDataBytes, isC112);
+                                        }
+                                        break;
                                 }
                             }
                         }
@@ -355,6 +381,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         showSyncingProgressDialog();
         ArrayList<OrderTask> orderTasks = new ArrayList<>(8);
         orderTasks.add(OrderTaskAssembler.getBattery());
+        orderTasks.add(OrderTaskAssembler.getDeviceMac());
         orderTasks.add(OrderTaskAssembler.getDeviceModel());
         orderTasks.add(OrderTaskAssembler.getSoftwareVersion());
         orderTasks.add(OrderTaskAssembler.getFirmwareVersion());
@@ -413,6 +440,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
     });
 
     private final ActivityResultLauncher<String> chooseLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), result -> {
+        if (null == result) return;
         String firmwareFilePath = FileUtils.getPath(this, result);
         if (TextUtils.isEmpty(firmwareFilePath)) return;
         final File firmwareFile = new File(firmwareFilePath);
@@ -496,6 +524,8 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                     .commit();
         }
         mBind.tvTitle.setText("SETTING");
+        settingFragment.setModifyPasswordShown(enablePwd);
+        settingFragment.setResetVisibility(enablePwd);
     }
 
     private void showDeviceFragment() {

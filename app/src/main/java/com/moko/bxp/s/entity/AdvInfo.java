@@ -9,7 +9,7 @@ public class AdvInfo implements Serializable {
     public static final int VALID_DATA_FRAME_TYPE_TLM = 0x20;
     public static final int VALID_DATA_FRAME_TYPE_IBEACON = 0x50;
     public static final int VALID_DATA_TYPE_IBEACON_APPLE = 0x02;
-    public static final int VALID_DATA_FRAME_TYPE_TAG_INFO = 0x80;
+    public static final int VALID_DATA_FRAME_TYPE_SENSOR_INFO = 0x80;
     public static final int VALID_DATA_FRAME_TYPE_TH_INFO = 0x70;
     public static final int VALID_DATA_FRAME_TYPE_PRODUCTION_TEST = 0x90;
 
@@ -24,6 +24,7 @@ public class AdvInfo implements Serializable {
     public int txPower;
     public int rangingData;
     public int connectState;
+    public String tagId;
     public HashMap<String, ValidData> validDataHashMap;
     public static class ValidData {
         public int type;

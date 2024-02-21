@@ -18,8 +18,11 @@ import no.nordicsemi.android.support.v18.scanner.ScanResult;
 
 public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
     private final HashMap<String, AdvInfo> beaconXInfoHashMap;
+    //1 所有的 2 sensorInfo广播帧切有温湿度贴片 3 sensorInfo广播帧切只有温度贴片
+    private final int flag;
 
-    public AdvInfoAnalysisImpl() {
+    public AdvInfoAnalysisImpl(int flag) {
+        this.flag = flag;
         this.beaconXInfoHashMap = new HashMap<>();
     }
 
@@ -27,10 +30,11 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
     public AdvInfo parseDeviceInfo(DeviceInfo deviceInfo) {
         int battery = -1;
         boolean isEddystone = false;
-        boolean isTagInfo = false;
+        boolean isSensorInfo = false;
         boolean isProductTest = false;
         boolean isBeacon = false;
         byte[] values = null;
+        String tagId = null;
         int type = -1;
         ScanResult result = deviceInfo.scanResult;
         ScanRecord record = result.getScanRecord();
@@ -38,6 +42,7 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
         Map<ParcelUuid, byte[]> map = record.getServiceData();
         byte[] manufacturerBytes = record.getManufacturerSpecificData(0x004C);
         if (null != manufacturerBytes && manufacturerBytes.length == 23) {
+            if (flag == 2 || flag == 3) return null;
             isBeacon = true;
             type = AdvInfo.VALID_DATA_TYPE_IBEACON_APPLE;
             values = manufacturerBytes;
@@ -45,6 +50,7 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
         if (map != null && !map.isEmpty()) {
             for (ParcelUuid parcelUuid : map.keySet()) {
                 if (parcelUuid.toString().startsWith("0000feaa")) {
+                    if (flag == 2 || flag == 3) return null;
                     isEddystone = true;
                     byte[] bytes = map.get(parcelUuid);
                     if (bytes != null) {
@@ -66,7 +72,8 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
                     values = bytes;
                     break;
                 } else if (parcelUuid.toString().startsWith("0000feab")) {
-                    isTagInfo = true;
+                    if (flag == 2 || flag == 3) return null;
+                    isSensorInfo = true;
                     byte[] bytes = map.get(parcelUuid);
                     if (bytes != null) {
                         if ((bytes[0] & 0xff) == AdvInfo.VALID_DATA_FRAME_TYPE_IBEACON) {
@@ -80,18 +87,30 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
                     values = bytes;
                     break;
                 } else if (parcelUuid.toString().startsWith("0000ea01")) {
-                    isTagInfo = true;
+                    isSensorInfo = true;
                     byte[] bytes = map.get(parcelUuid);
                     if (bytes != null) {
-                        if ((bytes[0] & 0xff) == AdvInfo.VALID_DATA_FRAME_TYPE_TAG_INFO) {
+                        if ((bytes[0] & 0xff) == AdvInfo.VALID_DATA_FRAME_TYPE_SENSOR_INFO) {
                             if (bytes.length < 19) return null;
-                            type = AdvInfo.VALID_DATA_FRAME_TYPE_TAG_INFO;
+                            //传感器状态
+                            int sensorStatus = bytes[1] & 0xff;
+                            int tempStatus = sensorStatus >> 3 & 0x01;
+                            int humStatus = sensorStatus >> 4 & 0x01;
+                            if (flag == 2) {
+                                if (tempStatus != 1 || humStatus != 1) return null;
+                            } else if (flag == 3) {
+                                //只有温度贴片
+                                if (tempStatus != 1 || humStatus != 0) return null;
+                            }
+                            type = AdvInfo.VALID_DATA_FRAME_TYPE_SENSOR_INFO;
                             battery = MokoUtils.toInt(Arrays.copyOfRange(bytes, 16, 18));
+                            tagId = MokoUtils.bytesToHexString(Arrays.copyOfRange(bytes,18,bytes.length));
                         }
                     }
                     values = bytes;
                     break;
                 } else if (parcelUuid.toString().startsWith("0000eb01")) {
+                    if (flag == 2 || flag == 3) return null;
                     isProductTest = true;
                     byte[] bytes = map.get(parcelUuid);
                     if (bytes != null) {
@@ -103,10 +122,10 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
                         }
                     }
                     break;
-                }
+                }else return null;
             }
         }
-        if ((!isEddystone && !isTagInfo && !isProductTest && !isBeacon) || values == null || type == -1) {
+        if ((!isEddystone && !isSensorInfo && !isProductTest && !isBeacon) || values == null || type == -1) {
             return null;
         }
         AdvInfo advInfo;
@@ -118,6 +137,7 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
             if (battery >= 0) advInfo.battery = battery;
             if (result.isConnectable()) advInfo.connectState = 1;
             advInfo.scanRecord = deviceInfo.scanRecord;
+            advInfo.tagId = tagId;
             long currentTime = SystemClock.elapsedRealtime();
             advInfo.intervalTime = currentTime - advInfo.scanTime;
             advInfo.scanTime = currentTime;
@@ -127,6 +147,7 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
             advInfo.mac = deviceInfo.mac;
             advInfo.rssi = deviceInfo.rssi;
             advInfo.battery = battery;
+            advInfo.tagId = tagId;
             if (result.isConnectable()) {
                 advInfo.connectState = 1;
             } else {
@@ -150,7 +171,7 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
                 advInfo.validDataHashMap.put(String.valueOf(type), validData);
                 return advInfo;
             }
-            if (type == AdvInfo.VALID_DATA_FRAME_TYPE_TAG_INFO) {
+            if (type == AdvInfo.VALID_DATA_FRAME_TYPE_SENSOR_INFO) {
                 advInfo.validDataHashMap.put(String.valueOf(type), validData);
                 return advInfo;
             }

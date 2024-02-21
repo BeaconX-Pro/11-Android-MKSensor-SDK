@@ -25,4 +25,17 @@ public class SlotAdvType {
         }
         return "No data";
     }
+
+    public static final int UID = 0x00;
+    public static final int URL = 0x10;
+    public static final int TLM = 0x20;
+    public static final int I_BEACON = 0x50;
+    public static final int TH = 0x70;
+    public static final int SENSOR_INFO = 0x80;
+    public static final int NO_DATA = 0xFF;
+    public static final int NO_TRIGGER = 0x00;
+    public static final int TEMP_TRIGGER = 0x01;
+    public static final int HUM_TRIGGER = 0x02;
+    public static final int MOTION_TRIGGER = 0x03;
+    public static final int HALL_TRIGGER = 0x04;
 }

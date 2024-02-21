@@ -11,7 +11,7 @@ android {
         if (!isLibrary.toBoolean()) {
             applicationId "com.moko.bxp.s"
         }
-        minSdkVersion 18
+        minSdkVersion 21
         targetSdkVersion 31
         versionCode 100
         versionName "1.0.0"
@@ -53,7 +53,13 @@ android {
         disable 'SetTextI18n'
         checkReleaseBuilds false
     }
-    
+
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+
     sourceSets {
         main {
             if (!isLibrary.toBoolean()) {
@@ -98,6 +104,8 @@ dependencies {
     implementation 'com.github.GrenderG:Toasty:1.4.1'
     implementation 'cn.carbswang.android:NumberPickerView:1.1.1'
     implementation 'com.guolindev.permissionx:permissionx:1.7.1'
+    implementation(name: 'pickerview', ext: 'aar')
+    implementation(name: 'wheelview', ext: 'aar')
     if (!isLibrary.toBoolean()) {
         implementation project(path: ':mokosupport')
     } else {

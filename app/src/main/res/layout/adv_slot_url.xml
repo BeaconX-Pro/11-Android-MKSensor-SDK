@@ -21,7 +21,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="URL"
             android:textColor="@color/black_333333"
             android:textSize="14sp"
@@ -36,7 +36,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="RSSI@0m"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -45,7 +45,7 @@
             android:id="@+id/tv_rssi_0m"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text="0dBm"
             android:textColor="@color/grey_666666"
             android:textSize="12sp" />
@@ -59,7 +59,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="URL link"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -68,7 +68,7 @@
             android:id="@+id/tv_url"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text=""
             android:textColor="@color/blue_2f84d0"
             android:textSize="12sp" />

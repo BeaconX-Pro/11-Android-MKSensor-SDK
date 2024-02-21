@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/slot_item_bg"
+        android:orientation="vertical"
+        android:paddingLeft="25dp"
+        android:paddingTop="10dp"
+        android:paddingRight="25dp"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/adv_content"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:text="Adv content"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Namespace ID"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="0x"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/et_namespace"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:digits="0123456789abcdefABCDEF"
+                android:hint="10bytes"
+                android:maxLength="20"
+                android:singleLine="true"
+                android:textColor="@color/black_333333"
+                android:textColorHint="@color/grey_ebebeb"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Instance ID"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="0x"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/et_instance_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:digits="0123456789abcdefABCDEF"
+                android:hint="6bytes"
+                android:maxLength="12"
+                android:singleLine="true"
+                android:textColor="@color/black_333333"
+                android:textColorHint="@color/grey_ebebeb"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/slot_item_bg"
+        android:orientation="vertical"
+        android:paddingLeft="25dp"
+        android:paddingTop="10dp"
+        android:paddingRight="25dp"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/base_params"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:text="Parameters"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvLowPowerMode"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Low-power mode"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/ivLowPowerMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_checked" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/adv_interval"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Adv interval"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/adv_interval_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dp"
+                android:text="x100ms"
+                android:textColor="@color/black_333333"
+                android:textSize="12sp" />
+
+            <EditText
+                android:id="@+id/et_adv_interval"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_toLeftOf="@id/adv_interval_unit"
+                android:gravity="center"
+                android:hint="1~100"
+                android:inputType="number"
+                android:maxLength="3"
+                android:singleLine="true"
+                android:text=""
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layoutAdvDuration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/adv_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Adv duration"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/adv_duration_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dp"
+                android:text="s"
+                android:textColor="@color/black_333333"
+                android:textSize="12sp" />
+
+            <EditText
+                android:id="@+id/et_adv_duration"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_toLeftOf="@id/adv_duration_unit"
+                android:gravity="center"
+                android:hint="1~65535"
+                android:inputType="number"
+                android:maxLength="5"
+                android:singleLine="true"
+                android:text=""
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layoutStandDuration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/standby_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Standby duration"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/standby_duration_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="5dp"
+                android:text="s"
+                android:textColor="@color/black_333333"
+                android:textSize="12sp" />
+
+            <EditText
+                android:id="@+id/et_standby_duration"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:layout_toLeftOf="@id/standby_duration_unit"
+                android:gravity="center"
+                android:hint="1~65535"
+                android:inputType="number"
+                android:maxLength="5"
+                android:singleLine="true"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/adv_tx_power"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RSSI@0m"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/adv_tx_power"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/adv_tx_power"
+                android:text="(-100dBm~0dBm)"
+                android:textColor="@color/grey_b3b3b3"
+                android:textSize="12sp" />
+
+            <SeekBar
+                android:id="@+id/sb_rssi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/adv_tx_power"
+                android:layout_marginTop="10dp"
+                android:layout_toLeftOf="@+id/tvRssi"
+                android:max="100"
+                android:progress="0" />
+
+            <TextView
+                android:id="@id/tvRssi"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/adv_tx_power"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="15dp"
+                android:gravity="right"
+                android:text="0dbm"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/tx_power"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tx power"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvTxPowerTips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/tx_power"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/tx_power"
+                android:text="(-20, -16, -12, -8, -4, 0, +3, +4, +6)"
+                android:textColor="@color/grey_b3b3b3"
+                android:textSize="12sp" />
+
+            <SeekBar
+                android:id="@+id/sb_tx_power"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tx_power"
+                android:layout_marginTop="10dp"
+                android:layout_toLeftOf="@+id/tv_tx_power"
+                android:max="8"
+                android:progress="0" />
+
+            <TextView
+                android:id="@id/tv_tx_power"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tx_power"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="15dp"
+                android:gravity="right"
+                android:text="0dBm"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_ffffff"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="@color/blue_2f84d0"
+        android:gravity="center"
+        android:text="DEVICE TYPE"
+        android:textColor="@color/white_ffffff"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutCommon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="20dp">
+
+        <TextView
+            android:id="@+id/tvCommon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="25dp"
+            android:includeFontPadding="false"
+            android:text="Common Device"
+            android:textColor="@color/black_333333"
+            android:textSize="22sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/ivCommon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/bxs_options_common"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvCommon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="(BXP-S series)"
+            android:textColor="@color/grey_a6a6a6"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/ivCommon"
+            app:layout_constraintLeft_toRightOf="@+id/ivCommon"
+            app:layout_constraintTop_toTopOf="@+id/ivCommon" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        style="@style/divider_line"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutTH"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="20dp">
+
+        <TextView
+            android:id="@+id/tvTH"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="25dp"
+            android:includeFontPadding="false"
+            android:text="Temperature&amp;Humidity Sensor"
+            android:textColor="@color/black_333333"
+            android:textSize="22sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/ivTH"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/bxs_options_temperature_humidity"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTH" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="(M4 Sensor| M2 Sensor| L01| L01A| L02| L02A)"
+            android:textColor="@color/grey_a6a6a6"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/ivTH"
+            app:layout_constraintLeft_toRightOf="@+id/ivTH"
+            app:layout_constraintTop_toTopOf="@+id/ivTH" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        style="@style/divider_line"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutHum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="20dp">
+
+        <TextView
+            android:id="@+id/tvHum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="25dp"
+            android:includeFontPadding="false"
+            android:text="Temperature Sensor"
+            android:textColor="@color/black_333333"
+            android:textSize="22sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/ivHum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/bxs_options_temperature"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvHum" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="(M4 Sensor| M2 Sensor| L01| L01A| L02| L02A)"
+            android:textColor="@color/grey_a6a6a6"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="@+id/ivHum"
+            app:layout_constraintLeft_toRightOf="@+id/ivHum"
+            app:layout_constraintTop_toTopOf="@+id/ivHum" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

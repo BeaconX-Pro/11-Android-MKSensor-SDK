@@ -21,7 +21,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="iBeacon"
             android:textColor="@color/black_333333"
             android:textSize="14sp"
@@ -36,7 +36,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="UUID"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -45,7 +45,7 @@
             android:id="@+id/tv_uuid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text=""
             android:textColor="@color/grey_666666"
             android:textSize="12sp" />
@@ -59,7 +59,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="Major"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -68,7 +68,7 @@
             android:id="@+id/tv_major"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text=""
             android:textColor="@color/grey_666666"
             android:textSize="12sp" />
@@ -82,7 +82,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="Minor"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -91,7 +91,7 @@
             android:id="@+id/tv_minor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text=""
             android:textColor="@color/grey_666666"
             android:textSize="12sp" />
@@ -105,7 +105,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="RSSI@1m"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -114,7 +114,7 @@
             android:id="@+id/tv_rssi_1m"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text=""
             android:textColor="@color/grey_666666"
             android:textSize="12sp" />
@@ -128,7 +128,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="Proximity state"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -137,7 +137,7 @@
             android:id="@+id/tv_proximity_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text=""
             android:textColor="@color/grey_666666"
             android:textSize="12sp" />
@@ -151,7 +151,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="15dp"
             android:text="Tx power"
             android:textColor="@color/grey_999999"
             android:textSize="12sp" />
@@ -160,7 +160,7 @@
             android:id="@+id/tv_tx_power"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="170dp"
+            android:layout_marginLeft="160dp"
             android:text=""
             android:textColor="@color/grey_666666"
             android:textSize="12sp" />

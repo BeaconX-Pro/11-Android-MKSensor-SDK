@@ -68,7 +68,6 @@ public class HallSensorConfigActivity extends BaseActivity {
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         }
         setListener();
-        MokoSupport.getInstance().enableHallStatusNotify();
     }
 
     private void setListener() {
@@ -86,6 +85,7 @@ public class HallSensorConfigActivity extends BaseActivity {
             orderTasks.add(OrderTaskAssembler.getCurrentTime());
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
         });
+        mBind.tvExportData.setOnClickListener(v -> startActivity(new Intent(this, ExportHallHistoryDataActivity.class)));
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
@@ -167,6 +167,7 @@ public class HallSensorConfigActivity extends BaseActivity {
                                         int time = MokoUtils.toInt(Arrays.copyOfRange(value, 4, 4 + length));
                                         mBind.tvUpdateDate.setText(sdf.format(time * 1000L));
                                     }
+                                    MokoSupport.getInstance().enableHallStatusNotify();
                                     break;
                             }
                         }

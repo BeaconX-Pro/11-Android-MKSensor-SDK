@@ -1,5 +1,6 @@
 package com.moko.bxp.s.activity;
 
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -9,10 +10,19 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 
+import androidx.core.content.ContextCompat;
+
+import com.bigkoo.pickerview.builder.TimePickerBuilder;
+import com.bigkoo.pickerview.listener.OnTimeSelectListener;
+import com.bigkoo.pickerview.view.TimePickerView;
 import com.elvishew.xlog.XLog;
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
@@ -44,6 +54,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -63,6 +74,9 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
     private final List<HallHistoryBean> hallStoreData = new ArrayList<>();
     private HistoryHallDataAdapter mAdapter;
     private final SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.PATTERN_YYYY_MM_DD_HH_MM_SS, Locale.getDefault());
+    private Date startDate;
+    private Date endDate;
+    private final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,9 +100,61 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
             // 蓝牙未打开，开启蓝牙
             MokoSupport.getInstance().enableBluetooth();
         }
+        mBind.tvStartDate.setOnClickListener(v -> onSelectTimeClick(1));
+        mBind.tvEndDate.setOnClickListener(v -> onSelectTimeClick(2));
     }
 
-    @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
+    private void onSelectTimeClick(int flag) {
+        Calendar startDate = Calendar.getInstance();
+        Calendar endDate = Calendar.getInstance();
+
+        //正确设置方式 原因：注意事项有说明
+        startDate.set(2024, 0, 1);
+//        endDate.set(2024, 1, 29);
+
+
+        TimePickerView pickerView = new TimePickerBuilder(this, (date, view) -> {
+            if (flag == 1){
+                this.startDate = date;
+                mBind.tvStartDate.setText(sdfDate.format(date));
+            }else if (flag == 2){
+                this.endDate = date;
+                mBind.tvEndDate.setText(sdfDate.format(date));
+            }
+        }).setType(new boolean[]{true, true, true, true, true, true})
+                .setCancelText("Cancel")
+                .setSubmitText("Confirm")
+                .setContentTextSize(16)
+                .setTitleSize(18)
+                .setOutSideCancelable(false)
+                .isCyclic(false)
+                .setSubmitColor(ContextCompat.getColor(this, R.color.blue_2f84d0))
+                .setCancelColor(ContextCompat.getColor(this, R.color.blue_2f84d0))
+                .setRangDate(startDate, endDate)
+                .setLabel("", "", "", "", "", "")
+                .isCenterLabel(true)
+                .isDialog(true)
+                .build();
+        Dialog mDialog = pickerView.getDialog();
+        if (mDialog != null) {
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    Gravity.BOTTOM);
+            params.leftMargin = 0;
+            params.rightMargin = 0;
+            pickerView.getDialogContainerLayout().setLayoutParams(params);
+            Window dialogWindow = mDialog.getWindow();
+            if (dialogWindow != null) {
+                dialogWindow.setWindowAnimations(com.bigkoo.pickerview.R.style.picker_view_slide_anim);//修改动画样式
+                dialogWindow.setGravity(Gravity.BOTTOM);//改成Bottom,底部显示
+                dialogWindow.setDimAmount(0.3f);
+            }
+        }
+        pickerView.show();
+    }
+
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 400)
     public void onConnectStatusEvent(ConnectStatusEvent event) {
         final String action = event.getAction();
         runOnUiThread(() -> {
@@ -99,7 +165,7 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
         });
     }
 
-    @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 400)
     public void onOrderTaskResponseEvent(OrderTaskResponseEvent event) {
         EventBus.getDefault().cancelEventDelivery(event);
         final String action = event.getAction();
@@ -108,9 +174,6 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
                 dismissSyncProgressDialog();
                 ToastUtils.showToast(this, "time out");
             }
-            if (MokoConstants.ACTION_ORDER_FINISH.equals(action)) {
-                dismissSyncProgressDialog();
-            }
             if (MokoConstants.ACTION_ORDER_RESULT.equals(action)) {
                 OrderTaskResponse response = event.getResponse();
                 OrderCHAR orderCHAR = (OrderCHAR) response.orderCHAR;
@@ -118,14 +181,21 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
                 if (orderCHAR == OrderCHAR.CHAR_PARAMS) {
                     if (value.length >= 4) {
                         int header = value[0] & 0xff;
+                        int flag = value[1] & 0xff;
                         int key = value[2] & 0xff;
                         ParamsKeyEnum configKeyEnum = ParamsKeyEnum.fromParamKey(key);
-                        if (configKeyEnum == ParamsKeyEnum.KEY_HALL_HISTORY_DATA && header == 0xEC) {
-                            int length = MokoUtils.toInt(Arrays.copyOfRange(value, 3, 5));
-                            mBind.ivSync.clearAnimation();
-                            mBind.tvSync.setText("Sync");
+                        if (configKeyEnum == ParamsKeyEnum.KEY_HALL_HISTORY_DATA && header == 0xEC && flag == 0) {
+                            int totalPackage = MokoUtils.toInt(Arrays.copyOfRange(value, 3, 5));
+                            int packageIndex = MokoUtils.toInt(Arrays.copyOfRange(value, 5, 7));
+                            if (totalPackage == 0 || totalPackage - 1 == packageIndex) {
+                                //最后一帧数据了
+                                mBind.ivSync.clearAnimation();
+                                mBind.tvSync.setText("Sync");
+                                dismissSyncProgressDialog();
+                            }
+                            int length = value[7] & 0xff;
                             if (length > 0) {
-                                byte[] data = Arrays.copyOfRange(value, 5, length + 5);
+                                byte[] data = Arrays.copyOfRange(value, 8, length + 8);
                                 XLog.i(Arrays.toString(data));
                                 mBind.llHallData.setVisibility(View.VISIBLE);
                                 for (int i = 0; i < data.length; i += 5) {
@@ -135,7 +205,7 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
                                     int year = MokoUtils.toInt(Arrays.copyOfRange(bytes, 0, 4));
                                     historyBean.time = sdf.format(new Date(year * 1000L));
                                     int status = bytes[4] & 0xff;
-                                    historyBean.status = status == 0 ? "Closed" : "Open";
+                                    historyBean.status = status == 0 ? "Present" : "Absent";
                                     hallStoreData.add(0, historyBean);
                                     thStoreString.append(historyBean.time).append(":").append(historyBean.status).append("\n");
                                 }

@@ -1,19 +1,22 @@
 package com.moko.bxp.s.activity;
 
+import static com.moko.support.s.entity.SlotFrameTypeEnum.IBEACON;
+import static com.moko.support.s.entity.SlotFrameTypeEnum.SENSOR_INFO;
+import static com.moko.support.s.entity.SlotFrameTypeEnum.TLM;
+import static com.moko.support.s.entity.SlotFrameTypeEnum.UID;
+import static com.moko.support.s.entity.SlotFrameTypeEnum.URL;
+
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
@@ -21,16 +24,24 @@ import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
+import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep1Binding;
 import com.moko.bxp.s.dialog.BottomDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
+import com.moko.bxp.s.entity.SlotData;
 import com.moko.bxp.s.entity.TriggerStep1Bean;
-import com.moko.bxp.s.utils.ToastUtils;
+import com.moko.bxp.s.fragment.IBeaconFragment;
+import com.moko.bxp.s.fragment.SensorInfoFragment;
+import com.moko.bxp.s.fragment.TlmFragment;
+import com.moko.bxp.s.fragment.UidFragment;
+import com.moko.bxp.s.fragment.UrlFragment;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
 import com.moko.support.s.entity.OrderCHAR;
 import com.moko.support.s.entity.ParamsKeyEnum;
+import com.moko.support.s.entity.SlotFrameTypeEnum;
+import com.moko.support.s.entity.UrlSchemeEnum;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -44,27 +55,27 @@ import java.util.Arrays;
  * @date: 2024/1/30 12:05
  * @des:
  */
-public class TriggerStep1Activity extends BaseActivity implements SeekBar.OnSeekBarChangeListener {
+public class TriggerStep1Activity extends BaseActivity {
     private ActivityTriggerStep1Binding mBind;
     private boolean mReceiverTag;
     private boolean isTrigger = true;
     private boolean advBeforeTrigger = true;
-    private boolean isLowPowerMode = true;
     private int slot;
-    private final String[] frameTypeArray = {"NO DATA", "UID", "URL", "TLM", "iBeacon", "Sensor info", "T&H"};
-    private final String[] urlSchemeArray = {"http://www.", "https://www.", "http://", "https://"};
-    private int urlSchemeSelect;
+    private final String[] frameTypeArray = {"UID", "URL", "TLM", "iBeacon", "Sensor info", "T&H"};
     private int frameTypeSelected;
-    private final int[] txPowerC112 = {-20, -16, -12, -8, -4, 0};
-    private final int[] txPower = {-20, -16, -12, -8, -4, 0, 3, 4, 6};
     private boolean isC112;
-    private byte[] advBytes;
     private int currentIndex;
-    private int currentFrameType;
-    private EditText et1;
-    private EditText et2;
-    private EditText et3;
     private TriggerStep1Bean bean;
+
+    private FragmentManager fragmentManager;
+    private UidFragment uidFragment;
+    private UrlFragment urlFragment;
+    private TlmFragment tlmFragment;
+    private IBeaconFragment iBeaconFragment;
+    private SensorInfoFragment sensorInfoFragment;
+    public SlotData slotData = new SlotData();
+    private ISlotDataAction slotDataActionImpl;
+    private SlotFrameTypeEnum currentFrameTypeEnum;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,34 +88,76 @@ public class TriggerStep1Activity extends BaseActivity implements SeekBar.OnSeek
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mReceiver, filter);
         mReceiverTag = true;
+        slot = getIntent().getIntExtra("slot", 0);
+        isC112 = getIntent().getBooleanExtra("isC112", false);
+        fragmentManager = getSupportFragmentManager();
         setListener();
         if (!MokoSupport.getInstance().isBluetoothOpen()) {
             // 蓝牙未打开，开启蓝牙
             MokoSupport.getInstance().enableBluetooth();
         } else {
             showSyncingProgressDialog();
-            ArrayList<OrderTask> orderTasks = new ArrayList<>(4);
+            ArrayList<OrderTask> orderTasks = new ArrayList<>(2);
             orderTasks.add(OrderTaskAssembler.getSlotAdvParams(slot));
-            orderTasks.add(OrderTaskAssembler.getDeviceType());
             orderTasks.add(OrderTaskAssembler.getTriggerBeforeSlotParams(slot));
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         }
     }
 
+    private void createFragments() {
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        uidFragment = UidFragment.newInstance();
+        uidFragment.setSlotData(slotData);
+        fragmentTransaction.add(R.id.frame_slot_container, uidFragment);
+        urlFragment = UrlFragment.newInstance();
+        urlFragment.setSlotData(slotData);
+        fragmentTransaction.add(R.id.frame_slot_container, urlFragment);
+        tlmFragment = TlmFragment.newInstance();
+        tlmFragment.setSlotData(slotData);
+        fragmentTransaction.add(R.id.frame_slot_container, tlmFragment);
+        iBeaconFragment = IBeaconFragment.newInstance();
+        iBeaconFragment.setSlotData(slotData);
+        fragmentTransaction.add(R.id.frame_slot_container, iBeaconFragment);
+        sensorInfoFragment = SensorInfoFragment.newInstance();
+        sensorInfoFragment.setSlotData(slotData);
+        fragmentTransaction.add(R.id.frame_slot_container, sensorInfoFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void showFragment(int index) {
+        SlotFrameTypeEnum slotFrameTypeEnum = SlotFrameTypeEnum.fromShowName(frameTypeArray[index]);
+        if (null == slotFrameTypeEnum) return;
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        switch (slotFrameTypeEnum) {
+            case TLM:
+                fragmentTransaction.hide(uidFragment).hide(urlFragment).hide(iBeaconFragment).hide(sensorInfoFragment).show(tlmFragment).commit();
+                slotDataActionImpl = tlmFragment;
+                break;
+            case UID:
+                fragmentTransaction.hide(urlFragment).hide(iBeaconFragment).hide(tlmFragment).hide(sensorInfoFragment).show(uidFragment).commit();
+                slotDataActionImpl = uidFragment;
+                break;
+            case URL:
+                fragmentTransaction.hide(uidFragment).hide(iBeaconFragment).hide(tlmFragment).hide(sensorInfoFragment).show(urlFragment).commit();
+                slotDataActionImpl = urlFragment;
+                break;
+            case IBEACON:
+                fragmentTransaction.hide(uidFragment).hide(urlFragment).hide(tlmFragment).hide(sensorInfoFragment).show(iBeaconFragment).commit();
+                slotDataActionImpl = iBeaconFragment;
+                break;
+            case SENSOR_INFO:
+                fragmentTransaction.hide(uidFragment).hide(urlFragment).hide(tlmFragment).hide(iBeaconFragment).show(sensorInfoFragment).commit();
+                slotDataActionImpl = sensorInfoFragment;
+                break;
+            case NO_DATA:
+                fragmentTransaction.hide(uidFragment).hide(urlFragment).hide(tlmFragment).hide(iBeaconFragment).hide(sensorInfoFragment).commit();
+                slotDataActionImpl = null;
+                break;
+        }
+        slotData.frameTypeEnum = slotFrameTypeEnum;
+    }
+
     private void setListener() {
-        mBind.ivLowPowerMode.setOnClickListener(v -> {
-            isLowPowerMode = !isLowPowerMode;
-            mBind.ivLowPowerMode.setImageResource(isLowPowerMode ? R.drawable.ic_checked : R.drawable.ic_unchecked);
-            if (!isLowPowerMode) {
-                mBind.layoutAdvDuration.setVisibility(View.GONE);
-                mBind.layoutStandDuration.setVisibility(View.GONE);
-                mBind.layoutRangData.setVisibility(View.GONE);
-            } else {
-                mBind.layoutAdvDuration.setVisibility(View.VISIBLE);
-                mBind.layoutStandDuration.setVisibility(View.VISIBLE);
-                mBind.layoutRangData.setVisibility(View.VISIBLE);
-            }
-        });
         mBind.ivAdv.setOnClickListener(v -> {
             advBeforeTrigger = !advBeforeTrigger;
             mBind.ivAdv.setImageResource(advBeforeTrigger ? R.drawable.ic_checked : R.drawable.ic_unchecked);
@@ -122,12 +175,12 @@ public class TriggerStep1Activity extends BaseActivity implements SeekBar.OnSeek
             dialog.setListener(value -> {
                 frameTypeSelected = value;
                 mBind.tvFrameType.setText(frameTypeArray[value]);
-                setSlotParams(value, value == currentIndex ? advBytes : null);
+                showFragment(value);
+                if (null != slotDataActionImpl)
+                    slotDataActionImpl.resetParams(currentFrameTypeEnum);
             });
             dialog.show(getSupportFragmentManager());
         });
-        mBind.sbRssi.setOnSeekBarChangeListener(this);
-        mBind.sbTxPower.setOnSeekBarChangeListener(this);
         mBind.btnNext.setOnClickListener(v -> {
             if (!isTrigger) {
                 //当前配置成无触发
@@ -136,77 +189,49 @@ public class TriggerStep1Activity extends BaseActivity implements SeekBar.OnSeek
                 return;
             }
             bean = new TriggerStep1Bean();
-            bean.frameType = currentFrameType;
+            bean.frameType = Integer.parseInt(slotData.frameTypeEnum.getFrameType(), 16);
             bean.advBeforeTrigger = advBeforeTrigger;
-            if (currentFrameType == 0x00) {
+            TriggerStep1Bean triggerStep1Bean = null;
+            if (slotData.frameTypeEnum == UID) {
                 //uid
-                if (TextUtils.isEmpty(et1.getText()) || TextUtils.isEmpty(et2.getText())) {
-                    ToastUtils.showToast(this, "Data format incorrect!");
-                    return;
+                if (uidFragment.isValid()) {
+                    triggerStep1Bean = uidFragment.getTriggerStep1Bean();
+                    bean.namespaceId = triggerStep1Bean.namespaceId;
+                    bean.instanceId = triggerStep1Bean.instanceId;
                 }
-                bean.namespaceId = et1.getText().toString();
-                bean.instanceId = et2.getText().toString();
-                if (bean.namespaceId.length() != 20 || bean.instanceId.length() != 12) {
-                    ToastUtils.showToast(this, "Data format incorrect!");
-                    return;
-                }
-            } else if (currentFrameType == 0x10) {
+            } else if (slotData.frameTypeEnum == URL) {
                 //url
-                if (TextUtils.isEmpty(et1.getText())) {
-                    ToastUtils.showToast(this, "Data format incorrect!");
-                    return;
+                if (urlFragment.isValid()) {
+                    triggerStep1Bean = urlFragment.getTriggerStep1Bean();
+                    bean.urlScheme = triggerStep1Bean.urlScheme;
+                    bean.url = triggerStep1Bean.url;
                 }
-                bean.urlScheme = urlSchemeSelect;
-                bean.url = et1.getText().toString();
-            } else if (currentFrameType == 0x50) {
+            } else if (slotData.frameTypeEnum == IBEACON) {
                 //iBeacon
-                if (TextUtils.isEmpty(et1.getText()) || TextUtils.isEmpty(et2.getText()) || TextUtils.isEmpty(et3.getText())) {
-                    ToastUtils.showToast(this, "Data format incorrect!");
-                    return;
+                if (iBeaconFragment.isValid()) {
+                    triggerStep1Bean = iBeaconFragment.getTriggerStep1Bean();
+                    bean.major = triggerStep1Bean.major;
+                    bean.minor = triggerStep1Bean.minor;
+                    bean.uuid = triggerStep1Bean.uuid;
                 }
-                bean.major = Integer.parseInt(et1.getText().toString());
-                bean.minor = Integer.parseInt(et2.getText().toString());
-                bean.uuid = et3.getText().toString();
-                if (bean.major > 65535 || bean.minor > 65535 || bean.uuid.length() != 32) {
-                    ToastUtils.showToast(this, "Data format incorrect!");
-                    return;
-                }
-            } else if (currentFrameType == 0x80) {
+            } else if (slotData.frameTypeEnum == SENSOR_INFO) {
                 //sensor info
-                if (TextUtils.isEmpty(et1.getText()) || TextUtils.isEmpty(et2.getText())) {
-                    ToastUtils.showToast(this, "Data format incorrect!");
-                    return;
+                if (sensorInfoFragment.isValid()) {
+                    triggerStep1Bean = sensorInfoFragment.getTriggerStep1Bean();
+                    bean.deviceName = triggerStep1Bean.deviceName;
+                    bean.tagId = triggerStep1Bean.tagId;
                 }
-                bean.deviceName = et1.getText().toString();
-                bean.tagId = et2.getText().toString();
+            } else if (slotData.frameTypeEnum == TLM) {
+                triggerStep1Bean = tlmFragment.getTriggerStep1Bean();
             }
-            //校验通道参数数据
-            if (TextUtils.isEmpty(mBind.etAdvInterval.getText())) {
-                ToastUtils.showToast(this, "Data format incorrect!");
-                return;
-            }
-            bean.advInterval = Integer.parseInt(mBind.etAdvInterval.getText().toString());
-            if (bean.advInterval < 1 || bean.advInterval > 100) {
-                ToastUtils.showToast(this, "Data format incorrect!");
-                return;
-            }
-            bean.isLowPowerMode = isLowPowerMode;
-            if (isLowPowerMode) {
-                if (TextUtils.isEmpty(mBind.etAdvDuration.getText()) || TextUtils.isEmpty(mBind.etStandbyDuration.getText())) {
-                    ToastUtils.showToast(this, "Data format incorrect!");
-                    return;
-                }
-                bean.advDuration = Integer.parseInt(mBind.etAdvDuration.getText().toString());
-                bean.standByDuration = Integer.parseInt(mBind.etStandbyDuration.getText().toString());
-                if (bean.advDuration < 1 || bean.advDuration > 65535 || bean.standByDuration < 1 || bean.standByDuration > 65535) {
-                    ToastUtils.showToast(this, "Data format incorrect!");
-                    return;
-                }
-            } else {
-                bean.advDuration = 1;
-                bean.standByDuration = 0;
-            }
-
+            if (null == triggerStep1Bean) return;
+            //通道参数
+            bean.advInterval = triggerStep1Bean.advInterval * 100;
+            bean.isLowPowerMode = triggerStep1Bean.isLowPowerMode;
+            bean.advDuration = triggerStep1Bean.advDuration;
+            bean.standByDuration = triggerStep1Bean.standByDuration;
+            bean.rssi = triggerStep1Bean.rssi;
+            bean.txPower = triggerStep1Bean.txPower;
             Intent intent = new Intent(this, TriggerStep2Activity.class);
             intent.putExtra("step1", bean);
             intent.putExtra("slot", slot);
@@ -253,56 +278,34 @@ public class TriggerStep1Activity extends BaseActivity implements SeekBar.OnSeek
                             switch (configKeyEnum) {
                                 case KEY_SLOT_ADV_PARAMS:
                                     if (length > 1) {
-                                        advBytes = value;
+                                        byte[] rawDataBytes = Arrays.copyOfRange(value, 4, 4 + length);
+                                        setSlotParams(rawDataBytes);
                                         int slotType = value[5] & 0xff;
-                                        frameTypeSelected = getSlotIndex(slotType);
-                                        currentIndex = frameTypeSelected;
-                                        mBind.tvFrameType.setText(frameTypeArray[frameTypeSelected]);
-                                        if (frameTypeSelected == 0) {
+                                        if (slotType == 0xff){
+                                            //noData
                                             mBind.layoutAdvTrigger.setVisibility(View.GONE);
                                             isTrigger = false;
                                             mBind.ivAdv.setImageResource(R.drawable.ic_unchecked);
-                                        } else {
-                                            //非no data
-                                            setSlotParams(frameTypeSelected, value);
+                                        }else {
+                                            frameTypeSelected = getSlotIndex(slotType);
+                                            currentIndex = frameTypeSelected;
+                                            currentFrameTypeEnum = slotData.frameTypeEnum = SlotFrameTypeEnum.fromShowName(frameTypeArray[currentIndex]);
+                                            mBind.tvFrameType.setText(frameTypeArray[frameTypeSelected]);
+//                                            if (frameTypeSelected == 0) {
+//                                                mBind.layoutAdvTrigger.setVisibility(View.GONE);
+//                                                isTrigger = false;
+//                                                mBind.ivAdv.setImageResource(R.drawable.ic_unchecked);
+//                                            }
                                         }
                                     }
                                     break;
 
                                 case KEY_SLOT_PARAMS_BEFORE:
                                     if (length == 9) {
-                                        int interval = MokoUtils.toInt(Arrays.copyOfRange(value, 5, 7));
-                                        int duration = MokoUtils.toInt(Arrays.copyOfRange(value, 7, 9));
-                                        int standBy = MokoUtils.toInt(Arrays.copyOfRange(value, 9, 11));
-                                        mBind.etAdvInterval.setText(String.valueOf(interval / 100));
-                                        mBind.etAdvInterval.setSelection(mBind.etAdvInterval.getText().length());
-                                        mBind.etAdvDuration.setText(String.valueOf(duration));
-                                        mBind.etAdvDuration.setSelection(mBind.etAdvDuration.getText().length());
-                                        mBind.etStandbyDuration.setText(String.valueOf(standBy));
-                                        mBind.etStandbyDuration.setSelection(mBind.etStandbyDuration.getText().length());
-                                        int rssi = value[11];
-                                        mBind.sbRssi.setProgress(rssi + 100);
-                                        mBind.tvRssi.setText(rssi + "dBm");
-                                        int txPower = value[12];
-                                        int index;
-                                        if (isC112) {
-                                            index = txPowerC112[txPower];
-                                        } else {
-                                            index = this.txPower[txPower];
-                                        }
-                                        mBind.sbTxPower.setProgress(index);
-                                        mBind.tvTxPower.setText(txPower + "dBm");
-                                    }
-                                    break;
-
-                                case KEY_DEVICE_TYPE:
-                                    if (length == 2) {
-                                        if ((value[4] & 0xff) == 0x23) {
-                                            //C112的芯片类型
-                                            mBind.tvTxPowerSelect.setText("(-20, -16, -12, -8, -4, 0)");
-                                            mBind.sbTxPower.setMax(5);
-                                            isC112 = true;
-                                        }
+                                        byte[] rawDataBytes = Arrays.copyOfRange(value, 4, 4 + length);
+                                        setSlotAdvParams(rawDataBytes);
+                                        createFragments();
+                                        showFragment(currentIndex);
                                     }
                                     break;
                             }
@@ -353,136 +356,68 @@ public class TriggerStep1Activity extends BaseActivity implements SeekBar.OnSeek
         EventBus.getDefault().unregister(this);
     }
 
-    private void setSlotParams(int index, byte[] value) {
-        //NO DATA", "UID", "URL", "TLM", "iBeacon", "Sensor info", "T&H
-        mBind.layoutDeviceName.removeAllViews();
-        if (index == 1) {
-            //uid
-            currentFrameType = 0x00;
-            View view = LayoutInflater.from(this).inflate(R.layout.layout_uid, mBind.layoutDeviceName);
-            EditText etNameSpace = view.findViewById(R.id.et_namespace);
-            EditText etInstanceId = view.findViewById(R.id.et_instance_id);
-            et1 = etNameSpace;
-            et2 = etInstanceId;
-            if (null != value && value.length > 21) {
-                etNameSpace.setText(MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 6, 16)));
-                etNameSpace.setSelection(etNameSpace.getText().length());
-                etInstanceId.setText(MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 16, 22)));
-                etInstanceId.setSelection(etInstanceId.getText().length());
+    private void setSlotParams(byte[] rawDataBytes) {
+        int frameType = rawDataBytes[1] & 0xFF;
+        SlotFrameTypeEnum slotFrameTypeEnum = SlotFrameTypeEnum.fromFrameType(frameType);
+        if (slotFrameTypeEnum != null) {
+            switch (slotFrameTypeEnum) {
+                case URL:
+                    int urlType = (int) rawDataBytes[2] & 0xff;
+                    slotData.urlSchemeEnum = UrlSchemeEnum.fromUrlType(urlType);
+                    slotData.urlContentHex = MokoUtils.bytesToHexString(rawDataBytes).substring(6);
+                    break;
+                case UID:
+                    slotData.namespace = MokoUtils.bytesToHexString(rawDataBytes).substring(4, 24);
+                    slotData.instanceId = MokoUtils.bytesToHexString(rawDataBytes).substring(24);
+                    break;
+                case SENSOR_INFO:
+                    int deviceNameLength = rawDataBytes[2] & 0xFF;
+                    byte[] deviceName = Arrays.copyOfRange(rawDataBytes, 3, 3 + deviceNameLength);
+                    slotData.deviceName = new String(deviceName);
+                    byte[] tagId = Arrays.copyOfRange(rawDataBytes, 4 + deviceNameLength, rawDataBytes.length);
+                    slotData.tagId = MokoUtils.bytesToHexString(tagId);
+                    break;
+                case IBEACON:
+                    byte[] major = Arrays.copyOfRange(rawDataBytes, 2, 4);
+                    byte[] minor = Arrays.copyOfRange(rawDataBytes, 4, 6);
+                    byte[] uuid = Arrays.copyOfRange(rawDataBytes, 6, 22);
+                    slotData.major = MokoUtils.bytesToHexString(major);
+                    slotData.minor = MokoUtils.bytesToHexString(minor);
+                    slotData.iBeaconUUID = MokoUtils.bytesToHexString(uuid);
+                    break;
             }
-            mBind.layoutDeviceName.addView(view);
-        } else if (index == 2) {
-            //url
-            currentFrameType = 0x10;
-            View view = LayoutInflater.from(this).inflate(R.layout.layout_url, mBind.layoutDeviceName);
-            EditText etUrl = view.findViewById(R.id.et_url);
-            TextView tvUrlScheme = view.findViewById(R.id.tv_url_scheme);
-            tvUrlScheme.setText(urlSchemeArray[urlSchemeSelect]);
-            et1 = etUrl;
-            if (null != value && value.length > 7) {
-                urlSchemeSelect = value[6] & 0xff;
-                tvUrlScheme.setText(urlSchemeArray[urlSchemeSelect]);
-                String url = new String(Arrays.copyOfRange(value, 7, value.length));
-                etUrl.setText(url);
-                etUrl.setSelection(etUrl.getText().length());
-            }
-            mBind.layoutDeviceName.addView(view);
-            tvUrlScheme.setOnClickListener(v -> {
-                BottomDialog dialog = new BottomDialog();
-                dialog.setDatas(new ArrayList<>(Arrays.asList(urlSchemeArray)), urlSchemeSelect);
-                dialog.setListener(value1 -> {
-                    urlSchemeSelect = value1;
-                    tvUrlScheme.setText(urlSchemeArray[urlSchemeSelect]);
-                });
-                dialog.show(getSupportFragmentManager());
-            });
-        } else if (index == 3) {
-            //tlm
-            currentFrameType = 0x20;
-        } else if (index == 4) {
-            //iBeacon
-            currentFrameType = 0x50;
-            View view = LayoutInflater.from(this).inflate(R.layout.layout_ibeacon, mBind.layoutDeviceName);
-            EditText etMajor = view.findViewById(R.id.et_major);
-            EditText etMinor = view.findViewById(R.id.et_minor);
-            EditText etUUid = view.findViewById(R.id.et_uuid);
-            et1 = etMajor;
-            et2 = etMinor;
-            et3 = etUUid;
-            if (null != value && value.length > 25) {
-                etMajor.setText(String.valueOf(MokoUtils.toInt(Arrays.copyOfRange(value, 6, 8))));
-                etMajor.setSelection(etMajor.getText().length());
-                etMinor.setText(String.valueOf(MokoUtils.toInt(Arrays.copyOfRange(value, 8, 10))));
-                etMinor.setSelection(etMinor.getText().length());
-                etUUid.setText(MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 10, value.length)));
-                etUUid.setSelection(etUUid.getText().length());
-            }
-            mBind.layoutDeviceName.addView(view);
-        } else if (index == 5) {
-            currentFrameType = 0x80;
-            View view = LayoutInflater.from(this).inflate(R.layout.layout_sensor_info, mBind.layoutDeviceName);
-            EditText etDeviceName = view.findViewById(R.id.et_device_name);
-            EditText etTagId = view.findViewById(R.id.et_tag_id);
-            et1 = etDeviceName;
-            et2 = etTagId;
-            if (null != value && value.length > 9) {
-                int nameLength = value[6] & 0xff;
-                etDeviceName.setText(new String(Arrays.copyOfRange(value, 7, 7 + nameLength)));
-                etDeviceName.setSelection(etDeviceName.getText().length());
-                int idLength = value[7 + nameLength];
-                etTagId.setText(MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 8 + nameLength, 8 + nameLength + idLength)));
-            }
-            mBind.layoutDeviceName.addView(view);
-        } else if (index == 6) {
-            currentFrameType = 0x70;
         }
+    }
+
+    private void setSlotAdvParams(byte[] rawDataBytes) {
+        slotData.advInterval = rawDataBytes[1] & 0xFF;
+        slotData.advDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 2, 4));
+        slotData.standbyDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 4, 6));
+        if (slotData.frameTypeEnum == IBEACON) {
+            slotData.rssi_1m = rawDataBytes[6];
+        } else {
+            slotData.rssi_0m = rawDataBytes[6];
+        }
+        slotData.txPower = rawDataBytes[7];
+        slotData.isC112 = isC112;
     }
 
     private int getSlotIndex(int slotType) {
-        //NO DATA", "UID", "URL", "TLM", "iBeacon", "Sensor info", "T&H
-        currentFrameType = slotType;
+        //"UID", "URL", "TLM", "iBeacon", "Sensor info", "T&H
         switch (slotType) {
-            case 0xFF:
-                return 0;
             case 0x00:
-                return 1;
+                return 0;
             case 0x10:
-                return 2;
+                return 1;
             case 0x20:
-                return 3;
+                return 2;
             case 0x50:
-                return 4;
+                return 3;
             case 0x80:
-                return 5;
+                return 4;
             case 0x70:
-                return 6;
+                return 5;
         }
         return 0;
-    }
-
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (seekBar.getId() == R.id.sb_rssi) {
-            //rssi
-            int rssi = progress - 100;
-            mBind.tvRssi.setText(rssi + "dBm");
-        } else if (seekBar.getId() == R.id.sb_tx_power) {
-            //txPower
-            if (isC112) {
-                mBind.tvTxPower.setText(txPowerC112[progress] + "dBm");
-            } else {
-                mBind.tvTxPower.setText(txPower[progress] + "dBm");
-            }
-        }
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
     }
 }

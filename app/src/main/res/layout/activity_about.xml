@@ -48,7 +48,7 @@
         android:layout_below="@id/iv_logo"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="15dp"
-        android:text="MOKO AOA"
+        android:text="MK Sensor"
         android:textColor="@color/black_012d75"
         android:textSize="20sp" />
 

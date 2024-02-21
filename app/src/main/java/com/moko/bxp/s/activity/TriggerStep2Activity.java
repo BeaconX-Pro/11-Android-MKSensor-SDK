@@ -14,6 +14,10 @@ import androidx.annotation.Nullable;
 
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
+import com.moko.ble.lib.event.OrderTaskResponseEvent;
+import com.moko.ble.lib.task.OrderTask;
+import com.moko.ble.lib.task.OrderTaskResponse;
+import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep2Binding;
 import com.moko.bxp.s.dialog.BottomDialog;
@@ -21,6 +25,10 @@ import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.entity.TriggerStep1Bean;
 import com.moko.bxp.s.entity.TriggerStep2Bean;
 import com.moko.bxp.s.utils.ToastUtils;
+import com.moko.support.s.MokoSupport;
+import com.moko.support.s.OrderTaskAssembler;
+import com.moko.support.s.entity.OrderCHAR;
+import com.moko.support.s.entity.ParamsKeyEnum;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -28,6 +36,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author: jun.liu
@@ -48,7 +57,14 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
     private final String[] tempTriggerEventArray = {"Temperature above threshold", "Temperature below threshold"};
     private final String[] humTriggerEventArray = {"Humidity above threshold", "Humidity below threshold"};
     private int currentTriggerEventSelect;
+    public int hallTriggerSelect;
+    public int axisTriggerSelect;
+    public int tempTriggerSelect;
+    public int humTriggerSelect;
     private boolean isC112;
+    private int axisStaticPeriod;
+    private int tempThreshold;
+    private int humThreshold;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,31 +81,53 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
         step1Bean = getIntent().getParcelableExtra("step1");
         isC112 = getIntent().getBooleanExtra("c112", false);
         mBind.tvTitle.setText("SLOT" + (slot + 1));
-        setStatus();
         setListener();
+        showSyncingProgressDialog();
+        List<OrderTask> orderTasks = new ArrayList<>(4);
+        orderTasks.add(OrderTaskAssembler.getSlotTriggerType(slot));
+//        orderTasks.add(OrderTaskAssembler.getHallTriggerEvent(slot));
+//        orderTasks.add(OrderTaskAssembler.getAxisTriggerEvent(slot));
+//        orderTasks.add(OrderTaskAssembler.getTempTriggerEvent(slot));
+//        orderTasks.add(OrderTaskAssembler.getHumTriggerEvent(slot));
+        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
     }
 
     private void setStatus() {
+        mBind.tvTriggerType.setText(triggerTypeArray[triggerType - 1]);
         if (triggerType == 1) {
             //温度
             mBind.layoutTemperature.setVisibility(View.VISIBLE);
             mBind.layoutHum.setVisibility(View.GONE);
             mBind.groupStaticPeriod.setVisibility(View.GONE);
+            mBind.tvTriggerEvent.setText(tempTriggerEventArray[tempTriggerSelect]);
+            mBind.sbTemp.setProgress(tempThreshold + 40);
+            mBind.tvTempValue.setText(tempThreshold + "℃");
+            currentTriggerEventSelect = tempTriggerSelect;
         } else if (triggerType == 2) {
             //湿度
             mBind.layoutTemperature.setVisibility(View.GONE);
             mBind.layoutHum.setVisibility(View.VISIBLE);
             mBind.groupStaticPeriod.setVisibility(View.GONE);
+            mBind.tvTriggerEvent.setText(humTriggerEventArray[humTriggerSelect]);
+            mBind.sbHum.setProgress(humThreshold);
+            mBind.tvHumValue.setText(humThreshold + "%");
+            currentTriggerEventSelect = humTriggerSelect;
         } else if (triggerType == 3) {
             //三轴
             mBind.layoutTemperature.setVisibility(View.GONE);
             mBind.layoutHum.setVisibility(View.GONE);
             mBind.groupStaticPeriod.setVisibility(View.VISIBLE);
+            mBind.tvTriggerEvent.setText(axisTriggerEventArray[axisTriggerSelect]);
+            mBind.etStaticPeriod.setText(axisStaticPeriod);
+            mBind.etStaticPeriod.setSelection(mBind.etStaticPeriod.getText().length());
+            currentTriggerEventSelect = axisTriggerSelect;
         } else if (triggerType == 4) {
             //霍尔
             mBind.layoutTemperature.setVisibility(View.GONE);
             mBind.layoutHum.setVisibility(View.GONE);
             mBind.groupStaticPeriod.setVisibility(View.GONE);
+            mBind.tvTriggerEvent.setText(hallTriggerEventArray[hallTriggerSelect]);
+            currentTriggerEventSelect = hallTriggerSelect;
         }
     }
 
@@ -104,6 +142,83 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
         });
     }
 
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 400)
+    public void onOrderTaskResponseEvent(OrderTaskResponseEvent event) {
+        EventBus.getDefault().cancelEventDelivery(event);
+        final String action = event.getAction();
+        runOnUiThread(() -> {
+            if (MokoConstants.ACTION_ORDER_FINISH.equals(action)) {
+                dismissSyncProgressDialog();
+            }
+            if (MokoConstants.ACTION_ORDER_RESULT.equals(action)) {
+                OrderTaskResponse response = event.getResponse();
+                OrderCHAR orderCHAR = (OrderCHAR) response.orderCHAR;
+                byte[] value = response.responseValue;
+                if (orderCHAR == OrderCHAR.CHAR_PARAMS) {
+                    if (value.length > 4) {
+                        int header = value[0] & 0xFF;// 0xEB
+                        int flag = value[1] & 0xFF;// read or write
+                        int cmd = value[2] & 0xFF;
+                        if (header != 0xEB) return;
+                        ParamsKeyEnum configKeyEnum = ParamsKeyEnum.fromParamKey(cmd);
+                        if (configKeyEnum == null) return;
+                        int length = value[3] & 0xFF;
+                        if (flag == 0x00) {
+                            // read
+                            switch (configKeyEnum) {
+                                case KEY_HALL_TRIGGER_EVENT:
+                                    if (length == 2) {
+                                        hallTriggerSelect = value[5] & 0xff;
+                                        setStatus();
+                                    }
+                                    break;
+
+                                case KEY_AXIS_TRIGGER_EVENT:
+                                    if (length == 4) {
+                                        axisTriggerSelect = value[5] & 0xff;
+                                        axisStaticPeriod = MokoUtils.toInt(Arrays.copyOfRange(value, 6, 8));
+                                        setStatus();
+                                    }
+                                    break;
+
+                                case KEY_TEMP_TRIGGER_EVENT:
+                                    if (length == 5) {
+                                        tempTriggerSelect = value[5] & 0xff;
+                                        tempThreshold = MokoUtils.toIntSigned(Arrays.copyOfRange(value, 6, 8));
+                                        setStatus();
+                                    }
+                                    break;
+
+                                case KEY_HUM_TRIGGER_EVENT:
+                                    if (length == 4) {
+                                        humTriggerSelect = value[5] & 0xff;
+                                        humThreshold = value[6] & 0xff;
+                                        setStatus();
+                                    }
+                                    break;
+
+                                case KEY_SLOT_TRIGGER_TYPE:
+                                    if (length == 2) {
+                                        triggerType = value[5] & 0xff;
+                                        if (triggerType == 1) {
+                                            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getTempTriggerEvent(slot));
+                                        } else if (triggerType == 2) {
+                                            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getHumTriggerEvent(slot));
+                                        } else if (triggerType == 3) {
+                                            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getAxisTriggerEvent(slot));
+                                        } else if (triggerType == 4) {
+                                            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getHallTriggerEvent(slot));
+                                        }
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     private void setListener() {
         mBind.tvTriggerType.setText(triggerTypeArray[triggerType - 1]);
         mBind.tvTriggerEvent.setText(getTriggerEvent()[0]);
@@ -112,16 +227,18 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
             dialog.setDatas(new ArrayList<>(Arrays.asList(triggerTypeArray)), triggerType - 1);
             dialog.setListener(value -> {
                 triggerType = value + 1;
-                mBind.tvTriggerType.setText(triggerTypeArray[value]);
-                mBind.tvTriggerEvent.setText(getTriggerEvent()[0]);
                 setStatus();
             });
             dialog.show(getSupportFragmentManager());
         });
         mBind.tvTriggerEvent.setOnClickListener(v -> {
             BottomDialog dialog = new BottomDialog();
-            dialog.setDatas(new ArrayList<>(Arrays.asList(getTriggerEvent())), currentTriggerEventSelect);
+            dialog.setDatas(new ArrayList<>(Arrays.asList(getTriggerEvent())), getCurrentTriggerEventSelect());
             dialog.setListener(value -> {
+                if (triggerType == 1) tempTriggerSelect = value;
+                else if (triggerType == 2) humTriggerSelect = value;
+                else if (triggerType == 3) axisTriggerSelect = value;
+                else if (triggerType == 4) hallTriggerSelect = value;
                 currentTriggerEventSelect = value;
                 mBind.tvTriggerEvent.setText(getTriggerEvent()[value]);
             });
@@ -139,7 +256,7 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
         bean.triggerEventSelect = currentTriggerEventSelect;
         if (triggerType == 1) {
             //温度
-            bean.tempThreshold = mBind.sbTemp.getProgress() - 20;
+            bean.tempThreshold = mBind.sbTemp.getProgress() - 40;
         } else if (triggerType == 2) {
             //湿度
             bean.humThreshold = mBind.sbHum.getProgress();
@@ -174,6 +291,18 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
             return axisTriggerEventArray;
         } else {
             return hallTriggerEventArray;
+        }
+    }
+
+    private int getCurrentTriggerEventSelect() {
+        if (triggerType == 1) {
+            return tempTriggerSelect;
+        } else if (triggerType == 2) {
+            return humTriggerSelect;
+        } else if (triggerType == 3) {
+            return axisTriggerSelect;
+        } else {
+            return hallTriggerSelect;
         }
     }
 
@@ -221,7 +350,7 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (seekBar.getId() == R.id.sbTemp) {
             //温度的
-            mBind.tvTempValue.setText((progress - 20) + "℃");
+            mBind.tvTempValue.setText((progress - 40) + "℃");
         } else if (seekBar.getId() == R.id.sbHum) {
             //湿度
             mBind.tvHumValue.setText(progress + "%");
