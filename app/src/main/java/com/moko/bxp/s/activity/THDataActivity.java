@@ -59,15 +59,12 @@ public class THDataActivity extends BaseActivity {
             // 蓝牙未打开，开启蓝牙
             MokoSupport.getInstance().enableBluetooth();
         } else {
-            MokoSupport.getInstance().enableTHNotify();
             showSyncingProgressDialog();
-            mBind.tvTemp.postDelayed(() -> {
-                ArrayList<OrderTask> orderTasks = new ArrayList<>();
-                orderTasks.add(OrderTaskAssembler.getTHSampleInterval());
-                orderTasks.add(OrderTaskAssembler.getTHStore());
-                orderTasks.add(OrderTaskAssembler.getCurrentTime());
-                MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
-            }, 1000);
+            ArrayList<OrderTask> orderTasks = new ArrayList<>(4);
+            orderTasks.add(OrderTaskAssembler.getTHSampleInterval());
+            orderTasks.add(OrderTaskAssembler.getTHStore());
+            orderTasks.add(OrderTaskAssembler.getCurrentTime());
+            MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         }
         mBind.imgStore.setOnClickListener(v -> {
             isTHStoreEnable = !isTHStoreEnable;
@@ -83,7 +80,7 @@ public class THDataActivity extends BaseActivity {
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.POSTING, priority = 200)
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
     public void onConnectStatusEvent(ConnectStatusEvent event) {
         final String action = event.getAction();
         runOnUiThread(() -> {
@@ -94,7 +91,7 @@ public class THDataActivity extends BaseActivity {
         });
     }
 
-    @Subscribe(threadMode = ThreadMode.POSTING, priority = 200)
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
     public void onOrderTaskResponseEvent(OrderTaskResponseEvent event) {
         EventBus.getDefault().cancelEventDelivery(event);
         final String action = event.getAction();
@@ -139,6 +136,7 @@ public class THDataActivity extends BaseActivity {
                                         int time = MokoUtils.toInt(Arrays.copyOfRange(value, 4, 4 + length));
                                         mBind.tvUpdateDate.setText(sdf.format(time * 1000L));
                                     }
+                                    MokoSupport.getInstance().enableTHNotify();
                                     break;
                             }
                         } else if (flag == 1) {
@@ -215,7 +213,6 @@ public class THDataActivity extends BaseActivity {
     }
 
     private void back() {
-        // 关闭通知
         MokoSupport.getInstance().disableTHNotify();
         finish();
     }
@@ -229,7 +226,7 @@ public class THDataActivity extends BaseActivity {
         if (isWindowLocked()) return;
         // 跳转导出数据页面
         Intent intent = new Intent(this, ExportTHDataActivity.class);
-        intent.putExtra("type",deviceType);
+        intent.putExtra("type", deviceType);
         startActivity(intent);
     }
 
@@ -263,10 +260,10 @@ public class THDataActivity extends BaseActivity {
             ToastUtils.showToast(this, "Storage interval can not be empty");
             return;
         }
-        String intervalStr = mBind.etPeriod.getText().toString();
+        String intervalStr = mBind.etStorageInterval.getText().toString();
         int interval = Integer.parseInt(intervalStr);
-        if (interval < 1 || interval > 65535) {
-            ToastUtils.showToast(this, "Storage interval range is 1~65535");
+        if (interval > 65535) {
+            ToastUtils.showToast(this, "Storage interval range is 0~65535");
             return;
         }
         showSyncingProgressDialog();

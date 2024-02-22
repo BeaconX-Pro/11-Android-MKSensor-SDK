@@ -19,9 +19,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.bigkoo.pickerview.builder.TimePickerBuilder;
-import com.bigkoo.pickerview.listener.OnTimeSelectListener;
 import com.bigkoo.pickerview.view.TimePickerView;
 import com.elvishew.xlog.XLog;
 import com.moko.ble.lib.MokoConstants;
@@ -72,11 +72,12 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
     private Handler mHandler;
     private StringBuilder thStoreString = new StringBuilder();
     private final List<HallHistoryBean> hallStoreData = new ArrayList<>();
+    private final List<HallHistoryBean> filterHallStoreData = new ArrayList<>();
     private HistoryHallDataAdapter mAdapter;
     private final SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.PATTERN_YYYY_MM_DD_HH_MM_SS, Locale.getDefault());
     private Date startDate;
     private Date endDate;
-    private final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",Locale.getDefault());
+    private final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,22 +103,66 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
         }
         mBind.tvStartDate.setOnClickListener(v -> onSelectTimeClick(1));
         mBind.tvEndDate.setOnClickListener(v -> onSelectTimeClick(2));
+        mBind.tvCancel.setOnClickListener(v -> {
+            mBind.tvStartDate.setText("");
+            mBind.tvEndDate.setText("");
+            startDate = null;
+            endDate = null;
+            mAdapter.replaceData(hallStoreData);
+            mBind.tvSumRecord.setText("Sum records:" + hallStoreData.size());
+            mBind.tvFilterRecord.setText("Filtered records:" + hallStoreData.size());
+            if (hallStoreData.size() > 0) {
+                Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
+                mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+            } else {
+                Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download, null);
+                mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+            }
+        });
+        mBind.tvStart.setOnClickListener(v -> onStartClick());
+    }
+
+    private void onStartClick() {
+        if (null == startDate || null == endDate) return;
+        filterHallStoreData.clear();
+        for (HallHistoryBean bean : hallStoreData) {
+            long timeStamp = bean.timeStamp;
+            if (timeStamp >= startDate.getTime() && timeStamp <= endDate.getTime()) {
+                filterHallStoreData.add(bean);
+            }
+        }
+        mAdapter.replaceData(filterHallStoreData);
+        mBind.tvSumRecord.setText("Sum records:" + hallStoreData.size());
+        mBind.tvFilterRecord.setText("Filtered records:" + filterHallStoreData.size());
+        if (filterHallStoreData.size() > 0) {
+            Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
+            mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+        } else {
+            Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download, null);
+            mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+        }
     }
 
     private void onSelectTimeClick(int flag) {
+        if (flag == 2) {
+            mBind.tvEndDate.setText("");
+            this.endDate = null;
+        }
         Calendar startDate = Calendar.getInstance();
-        Calendar endDate = Calendar.getInstance();
-
-        //正确设置方式 原因：注意事项有说明
         startDate.set(2024, 0, 1);
-//        endDate.set(2024, 1, 29);
-
-
+        Calendar currentDate = Calendar.getInstance();
+        currentDate.set(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH),
+                Calendar.getInstance().get(Calendar.DATE), Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
+                Calendar.getInstance().get(Calendar.MINUTE), Calendar.getInstance().get(Calendar.SECOND));
         TimePickerView pickerView = new TimePickerBuilder(this, (date, view) -> {
-            if (flag == 1){
+            if (flag == 1) {
                 this.startDate = date;
                 mBind.tvStartDate.setText(sdfDate.format(date));
-            }else if (flag == 2){
+            } else if (flag == 2) {
+                if (date.getTime() < this.startDate.getTime()) {
+                    ToastUtils.showToast(this, "The end time must be greater than the start time");
+                    return;
+                }
                 this.endDate = date;
                 mBind.tvEndDate.setText(sdfDate.format(date));
             }
@@ -130,7 +175,8 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
                 .isCyclic(false)
                 .setSubmitColor(ContextCompat.getColor(this, R.color.blue_2f84d0))
                 .setCancelColor(ContextCompat.getColor(this, R.color.blue_2f84d0))
-                .setRangDate(startDate, endDate)
+                .setRangDate(startDate, currentDate)
+                .setDate(flag == 1 ? startDate : currentDate)
                 .setLabel("", "", "", "", "", "")
                 .isCenterLabel(true)
                 .isDialog(true)
@@ -204,26 +250,46 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
                                     byte[] bytes = Arrays.copyOfRange(data, i, i + 5);
                                     int year = MokoUtils.toInt(Arrays.copyOfRange(bytes, 0, 4));
                                     historyBean.time = sdf.format(new Date(year * 1000L));
+                                    historyBean.timeStamp = year * 1000L;
                                     int status = bytes[4] & 0xff;
                                     historyBean.status = status == 0 ? "Present" : "Absent";
                                     hallStoreData.add(0, historyBean);
-                                    thStoreString.append(historyBean.time).append(":").append(historyBean.status).append("\n");
                                 }
-                                mAdapter.replaceData(hallStoreData);
+                                if (null != startDate && null != endDate && !TextUtils.isEmpty(mBind.tvStartDate.getText()) && !TextUtils.isEmpty(mBind.tvEndDate.getText())) {
+                                    onStartClick();
+                                } else {
+                                    mAdapter.replaceData(hallStoreData);
+                                    mBind.tvSumRecord.setText("Sum records:" + hallStoreData.size());
+                                    mBind.tvFilterRecord.setText("Filtered records:" + hallStoreData.size());
+                                    if (hallStoreData.size() > 0) {
+                                        Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
+                                        mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+                                    }
+                                }
                                 if (hallStoreData.size() > 0) {
-                                    Drawable top = getResources().getDrawable(R.drawable.ic_download_enable);
-                                    mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+                                    mBind.tvStart.setEnabled(true);
+                                    mBind.tvStart.setBackgroundResource(R.drawable.shape_radius_blue_btn_bg);
                                 }
+                            } else {
+                                mBind.tvSumRecord.setText("Sum records:0");
+                                mBind.tvFilterRecord.setText("Filtered records:0");
                             }
                         } else if (configKeyEnum == ParamsKeyEnum.KEY_CLEAR_HISTORY_HALL) {
                             if ((value[4] & 0xff) == 0xAA) {
                                 thStoreString = new StringBuilder();
                                 writeTHFile("");
                                 hallStoreData.clear();
+                                filterHallStoreData.clear();
                                 mAdapter.replaceData(hallStoreData);
                                 mBind.llHallData.setVisibility(View.GONE);
-                                Drawable top = getResources().getDrawable(R.drawable.ic_download);
+                                Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download, null);
                                 mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+                                mBind.tvStart.setEnabled(false);
+                                mBind.tvStart.setBackgroundResource(R.drawable.shape_radius_grey);
+                                mBind.tvStartDate.setText("");
+                                mBind.tvEndDate.setText("");
+                                startDate = null;
+                                endDate = null;
                                 ToastUtils.showToast(this, "Erase success!");
                             } else {
                                 ToastUtils.showToast(this, "Failed");
@@ -288,7 +354,8 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
         File file = new File(PATH_LOGCAT);
         try {
             if (!file.exists()) {
-                file.createNewFile();
+                boolean a = file.createNewFile();
+                XLog.i(a);
             }
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(thLog);
@@ -303,7 +370,8 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
         File file = new File(PATH_LOGCAT);
         try {
             if (!file.exists()) {
-                file.createNewFile();
+                boolean a = file.createNewFile();
+                XLog.i(a);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -323,26 +391,37 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
         mBind.ivSync.startAnimation(animation);
         mBind.tvSync.setText("Stop");
         hallStoreData.clear();
+        filterHallStoreData.clear();
         mAdapter.replaceData(hallStoreData);
-        Drawable top = getResources().getDrawable(R.drawable.ic_download);
+        Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download, null);
         mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+        mBind.tvStart.setEnabled(false);
+        mBind.tvStart.setBackgroundResource(R.drawable.shape_radius_grey);
     }
 
     public void onExport(View view) {
         if (isWindowLocked()) return;
+        if (null != startDate && null != endDate && !TextUtils.isEmpty(mBind.tvStartDate.getText()) && !TextUtils.isEmpty(mBind.tvEndDate.getText())) {
+            for (HallHistoryBean bean : filterHallStoreData) {
+                thStoreString.append(bean.time).append(":").append(bean.status).append("\n");
+            }
+        } else {
+            for (HallHistoryBean bean : hallStoreData) {
+                thStoreString.append(bean.time).append(":").append(bean.status).append("\n");
+            }
+        }
+        if (TextUtils.isEmpty(thStoreString)) return;
         showSyncingProgressDialog();
         writeTHFile("");
         mBind.tvExport.postDelayed(() -> {
             dismissSyncProgressDialog();
             String log = thStoreString.toString();
-            if (!TextUtils.isEmpty(log)) {
-                writeTHFile(log);
-                File file = getTHFile();
-                // 发送邮件
-                String address = "Development@mokotechnology.com";
-                String title = "Hall Log";
-                Utils.sendEmail(ExportHallHistoryDataActivity.this, address, title, title, "Choose Email Client", file);
-            }
+            writeTHFile(log);
+            File file = getTHFile();
+            // 发送邮件
+            String address = "Development@mokotechnology.com";
+            String title = "Hall Log";
+            Utils.sendEmail(this, address, title, title, "Choose Email Client", file);
         }, 500);
     }
 

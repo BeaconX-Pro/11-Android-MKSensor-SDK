@@ -139,11 +139,16 @@ public class MokoSupport extends MokoBleLib {
         if (responseUUID.equals(OrderCHAR.CHAR_HALL.getUuid())) {
             orderCHAR = OrderCHAR.CHAR_HALL;
         }
-        if (responseUUID.equals(OrderCHAR.CHAR_TH_NOTIFY.getUuid())){
+        if (responseUUID.equals(OrderCHAR.CHAR_TH_NOTIFY.getUuid())) {
             orderCHAR = OrderCHAR.CHAR_TH_NOTIFY;
         }
-        if (responseUUID.equals(OrderCHAR.CHAR_TH_HISTORY.getUuid())){
+        if (responseUUID.equals(OrderCHAR.CHAR_TH_HISTORY.getUuid())) {
             orderCHAR = OrderCHAR.CHAR_TH_HISTORY;
+        }
+        if (responseUUID.equals(OrderCHAR.CHAR_PARAMS.getUuid())) {
+            if (null != value && value.length >= 4 && (value[2] & 0xff) == 0x44) {
+                return true;
+            }
         }
         if (orderCHAR == null) return false;
         XLog.i(orderCHAR.name());
@@ -177,24 +182,24 @@ public class MokoSupport extends MokoBleLib {
             mBleConfig.disableAccNotify();
     }
 
-    public void enableTHNotify(){
+    public void enableTHNotify() {
         if (null != mBleConfig) {
             mBleConfig.enableTHNotify();
         }
     }
 
-    public void disableTHNotify(){
+    public void disableTHNotify() {
         if (null != mBleConfig) mBleConfig.disableTHNotify();
     }
 
-    public void enableHistoryThNotify(){
-        if (null != mBleConfig){
+    public void enableHistoryThNotify() {
+        if (null != mBleConfig) {
             mBleConfig.enableHistoryTHNotify();
         }
     }
 
-    public void disableHistoryThNotify(){
-        if (null != mBleConfig){
+    public void disableHistoryThNotify() {
+        if (null != mBleConfig) {
             mBleConfig.disableHistoryTHNotify();
         }
     }

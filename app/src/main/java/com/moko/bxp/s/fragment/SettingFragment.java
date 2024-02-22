@@ -87,6 +87,13 @@ public class SettingFragment extends Fragment {
         });
         mBind.tvRemoteMinder.setOnClickListener(v -> startActivity(new Intent(getActivity(), RemoteReminderActivity.class)));
         mBind.tvSensor.setOnClickListener(v -> {
+            if (null == deviceTypeBytes) {
+                List<OrderTask> orderTasks = new ArrayList<>(2);
+                orderTasks.add(OrderTaskAssembler.getSensorType());
+                orderTasks.add(OrderTaskAssembler.getHallPowerEnable());
+                MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+                return;
+            }
             Intent intent = new Intent(getActivity(), SensorConfigActivity.class);
             intent.putExtra("deviceTypeBytes", deviceTypeBytes);
             intent.putExtra("hallEnable", isHallPowerEnable);

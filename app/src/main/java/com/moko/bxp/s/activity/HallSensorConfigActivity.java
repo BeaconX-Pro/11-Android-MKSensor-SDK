@@ -61,7 +61,7 @@ public class HallSensorConfigActivity extends BaseActivity {
             MokoSupport.getInstance().enableBluetooth();
         } else {
             showSyncingProgressDialog();
-            ArrayList<OrderTask> orderTasks = new ArrayList<>();
+            ArrayList<OrderTask> orderTasks = new ArrayList<>(4);
             orderTasks.add(OrderTaskAssembler.getMagneticTriggerCount());
             orderTasks.add(OrderTaskAssembler.getHallStoreEnable());
             orderTasks.add(OrderTaskAssembler.getCurrentTime());

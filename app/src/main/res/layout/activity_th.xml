@@ -258,7 +258,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:text="(1~65535)"
+            android:text="(0~65535)"
             android:textColor="@color/grey_b3b3b3"
             android:textSize="10sp" />
     </LinearLayout>

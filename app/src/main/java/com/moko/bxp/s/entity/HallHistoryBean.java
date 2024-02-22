@@ -8,4 +8,5 @@ package com.moko.bxp.s.entity;
 public class HallHistoryBean {
     public String time;
     public String status;
+    public long timeStamp;
 }
