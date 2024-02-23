@@ -31,6 +31,7 @@ import com.moko.support.s.entity.UrlExpansionEnum;
 import com.moko.support.s.entity.UrlSchemeEnum;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
     private static final String TAG = "UrlFragment";
@@ -48,16 +49,10 @@ public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeList
 
     public void setSlotData(SlotData slotData) {
         this.slotData = slotData;
-        if (slotData.isC112) {
+        if (slotData.isC112 && null != mBind) {
             mBind.sbTxPower.setMax(5);
             mBind.tvTxPowerTips.setText("(-20, -16, -12, -8, -4, 0)");
         }
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "onCreate: ");
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -78,6 +73,10 @@ public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeList
             isLowPowerMode = !isLowPowerMode;
             changeView();
         });
+        if (slotData.isC112) {
+            mBind.sbTxPower.setMax(5);
+            mBind.tvTxPowerTips.setText("(-20, -16, -12, -8, -4, 0)");
+        }
         return mBind.getRoot();
     }
 
@@ -101,10 +100,12 @@ public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeList
             mBind.sbRssi.setProgress(100);
             mBind.sbTxPower.setProgress(5);
         } else {
-            mBind.etAdvInterval.setText(String.valueOf(slotData.advInterval));
-            mBind.etAdvDuration.setText(String.valueOf(slotData.advDuration));
-            mBind.etStandbyDuration.setText(String.valueOf(slotData.standbyDuration));
             isLowPowerMode = slotData.standbyDuration != 0;
+            mBind.etAdvInterval.setText(String.valueOf(slotData.advInterval/100));
+            mBind.etAdvDuration.setText(String.valueOf(slotData.advDuration));
+            if (isLowPowerMode) {
+                mBind.etStandbyDuration.setText(String.valueOf(slotData.standbyDuration));
+            }
             changeView();
             if (slotData.frameTypeEnum == SlotFrameTypeEnum.TLM) {
                 mBind.sbRssi.setProgress(100);
@@ -118,9 +119,9 @@ public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeList
             }
             int txPowerProgress;
             if (slotData.isC112) {
-                txPowerProgress = TxPowerEnumC112.fromTxPower(slotData.txPower).ordinal();
+                txPowerProgress = Objects.requireNonNull(TxPowerEnumC112.fromTxPower(slotData.txPower)).ordinal();
             } else {
-                txPowerProgress = TxPowerEnum.fromTxPower(slotData.txPower).ordinal();
+                txPowerProgress = Objects.requireNonNull(TxPowerEnum.fromTxPower(slotData.txPower)).ordinal();
             }
             mBind.sbTxPower.setProgress(txPowerProgress);
             mTxPower = slotData.txPower;
@@ -141,24 +142,6 @@ public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeList
                 mBind.etUrl.setText(MokoUtils.hex2String(url.substring(0, url.length() - 2)) + urlEnum.getUrlExpanDesc());
             }
         }
-    }
-
-    @Override
-    public void onResume() {
-        Log.i(TAG, "onResume: ");
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        Log.i(TAG, "onPause: ");
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.i(TAG, "onDestroy: ");
-        super.onDestroy();
     }
 
     private int mAdvInterval;
@@ -302,9 +285,9 @@ public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeList
 
             int txPowerProgress;
             if (slotData.isC112) {
-                txPowerProgress = TxPowerEnumC112.fromTxPower(slotData.txPower).ordinal();
+                txPowerProgress = Objects.requireNonNull(TxPowerEnumC112.fromTxPower(slotData.txPower)).ordinal();
             } else {
-                txPowerProgress = TxPowerEnum.fromTxPower(slotData.txPower).ordinal();
+                txPowerProgress = Objects.requireNonNull(TxPowerEnum.fromTxPower(slotData.txPower)).ordinal();
             }
             mBind.sbTxPower.setProgress(txPowerProgress);
 
@@ -323,7 +306,7 @@ public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeList
         } else {
             mBind.etAdvInterval.setText("10");
             mBind.etAdvDuration.setText("10");
-            mBind.etStandbyDuration.setText("0");
+            mBind.etStandbyDuration.setText("");
             mBind.sbRssi.setProgress(100);
             mBind.sbTxPower.setProgress(5);
             mBind.etUrl.setText("");
@@ -333,8 +316,7 @@ public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeList
     }
 
     public void selectUrlScheme() {
-        UrlSchemeDialog dialog = new UrlSchemeDialog();
-        dialog.renderConvertView(mBind.tvUrlScheme.getText().toString());
+        UrlSchemeDialog dialog = new UrlSchemeDialog(mBind.tvUrlScheme.getText().toString());
         dialog.setUrlSchemeClickListener(urlType -> {
             UrlSchemeEnum urlSchemeEnum = UrlSchemeEnum.fromUrlType(Integer.parseInt(urlType));
             if (null == urlSchemeEnum) return;

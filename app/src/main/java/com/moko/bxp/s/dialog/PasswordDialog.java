@@ -14,12 +14,8 @@ import com.moko.bxp.s.utils.ToastUtils;
 
 public class PasswordDialog extends MokoBaseDialog<DialogPasswordDBinding> {
     public static final String TAG = PasswordDialog.class.getSimpleName();
-
-
     private final String FILTER_ASCII = "[ -~]*";
-
     private String password;
-
 
     @Override
     protected DialogPasswordDBinding getViewBind(LayoutInflater inflater, ViewGroup container) {
@@ -32,7 +28,6 @@ public class PasswordDialog extends MokoBaseDialog<DialogPasswordDBinding> {
             if (!(source + "").matches(FILTER_ASCII)) {
                 return "";
             }
-
             return null;
         };
         mBind.etPassword.setFilters(new InputFilter[]{new InputFilter.LengthFilter(16), filter});
@@ -55,19 +50,16 @@ public class PasswordDialog extends MokoBaseDialog<DialogPasswordDBinding> {
             if (passwordClickListener != null)
                 passwordClickListener.onEnsureClicked(mBind.etPassword.getText().toString());
         });
-        mBind.etPassword.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                //设置可获得焦点
-                mBind.etPassword.setFocusable(true);
-                mBind.etPassword.setFocusableInTouchMode(true);
-                //请求获得焦点
-                mBind.etPassword.requestFocus();
-                //调用系统输入法
-                InputMethodManager inputManager = (InputMethodManager) mBind.etPassword
-                        .getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.showSoftInput(mBind.etPassword, 0);
-            }
+        mBind.etPassword.postDelayed(() -> {
+            //设置可获得焦点
+            mBind.etPassword.setFocusable(true);
+            mBind.etPassword.setFocusableInTouchMode(true);
+            //请求获得焦点
+            mBind.etPassword.requestFocus();
+            //调用系统输入法
+            InputMethodManager inputManager = (InputMethodManager) mBind.etPassword
+                    .getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.showSoftInput(mBind.etPassword, 0);
         }, 200);
     }
 
@@ -108,9 +100,7 @@ public class PasswordDialog extends MokoBaseDialog<DialogPasswordDBinding> {
     }
 
     public interface PasswordClickListener {
-
         void onEnsureClicked(String password);
-
         void onDismiss();
     }
 

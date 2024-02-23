@@ -16,13 +16,11 @@
             android:id="@+id/tv_back"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:clickable="true"
             android:drawableLeft="@drawable/back"
             android:drawablePadding="6dp"
             android:gravity="center_vertical"
             android:onClick="onBack"
             android:paddingLeft="16dp"
-            android:text=""
             android:textColor="@color/white_ffffff"
             android:textSize="15sp" />
 
@@ -105,15 +103,13 @@
             <LinearLayout
                 android:id="@+id/rl_trigger_switch"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="45dp"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/shape_radius_white_bg"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingLeft="25dp"
-                android:paddingTop="10dp"
-                android:paddingRight="25dp"
-                android:paddingBottom="10dp">
+                android:paddingRight="25dp">
 
                 <TextView
                     android:layout_width="0px"
@@ -122,6 +118,7 @@
                     android:drawableLeft="@drawable/trigger"
                     android:drawablePadding="10dp"
                     android:text="Trigger"
+                    android:gravity="center_vertical"
                     android:textColor="@color/black_333333"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -132,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/black_333333"
                     android:textSize="15sp"
-                    tools:text="OFF" />
+                    android:text="OFF" />
 
                 <ImageView
                     android:layout_width="wrap_content"

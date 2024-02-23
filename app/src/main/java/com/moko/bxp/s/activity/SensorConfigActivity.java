@@ -80,9 +80,6 @@ public class SensorConfigActivity extends BaseActivity {
     }
 
     private void back() {
-//        Intent intent = new Intent();
-//        intent.putExtra("status", status);
-//        setResult(RESULT_OK, intent);
         EventBus.getDefault().unregister(this);
         finish();
     }

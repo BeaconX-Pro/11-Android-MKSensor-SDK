@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.elvishew.xlog.XLog;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.entity.AdvIBeacon;
 import com.moko.bxp.s.entity.AdvInfo;
@@ -46,7 +45,6 @@ public class DeviceListAdapter extends BaseQuickAdapter<AdvInfo, BaseViewHolder>
         parent.removeAllViews();
         ArrayList<AdvInfo.ValidData> validDataList = new ArrayList<>(item.validDataHashMap.values());
         for (AdvInfo.ValidData validData : validDataList) {
-            XLog.i(validData.toString());
             if (validData.type == AdvInfo.VALID_DATA_FRAME_TYPE_UID) {
                 parent.addView(createUIDView(AdvInfoParser.getUID(validData.data), parent));
             }

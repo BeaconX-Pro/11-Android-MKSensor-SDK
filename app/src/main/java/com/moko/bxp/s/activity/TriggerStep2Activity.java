@@ -48,7 +48,6 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
     private boolean mReceiverTag;
     private int slot;
     private TriggerStep1Bean step1Bean;
-    // TODO: 2024/1/31
     //触发类型 1 2 3 4
     private int triggerType;
     private final String[] triggerTypeArray = {"Temperature detection", "Humidity detection", "Motion detection", "Door magnetic detection"};
@@ -85,10 +84,6 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
         showSyncingProgressDialog();
         List<OrderTask> orderTasks = new ArrayList<>(4);
         orderTasks.add(OrderTaskAssembler.getSlotTriggerType(slot));
-//        orderTasks.add(OrderTaskAssembler.getHallTriggerEvent(slot));
-//        orderTasks.add(OrderTaskAssembler.getAxisTriggerEvent(slot));
-//        orderTasks.add(OrderTaskAssembler.getTempTriggerEvent(slot));
-//        orderTasks.add(OrderTaskAssembler.getHumTriggerEvent(slot));
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
     }
 

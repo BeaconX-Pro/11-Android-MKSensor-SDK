@@ -196,15 +196,15 @@ public class SlotFragment extends Fragment {
     }
 
     public void setSlotAdvParams(byte[] rawDataBytes, boolean isC112) {
-        slotData.advInterval = rawDataBytes[1] & 0xFF;
-        slotData.advDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 2, 4));
-        slotData.standbyDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 4, 6));
+        slotData.advInterval = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes,1,3));
+        slotData.advDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 3, 5));
+        slotData.standbyDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 5, 7));
         if (slotData.frameTypeEnum == IBEACON) {
-            slotData.rssi_1m = rawDataBytes[6];
+            slotData.rssi_1m = rawDataBytes[7];
         } else {
-            slotData.rssi_0m = rawDataBytes[6];
+            slotData.rssi_0m = rawDataBytes[7];
         }
-        slotData.txPower = rawDataBytes[7];
+        slotData.txPower = rawDataBytes[8];
         slotData.isC112 = isC112;
 
         Intent intent = new Intent(getActivity(), SlotDataActivity.class);

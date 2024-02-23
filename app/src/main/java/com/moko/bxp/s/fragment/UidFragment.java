@@ -27,6 +27,7 @@ import com.moko.support.s.entity.TxPowerEnum;
 import com.moko.support.s.entity.TxPowerEnumC112;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class UidFragment extends Fragment implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
     private static final String TAG = "UidFragment";
@@ -43,16 +44,10 @@ public class UidFragment extends Fragment implements SeekBar.OnSeekBarChangeList
 
     public void setSlotData(SlotData slotData) {
         this.slotData = slotData;
-        if (slotData.isC112) {
+        if (slotData.isC112 && null != mBind) {
             mBind.sbTxPower.setMax(5);
             mBind.tvTxPowerTips.setText("(-20, -16, -12, -8, -4, 0)");
         }
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        Log.i(TAG, "onCreate: ");
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -68,6 +63,10 @@ public class UidFragment extends Fragment implements SeekBar.OnSeekBarChangeList
             isLowPowerMode = !isLowPowerMode;
             changeView();
         });
+        if (slotData.isC112) {
+            mBind.sbTxPower.setMax(5);
+            mBind.tvTxPowerTips.setText("(-20, -16, -12, -8, -4, 0)");
+        }
         return mBind.getRoot();
     }
 
@@ -91,10 +90,12 @@ public class UidFragment extends Fragment implements SeekBar.OnSeekBarChangeList
             mBind.sbRssi.setProgress(100);
             mBind.sbTxPower.setProgress(5);
         } else {
-            mBind.etAdvInterval.setText(String.valueOf(slotData.advInterval));
-            mBind.etAdvDuration.setText(String.valueOf(slotData.advDuration));
-            mBind.etStandbyDuration.setText(String.valueOf(slotData.standbyDuration));
             isLowPowerMode = slotData.standbyDuration != 0;
+            mBind.etAdvInterval.setText(String.valueOf(slotData.advInterval / 100));
+            mBind.etAdvDuration.setText(String.valueOf(slotData.advDuration));
+            if (isLowPowerMode) {
+                mBind.etStandbyDuration.setText(String.valueOf(slotData.standbyDuration));
+            }
             changeView();
             if (slotData.frameTypeEnum == SlotFrameTypeEnum.TLM) {
                 mBind.sbRssi.setProgress(100);
@@ -109,9 +110,9 @@ public class UidFragment extends Fragment implements SeekBar.OnSeekBarChangeList
 
             int txPowerProgress;
             if (slotData.isC112) {
-                txPowerProgress = TxPowerEnumC112.fromTxPower(slotData.txPower).ordinal();
+                txPowerProgress = Objects.requireNonNull(TxPowerEnumC112.fromTxPower(slotData.txPower)).ordinal();
             } else {
-                txPowerProgress = TxPowerEnum.fromTxPower(slotData.txPower).ordinal();
+                txPowerProgress = Objects.requireNonNull(TxPowerEnum.fromTxPower(slotData.txPower)).ordinal();
             }
             mBind.sbTxPower.setProgress(txPowerProgress);
             mTxPower = slotData.txPower;
@@ -123,24 +124,6 @@ public class UidFragment extends Fragment implements SeekBar.OnSeekBarChangeList
             mBind.etNamespace.setSelection(mBind.etNamespace.getText().toString().length());
             mBind.etInstanceId.setSelection(mBind.etInstanceId.getText().toString().length());
         }
-    }
-
-    @Override
-    public void onResume() {
-        Log.i(TAG, "onResume: ");
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        Log.i(TAG, "onPause: ");
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.i(TAG, "onDestroy: ");
-        super.onDestroy();
     }
 
     private int mAdvInterval;
@@ -165,6 +148,7 @@ public class UidFragment extends Fragment implements SeekBar.OnSeekBarChangeList
             mRssi = rssi;
         } else if (viewId == R.id.sb_tx_power) {
             TxPowerEnum txPowerEnum = TxPowerEnum.fromOrdinal(progress);
+            if (null == txPowerEnum) return;
             int txPower = txPowerEnum.getTxPower();
             mBind.tvTxPower.setText(String.format("%ddBm", txPower));
             mTxPower = txPower;
@@ -181,7 +165,7 @@ public class UidFragment extends Fragment implements SeekBar.OnSeekBarChangeList
 
     }
 
-    public TriggerStep1Bean getTriggerStep1Bean(){
+    public TriggerStep1Bean getTriggerStep1Bean() {
         return triggerStep1Bean;
     }
 
@@ -280,9 +264,9 @@ public class UidFragment extends Fragment implements SeekBar.OnSeekBarChangeList
 
             int txPowerProgress;
             if (slotData.isC112) {
-                txPowerProgress = TxPowerEnumC112.fromTxPower(slotData.txPower).ordinal();
+                txPowerProgress = Objects.requireNonNull(TxPowerEnumC112.fromTxPower(slotData.txPower)).ordinal();
             } else {
-                txPowerProgress = TxPowerEnum.fromTxPower(slotData.txPower).ordinal();
+                txPowerProgress = Objects.requireNonNull(TxPowerEnum.fromTxPower(slotData.txPower)).ordinal();
             }
             mBind.sbTxPower.setProgress(txPowerProgress);
             mBind.etNamespace.setText(slotData.namespace);
@@ -290,7 +274,7 @@ public class UidFragment extends Fragment implements SeekBar.OnSeekBarChangeList
         } else {
             mBind.etAdvInterval.setText("10");
             mBind.etAdvDuration.setText("10");
-            mBind.etStandbyDuration.setText("0");
+            mBind.etStandbyDuration.setText("");
             mBind.sbRssi.setProgress(100);
             mBind.sbTxPower.setProgress(5);
             mBind.etNamespace.setText("");

@@ -341,7 +341,6 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
     }
 
     private void back() {
-        // 关闭通知
         finish();
     }
 
@@ -415,8 +414,7 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
         writeTHFile("");
         mBind.tvExport.postDelayed(() -> {
             dismissSyncProgressDialog();
-            String log = thStoreString.toString();
-            writeTHFile(log);
+            writeTHFile(thStoreString.toString());
             File file = getTHFile();
             // 发送邮件
             String address = "Development@mokotechnology.com";

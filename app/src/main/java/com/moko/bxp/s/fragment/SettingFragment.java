@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment;
 
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.bxp.s.activity.DeviceInfoActivity;
-import com.moko.bxp.s.activity.QuickSwitchActivity;
 import com.moko.bxp.s.activity.RemoteReminderActivity;
 import com.moko.bxp.s.activity.SensorConfigActivity;
 import com.moko.bxp.s.databinding.FragmentSettingBinding;

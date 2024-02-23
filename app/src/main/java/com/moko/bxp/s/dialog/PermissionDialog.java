@@ -63,7 +63,7 @@ public class PermissionDialog extends RationaleDialogFragment {
         if (null != getDialog()) {
             Window window = getDialog().getWindow();
             if (null != window) {
-                window.getAttributes().width = dip2px(requireContext(), 260);
+                window.getAttributes().width = dip2px(requireContext());
                 window.getAttributes().height = WindowManager.LayoutParams.WRAP_CONTENT;
                 window.getAttributes().gravity = Gravity.CENTER;
                 window.setBackgroundDrawableResource(R.drawable.shape_radius3_solid_ffffff);
@@ -89,8 +89,8 @@ public class PermissionDialog extends RationaleDialogFragment {
         return permissionList;
     }
 
-    private int dip2px(Context context, float dipValue) {
+    private int dip2px(Context context) {
         final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dipValue * scale + 0.5f);
+        return (int) (260 * scale + 0.5f);
     }
 }

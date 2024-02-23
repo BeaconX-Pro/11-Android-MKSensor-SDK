@@ -47,15 +47,15 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
     private String[] slotTypeArray;
     public SlotFrameTypeEnum currentFrameTypeEnum;
     public boolean isConfigError;
-    private ActivitySlotDataBinding mBind;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ActivitySlotDataBinding.inflate(getLayoutInflater());
+        ActivitySlotDataBinding mBind = ActivitySlotDataBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         if (getIntent() != null && getIntent().getExtras() != null) {
             slotData = (SlotData) getIntent().getSerializableExtra(AppConstants.EXTRA_KEY_SLOT_DATA);
+            if (null == slotData) return;
             currentFrameTypeEnum = slotData.frameTypeEnum;
             XLog.i(slotData.toString());
         }

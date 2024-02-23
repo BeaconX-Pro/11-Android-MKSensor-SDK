@@ -244,14 +244,12 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                             if (flag == 0x01 && length == 0x01) {
                                 // write
                                 int result = value[4] & 0xFF;
-                                switch (configKeyEnum) {
-                                    case KEY_ADV_MODE:
-                                        if (result == 0xAA) {
-                                            ToastUtils.showToast(this, "Success");
-                                        } else {
-                                            ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
-                                        }
-                                        break;
+                                if (configKeyEnum == ParamsKeyEnum.KEY_ADV_MODE) {
+                                    if (result == 0xAA) {
+                                        ToastUtils.showToast(this, "Success");
+                                    } else {
+                                        ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
+                                    }
                                 }
                             }
                             if (flag == 0x00) {

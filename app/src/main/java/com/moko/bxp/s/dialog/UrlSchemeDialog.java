@@ -7,8 +7,16 @@ import com.moko.bxp.s.databinding.DialogUrlSchemeBinding;
 import com.moko.support.s.entity.UrlSchemeEnum;
 
 public class UrlSchemeDialog extends MokoBaseDialog<DialogUrlSchemeBinding> {
-    public void renderConvertView(String urlScheme) {
+    private String urlScheme;
+    private UrlSchemeClickListener urlSchemeClickListener;
+    public UrlSchemeDialog(){}
+    public UrlSchemeDialog(String urlScheme){
+        this.urlScheme = urlScheme;
+    }
+
+    private void renderConvertView() {
         UrlSchemeEnum urlSchemeEnum = UrlSchemeEnum.fromUrlDesc(urlScheme);
+        if (null == urlSchemeEnum) return;
         switch (urlSchemeEnum.getUrlType()) {
             case 0:
                 mBind.rbHttpWww.setChecked(true);
@@ -27,6 +35,7 @@ public class UrlSchemeDialog extends MokoBaseDialog<DialogUrlSchemeBinding> {
 
     @Override
     protected void onCreateView() {
+        renderConvertView();
         mBind.tvCancel.setOnClickListener(v -> dismiss());
         mBind.tvEnsure.setOnClickListener(v -> {
             dismiss();
@@ -38,8 +47,6 @@ public class UrlSchemeDialog extends MokoBaseDialog<DialogUrlSchemeBinding> {
             urlSchemeClickListener.onEnsureClicked(tag);
         });
     }
-
-    private UrlSchemeClickListener urlSchemeClickListener;
 
     public void setUrlSchemeClickListener(UrlSchemeClickListener urlSchemeClickListener) {
         this.urlSchemeClickListener = urlSchemeClickListener;

@@ -77,6 +77,9 @@
         <activity android:name=".activity.ExportHallHistoryDataActivity"
             android:screenOrientation="portrait"/>
 
+        <activity android:name=".activity.SlotDataActivity"
+            android:screenOrientation="portrait"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.moko.bxp.s.fileprovider"

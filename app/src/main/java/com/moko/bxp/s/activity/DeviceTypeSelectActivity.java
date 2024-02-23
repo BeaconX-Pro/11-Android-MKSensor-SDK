@@ -15,12 +15,11 @@ import com.moko.bxp.s.dialog.AlertMessageDialog;
  * @des:
  */
 public class DeviceTypeSelectActivity extends BaseActivity {
-    private ActivityDeviceTypeSelectBinding mBind;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ActivityDeviceTypeSelectBinding.inflate(getLayoutInflater());
+        ActivityDeviceTypeSelectBinding mBind = ActivityDeviceTypeSelectBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         mBind.layoutCommon.setOnClickListener(v -> onTypeClick(1));
         mBind.layoutTH.setOnClickListener(v -> onTypeClick(2));

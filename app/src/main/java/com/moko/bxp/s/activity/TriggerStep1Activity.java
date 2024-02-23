@@ -107,20 +107,20 @@ public class TriggerStep1Activity extends BaseActivity {
     private void createFragments() {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         uidFragment = UidFragment.newInstance();
-        uidFragment.setSlotData(slotData);
         fragmentTransaction.add(R.id.frame_slot_container, uidFragment);
+        uidFragment.setSlotData(slotData);
         urlFragment = UrlFragment.newInstance();
-        urlFragment.setSlotData(slotData);
         fragmentTransaction.add(R.id.frame_slot_container, urlFragment);
+        urlFragment.setSlotData(slotData);
         tlmFragment = TlmFragment.newInstance();
-        tlmFragment.setSlotData(slotData);
         fragmentTransaction.add(R.id.frame_slot_container, tlmFragment);
+        tlmFragment.setSlotData(slotData);
         iBeaconFragment = IBeaconFragment.newInstance();
-        iBeaconFragment.setSlotData(slotData);
         fragmentTransaction.add(R.id.frame_slot_container, iBeaconFragment);
+        iBeaconFragment.setSlotData(slotData);
         sensorInfoFragment = SensorInfoFragment.newInstance();
-        sensorInfoFragment.setSlotData(slotData);
         fragmentTransaction.add(R.id.frame_slot_container, sensorInfoFragment);
+        sensorInfoFragment.setSlotData(slotData);
         fragmentTransaction.commit();
     }
 
@@ -291,11 +291,6 @@ public class TriggerStep1Activity extends BaseActivity {
                                             currentIndex = frameTypeSelected;
                                             currentFrameTypeEnum = slotData.frameTypeEnum = SlotFrameTypeEnum.fromShowName(frameTypeArray[currentIndex]);
                                             mBind.tvFrameType.setText(frameTypeArray[frameTypeSelected]);
-//                                            if (frameTypeSelected == 0) {
-//                                                mBind.layoutAdvTrigger.setVisibility(View.GONE);
-//                                                isTrigger = false;
-//                                                mBind.ivAdv.setImageResource(R.drawable.ic_unchecked);
-//                                            }
                                         }
                                     }
                                     break;
