@@ -16,6 +16,7 @@ import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.support.s.entity.ExportData;
 import com.moko.support.s.entity.OrderCHAR;
 import com.moko.support.s.handler.MokoCharacteristicHandler;
+import com.moko.support.s.task.ParamsTask;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -147,6 +148,16 @@ public class MokoSupport extends MokoBleLib {
         }
         if (responseUUID.equals(OrderCHAR.CHAR_PARAMS.getUuid())) {
             if (null != value && value.length >= 4 && (value[2] & 0xff) == 0x44) {
+                return true;
+            }
+            if (null != value && value.length >= 4 && (value[2] & 0xff) == 0x6E) {
+                OrderTaskResponse response = new OrderTaskResponse();
+                response.orderCHAR = orderCHAR;
+                response.responseValue = value;
+                OrderTaskResponseEvent event = new OrderTaskResponseEvent();
+                event.setAction(MokoConstants.ACTION_CURRENT_DATA);
+                event.setResponse(response);
+                EventBus.getDefault().post(event);
                 return true;
             }
         }

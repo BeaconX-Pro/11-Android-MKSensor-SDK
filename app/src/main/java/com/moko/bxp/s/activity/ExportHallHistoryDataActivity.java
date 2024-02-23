@@ -27,6 +27,7 @@ import com.elvishew.xlog.XLog;
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
+import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.AppConstants;
@@ -182,7 +183,7 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
                 .isDialog(true)
                 .build();
         Dialog mDialog = pickerView.getDialog();
-        if (mDialog != null) {
+        if (null != mDialog) {
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -226,55 +227,10 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
                 byte[] value = response.responseValue;
                 if (orderCHAR == OrderCHAR.CHAR_PARAMS) {
                     if (value.length >= 4) {
-                        int header = value[0] & 0xff;
                         int flag = value[1] & 0xff;
                         int key = value[2] & 0xff;
                         ParamsKeyEnum configKeyEnum = ParamsKeyEnum.fromParamKey(key);
-                        if (configKeyEnum == ParamsKeyEnum.KEY_HALL_HISTORY_DATA && header == 0xEC && flag == 0) {
-                            int totalPackage = MokoUtils.toInt(Arrays.copyOfRange(value, 3, 5));
-                            int packageIndex = MokoUtils.toInt(Arrays.copyOfRange(value, 5, 7));
-                            if (totalPackage == 0 || totalPackage - 1 == packageIndex) {
-                                //最后一帧数据了
-                                mBind.ivSync.clearAnimation();
-                                mBind.tvSync.setText("Sync");
-                                dismissSyncProgressDialog();
-                            }
-                            int length = value[7] & 0xff;
-                            if (length > 0) {
-                                byte[] data = Arrays.copyOfRange(value, 8, length + 8);
-                                XLog.i(Arrays.toString(data));
-                                mBind.llHallData.setVisibility(View.VISIBLE);
-                                for (int i = 0; i < data.length; i += 5) {
-                                    HallHistoryBean historyBean = new HallHistoryBean();
-                                    //i=0  0-5 5-10
-                                    byte[] bytes = Arrays.copyOfRange(data, i, i + 5);
-                                    int year = MokoUtils.toInt(Arrays.copyOfRange(bytes, 0, 4));
-                                    historyBean.time = sdf.format(new Date(year * 1000L));
-                                    historyBean.timeStamp = year * 1000L;
-                                    int status = bytes[4] & 0xff;
-                                    historyBean.status = status == 0 ? "Present" : "Absent";
-                                    hallStoreData.add(0, historyBean);
-                                }
-                                if (null != startDate && null != endDate && !TextUtils.isEmpty(mBind.tvStartDate.getText()) && !TextUtils.isEmpty(mBind.tvEndDate.getText())) {
-                                    onStartClick();
-                                } else {
-                                    mAdapter.replaceData(hallStoreData);
-                                    mBind.tvSumRecord.setText("Sum records:" + hallStoreData.size());
-                                    mBind.tvFilterRecord.setText("Filtered records:" + hallStoreData.size());
-                                    if (hallStoreData.size() > 0) {
-                                        Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
-                                        mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
-                                    }
-                                }
-                                if (hallStoreData.size() > 0) {
-                                    mBind.tvStart.setEnabled(true);
-                                    mBind.tvStart.setBackgroundResource(R.drawable.shape_radius_blue_btn_bg);
-                                }
-                            } else {
-                                mBind.tvSumRecord.setText("Sum records:0");
-                                mBind.tvFilterRecord.setText("Filtered records:0");
-                            }
-                        } else if (configKeyEnum == ParamsKeyEnum.KEY_CLEAR_HISTORY_HALL) {
+                        if (configKeyEnum == ParamsKeyEnum.KEY_CLEAR_HISTORY_HALL && flag == 1) {
                             if ((value[4] & 0xff) == 0xAA) {
                                 thStoreString = new StringBuilder();
                                 writeTHFile("");
@@ -294,6 +250,65 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
                             } else {
                                 ToastUtils.showToast(this, "Failed");
                             }
+                        }
+                    }
+                }
+            } else if (MokoConstants.ACTION_CURRENT_DATA.equals(action)) {
+                OrderTaskResponse response = event.getResponse();
+                byte[] value = response.responseValue;
+                if (value.length >= 4) {
+                    int header = value[0] & 0xff;
+                    int flag = value[1] & 0xff;
+                    int key = value[2] & 0xff;
+                    ParamsKeyEnum configKeyEnum = ParamsKeyEnum.fromParamKey(key);
+                    if (configKeyEnum == ParamsKeyEnum.KEY_HALL_HISTORY_DATA && header == 0xEC && flag == 0) {
+                        int totalPackage = MokoUtils.toInt(Arrays.copyOfRange(value, 3, 5));
+                        int packageIndex = MokoUtils.toInt(Arrays.copyOfRange(value, 5, 7));
+                        if (packageIndex == 0) {
+                            orderTask.orderStatus = 1;
+                            MokoSupport.getInstance().pollTask();
+                            MokoSupport.getInstance().executeTask();
+                        }
+                        if (totalPackage == 0 || totalPackage - 1 == packageIndex) {
+                            //最后一帧数据了
+                            mBind.ivSync.clearAnimation();
+                            mBind.tvSync.setText("Sync");
+                            dismissSyncProgressDialog();
+                        }
+                        int length = value[7] & 0xff;
+                        if (length > 0) {
+                            byte[] data = Arrays.copyOfRange(value, 8, length + 8);
+                            XLog.i(Arrays.toString(data));
+                            mBind.llHallData.setVisibility(View.VISIBLE);
+                            for (int i = 0; i < data.length; i += 5) {
+                                HallHistoryBean historyBean = new HallHistoryBean();
+                                //i=0  0-5 5-10
+                                byte[] bytes = Arrays.copyOfRange(data, i, i + 5);
+                                int year = MokoUtils.toInt(Arrays.copyOfRange(bytes, 0, 4));
+                                historyBean.time = sdf.format(new Date(year * 1000L));
+                                historyBean.timeStamp = year * 1000L;
+                                int status = bytes[4] & 0xff;
+                                historyBean.status = status == 0 ? "Present" : "Absent";
+                                hallStoreData.add(0, historyBean);
+                            }
+                            if (null != startDate && null != endDate && !TextUtils.isEmpty(mBind.tvStartDate.getText()) && !TextUtils.isEmpty(mBind.tvEndDate.getText())) {
+                                onStartClick();
+                            } else {
+                                mAdapter.replaceData(hallStoreData);
+                                mBind.tvSumRecord.setText("Sum records:" + hallStoreData.size());
+                                mBind.tvFilterRecord.setText("Filtered records:" + hallStoreData.size());
+                                if (hallStoreData.size() > 0) {
+                                    Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
+                                    mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+                                }
+                            }
+                            if (hallStoreData.size() > 0) {
+                                mBind.tvStart.setEnabled(true);
+                                mBind.tvStart.setBackgroundResource(R.drawable.shape_radius_blue_btn_bg);
+                            }
+                        } else {
+                            mBind.tvSumRecord.setText("Sum records:0");
+                            mBind.tvFilterRecord.setText("Filtered records:0");
                         }
                     }
                 }
@@ -382,10 +397,13 @@ public class ExportHallHistoryDataActivity extends BaseActivity {
         back();
     }
 
+    private OrderTask orderTask;
+
     public void onSync(View view) {
         if (isWindowLocked()) return;
         showSyncingProgressDialog();
-        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getHistoryHallData());
+        orderTask = OrderTaskAssembler.getHistoryHallData();
+        MokoSupport.getInstance().sendOrder(orderTask);
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.rotate_refresh);
         mBind.ivSync.startAnimation(animation);
         mBind.tvSync.setText("Stop");

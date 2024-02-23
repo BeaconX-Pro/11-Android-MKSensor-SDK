@@ -68,7 +68,7 @@ public class SlotFragment extends Fragment {
                 createData(slotData.frameTypeEnum, SlotEnum.SLOT1);
             } else {
                 //配置了触发功能 跳转配置触发功能引导页面
-                toTriggerActivity(0);
+                toTriggerActivity(0, slot1TriggerType);
             }
         });
         mBind.rlSlot2.setOnClickListener(v -> {
@@ -80,7 +80,7 @@ public class SlotFragment extends Fragment {
                 createData(slotData.frameTypeEnum, SlotEnum.SLOT2);
             } else {
                 //配置了触发功能 跳转配置触发功能引导页面
-                toTriggerActivity(1);
+                toTriggerActivity(1, slot2TriggerType);
             }
         });
         mBind.rlSlot3.setOnClickListener(v -> {
@@ -92,15 +92,16 @@ public class SlotFragment extends Fragment {
                 createData(slotData.frameTypeEnum, SlotEnum.SLOT3);
             } else {
                 //配置了触发功能 跳转配置触发功能引导页面
-                toTriggerActivity(2);
+                toTriggerActivity(2, slot3TriggerType);
             }
         });
     }
 
-    private void toTriggerActivity(int slot) {
+    private void toTriggerActivity(int slot, int triggerType) {
         Intent intent = new Intent(requireActivity(), TriggerStep1Activity.class);
         intent.putExtra("slot", slot);
         intent.putExtra("isC112", isC112);
+        intent.putExtra("triggerType", triggerType);
         startActivity(intent);
     }
 
@@ -196,7 +197,7 @@ public class SlotFragment extends Fragment {
     }
 
     public void setSlotAdvParams(byte[] rawDataBytes, boolean isC112) {
-        slotData.advInterval = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes,1,3));
+        slotData.advInterval = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 1, 3));
         slotData.advDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 3, 5));
         slotData.standbyDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 5, 7));
         if (slotData.frameTypeEnum == IBEACON) {

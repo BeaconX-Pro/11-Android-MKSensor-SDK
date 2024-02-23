@@ -58,7 +58,7 @@ import java.util.Arrays;
 public class TriggerStep1Activity extends BaseActivity {
     private ActivityTriggerStep1Binding mBind;
     private boolean mReceiverTag;
-    private boolean isTrigger = true;
+    private boolean isTrigger;
     private boolean advBeforeTrigger = true;
     private int slot;
     private final String[] frameTypeArray = {"UID", "URL", "TLM", "iBeacon", "Sensor info", "T&H"};
@@ -90,7 +90,9 @@ public class TriggerStep1Activity extends BaseActivity {
         mReceiverTag = true;
         slot = getIntent().getIntExtra("slot", 0);
         isC112 = getIntent().getBooleanExtra("isC112", false);
+        int triggerType = getIntent().getIntExtra("triggerType", 0);
         fragmentManager = getSupportFragmentManager();
+        isTrigger = triggerType != 0;
         setListener();
         if (!MokoSupport.getInstance().isBluetoothOpen()) {
             // 蓝牙未打开，开启蓝牙
@@ -102,6 +104,12 @@ public class TriggerStep1Activity extends BaseActivity {
             orderTasks.add(OrderTaskAssembler.getTriggerBeforeSlotParams(slot));
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         }
+        mBind.tvTitle.setText("SLOT" + (slot + 1));
+        mBind.tvBack.setOnClickListener(v -> finish());
+        mBind.ivTrigger.setImageResource(isTrigger ? R.drawable.ic_checked : R.drawable.ic_unchecked);
+        mBind.cbLayoutAdvTrigger.setVisibility(isTrigger ? View.VISIBLE : View.GONE);
+        mBind.frameSlotContainer.setVisibility(isTrigger ? View.VISIBLE : View.GONE);
+        mBind.btnNext.setText(isTrigger ? "Next" : "Save");
     }
 
     private void createFragments() {
@@ -162,11 +170,24 @@ public class TriggerStep1Activity extends BaseActivity {
             advBeforeTrigger = !advBeforeTrigger;
             mBind.ivAdv.setImageResource(advBeforeTrigger ? R.drawable.ic_checked : R.drawable.ic_unchecked);
             mBind.layoutAdvTrigger.setVisibility(advBeforeTrigger ? View.VISIBLE : View.GONE);
+            mBind.frameSlotContainer.setVisibility(advBeforeTrigger ? View.VISIBLE : View.GONE);
         });
         mBind.ivTrigger.setOnClickListener(v -> {
             isTrigger = !isTrigger;
             mBind.ivTrigger.setImageResource(isTrigger ? R.drawable.ic_checked : R.drawable.ic_unchecked);
-            mBind.cbLayoutAdvTrigger.setVisibility(isTrigger ? View.VISIBLE : View.GONE);
+            if (isTrigger) {
+                mBind.cbLayoutAdvTrigger.setVisibility(View.VISIBLE);
+                mBind.frameSlotContainer.setVisibility(View.VISIBLE);
+                if (!advBeforeTrigger) {
+                    mBind.layoutAdvTrigger.setVisibility(View.GONE);
+                    mBind.frameSlotContainer.setVisibility(View.GONE);
+                }
+            } else {
+                mBind.cbLayoutAdvTrigger.setVisibility(View.GONE);
+                mBind.frameSlotContainer.setVisibility(View.GONE);
+            }
+
+
             mBind.btnNext.setText(isTrigger ? "Next" : "Save");
         });
         mBind.tvFrameType.setOnClickListener(v -> {
@@ -281,12 +302,12 @@ public class TriggerStep1Activity extends BaseActivity {
                                         byte[] rawDataBytes = Arrays.copyOfRange(value, 4, 4 + length);
                                         setSlotParams(rawDataBytes);
                                         int slotType = value[5] & 0xff;
-                                        if (slotType == 0xff){
+                                        if (slotType == 0xff) {
                                             //noData
                                             mBind.layoutAdvTrigger.setVisibility(View.GONE);
                                             isTrigger = false;
                                             mBind.ivAdv.setImageResource(R.drawable.ic_unchecked);
-                                        }else {
+                                        } else {
                                             frameTypeSelected = getSlotIndex(slotType);
                                             currentIndex = frameTypeSelected;
                                             currentFrameTypeEnum = slotData.frameTypeEnum = SlotFrameTypeEnum.fromShowName(frameTypeArray[currentIndex]);
@@ -385,15 +406,15 @@ public class TriggerStep1Activity extends BaseActivity {
     }
 
     private void setSlotAdvParams(byte[] rawDataBytes) {
-        slotData.advInterval = rawDataBytes[1] & 0xFF;
-        slotData.advDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 2, 4));
-        slotData.standbyDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 4, 6));
+        slotData.advInterval = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 1, 3));
+        slotData.advDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 3, 5));
+        slotData.standbyDuration = MokoUtils.toInt(Arrays.copyOfRange(rawDataBytes, 5, 7));
         if (slotData.frameTypeEnum == IBEACON) {
-            slotData.rssi_1m = rawDataBytes[6];
+            slotData.rssi_1m = rawDataBytes[7];
         } else {
-            slotData.rssi_0m = rawDataBytes[6];
+            slotData.rssi_0m = rawDataBytes[7];
         }
-        slotData.txPower = rawDataBytes[7];
+        slotData.txPower = rawDataBytes[8];
         slotData.isC112 = isC112;
     }
 

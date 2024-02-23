@@ -224,7 +224,7 @@ public class ExportTHDataActivity extends BaseActivity {
                 .isDialog(true)
                 .build();
         Dialog mDialog = pickerView.getDialog();
-        if (mDialog != null) {
+        if (null != mDialog) {
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT,

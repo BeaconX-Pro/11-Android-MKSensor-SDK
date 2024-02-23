@@ -1,5 +1,6 @@
 package com.moko.bxp.s.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -76,25 +77,32 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
         }
         mBind.tvSlotTitle.setText(slotData.slotEnum.getTitle());
         EventBus.getDefault().register(this);
+        mBind.rlTriggerSwitch.setOnClickListener(v -> {
+            Intent intent = new Intent(this, TriggerStep1Activity.class);
+            intent.putExtra("slot", slotData.slotEnum.getSlot());
+            intent.putExtra("isC112", slotData.isC112);
+            intent.putExtra("triggerType", 0);
+            startActivity(intent);
+        });
     }
 
     private void createFragments() {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         uidFragment = UidFragment.newInstance();
-        uidFragment.setSlotData(slotData);
         fragmentTransaction.add(R.id.frame_slot_container, uidFragment);
+        uidFragment.setSlotData(slotData);
         urlFragment = UrlFragment.newInstance();
-        urlFragment.setSlotData(slotData);
         fragmentTransaction.add(R.id.frame_slot_container, urlFragment);
+        urlFragment.setSlotData(slotData);
         tlmFragment = TlmFragment.newInstance();
-        tlmFragment.setSlotData(slotData);
         fragmentTransaction.add(R.id.frame_slot_container, tlmFragment);
+        tlmFragment.setSlotData(slotData);
         iBeaconFragment = IBeaconFragment.newInstance();
-        iBeaconFragment.setSlotData(slotData);
         fragmentTransaction.add(R.id.frame_slot_container, iBeaconFragment);
+        iBeaconFragment.setSlotData(slotData);
         sensorInfoFragment = SensorInfoFragment.newInstance();
-        sensorInfoFragment.setSlotData(slotData);
         fragmentTransaction.add(R.id.frame_slot_container, sensorInfoFragment);
+        sensorInfoFragment.setSlotData(slotData);
         fragmentTransaction.commit();
     }
 
