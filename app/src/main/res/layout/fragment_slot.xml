@@ -1,14 +1,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white_ffffff"
     android:orientation="vertical"
-    android:paddingLeft="15dp"
-    android:paddingRight="15dp">
+    tools:background="@color/grey_f2f2f2">
 
     <RelativeLayout
         android:id="@+id/rl_slot1"
         android:layout_width="match_parent"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:layout_height="50dp">
 
         <TextView
@@ -30,15 +32,15 @@
             android:text="No data"
             android:textColor="@color/grey_666666"
             android:textSize="14sp" />
-
-        <View
-            style="@style/divider_line"
-            android:layout_alignParentBottom="true" />
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/rl_slot2"
         android:layout_width="match_parent"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:layout_marginTop="1dp"
         android:layout_height="50dp">
 
         <TextView
@@ -60,15 +62,15 @@
             android:text="No data"
             android:textColor="@color/grey_666666"
             android:textSize="14sp" />
-
-        <View
-            style="@style/divider_line"
-            android:layout_alignParentBottom="true" />
     </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/rl_slot3"
         android:layout_width="match_parent"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:layout_marginTop="1dp"
         android:layout_height="50dp">
 
         <TextView
@@ -90,9 +92,5 @@
             android:text="No data"
             android:textColor="@color/grey_666666"
             android:textSize="14sp" />
-
-        <View
-            style="@style/divider_line"
-            android:layout_alignParentBottom="true" />
     </RelativeLayout>
 </LinearLayout>

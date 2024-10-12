@@ -30,6 +30,11 @@ public class SettingFragment extends Fragment {
     private int mSelected;
     private byte[] deviceTypeBytes;
     private boolean isHallPowerEnable;
+    private final String[] batteryModeArray = {"Percentage", "Voltage"};
+    private int batteryModeSelect;
+    //01 02 04 07
+    private final String[] advChannelArray = {"CH37", "CH38", "CH39", "CH37&CH38&CH39"};
+    private int advChannelSelect;
 
     public SettingFragment() {
     }
@@ -43,6 +48,20 @@ public class SettingFragment extends Fragment {
         mBind = FragmentSettingBinding.inflate(inflater, container, false);
         setListener();
         return mBind.getRoot();
+    }
+
+    private int getIndexByChannel(int channel) {
+        if (channel == 1) return 0;
+        if (channel == 2) return 1;
+        if (channel == 4) return 2;
+        return 3;
+    }
+
+    private int getChannelByIndex(int index) {
+        if (index == 0) return 1;
+        if (index == 1) return 2;
+        if (index == 2) return 4;
+        return 7;
     }
 
     private void setListener() {
@@ -98,6 +117,53 @@ public class SettingFragment extends Fragment {
             intent.putExtra("hallEnable", isHallPowerEnable);
             startActivity(intent);
         });
+        mBind.tvBatteryAdvMode.setOnClickListener(v -> onBatteryModeClick());
+        mBind.tvAdvChannel.setOnClickListener(v -> onAdvChannelClick());
+        mBind.tvResetBattery.setOnClickListener(v -> resetBattery());
+    }
+
+    private void resetBattery() {
+        AlertMessageDialog dialog = new AlertMessageDialog();
+        dialog.setTitle("Warning!");
+        dialog.setMessage("*Please ensure you have replaced the new battery for this beacon before reset the Battery");
+        dialog.setCancel("Cancel");
+        dialog.setConfirm("OK");
+        dialog.setOnAlertConfirmListener(() -> {
+
+        });
+        dialog.show(getChildFragmentManager());
+    }
+
+    private void onAdvChannelClick() {
+        BottomDialog dialog = new BottomDialog();
+        dialog.setDatas(new ArrayList<>(Arrays.asList(advChannelArray)), advChannelSelect);
+        dialog.setListener(value -> {
+            advChannelSelect = value;
+            mBind.tvAdvChannel.setText(getIndexByChannel(value));
+            if (null != getActivity()) {
+                List<OrderTask> orderTasks = new ArrayList<>(2);
+                orderTasks.add(OrderTaskAssembler.setAdvChannel(getChannelByIndex(value)));
+                orderTasks.add(OrderTaskAssembler.getAdvChannel());
+                MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+            }
+        });
+        dialog.show(getChildFragmentManager());
+    }
+
+    private void onBatteryModeClick() {
+        BottomDialog dialog = new BottomDialog();
+        dialog.setDatas(new ArrayList<>(Arrays.asList(batteryModeArray)), batteryModeSelect);
+        dialog.setListener(value -> {
+            batteryModeSelect = value;
+            if (null != getActivity()) {
+                ((DeviceInfoActivity) getActivity()).showSyncingProgressDialog();
+                List<OrderTask> orderTasks = new ArrayList<>(2);
+                orderTasks.add(OrderTaskAssembler.setBatteryMode(value + 1));
+                orderTasks.add(OrderTaskAssembler.getBatteryMode());
+                MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+            }
+        });
+        dialog.show(getChildFragmentManager());
     }
 
     private void onAdvModeClick() {
@@ -105,9 +171,10 @@ public class SettingFragment extends Fragment {
         dialog.setDatas(new ArrayList<>(Arrays.asList(advModeArray)), mSelected);
         dialog.setListener(value -> {
             if (null != getActivity()) {
+                mSelected = value;
                 ((DeviceInfoActivity) getActivity()).showSyncingProgressDialog();
                 List<OrderTask> orderTasks = new ArrayList<>(2);
-                orderTasks.add(OrderTaskAssembler.setAdvMode(value));
+                orderTasks.add(OrderTaskAssembler.setAdvMode(value + 1));
                 orderTasks.add(OrderTaskAssembler.getAdvMode());
                 MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
             }
@@ -117,22 +184,29 @@ public class SettingFragment extends Fragment {
 
     public void setResetVisibility(boolean enablePasswordVerify) {
         mBind.tvResetBeacon.setVisibility(enablePasswordVerify ? View.VISIBLE : View.GONE);
-        mBind.lineResetBeacon.setVisibility(enablePasswordVerify ? View.VISIBLE : View.GONE);
     }
 
     public void setModifyPasswordShown(boolean enablePasswordVerify) {
         mBind.tvModifyPwd.setVisibility(enablePasswordVerify ? View.VISIBLE : View.GONE);
-        mBind.lineModifyPwd.setVisibility(enablePasswordVerify ? View.VISIBLE : View.GONE);
     }
 
     public void setAdvMode(int advMode) {
-        mSelected = advMode;
+        mSelected = advMode - 1;
         mBind.tvAdvMode.setText(advModeArray[mSelected]);
+    }
+
+    public void setBatteryMode(int batteryMode) {
+        this.batteryModeSelect = batteryMode - 1;
+        mBind.tvBatteryAdvMode.setText(batteryModeArray[batteryModeSelect]);
+    }
+
+    public void setAdvChannel(int channel) {
+        this.advChannelSelect = getIndexByChannel(channel);
+        mBind.tvAdvChannel.setText(advChannelArray[advChannelSelect]);
     }
 
     public void setSensorGone() {
         mBind.tvSensor.setVisibility(View.GONE);
-        mBind.lineSensor.setVisibility(View.GONE);
     }
 
     public void setDeviceTypeValue(byte[] deviceTypeBytes, boolean isHallPowerEnable) {

@@ -1,5 +1,11 @@
 package com.moko.bxp.s.activity;
 
+import static com.moko.support.s.entity.SlotAdvType.NO_DATA;
+import static com.moko.support.s.entity.SlotAdvType.NO_TRIGGER;
+import static com.moko.support.s.entity.SlotAdvType.SLOT1;
+import static com.moko.support.s.entity.SlotAdvType.SLOT2;
+import static com.moko.support.s.entity.SlotAdvType.SLOT3;
+
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -31,6 +37,7 @@ import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityDeviceInfoBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
+import com.moko.bxp.s.entity.TriggerEvent;
 import com.moko.bxp.s.fragment.DeviceFragment;
 import com.moko.bxp.s.fragment.SettingFragment;
 import com.moko.bxp.s.fragment.SlotFragment;
@@ -73,7 +80,6 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
     public boolean isSupportTH;
     private boolean isHallPowerEnable;
     private byte[] deviceTypeBytes;
-    private boolean isC112;
     private boolean enablePwd;
 
     @Override
@@ -96,15 +102,10 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
             MokoSupport.getInstance().enableBluetooth();
         }
         showSyncingProgressDialog();
-        List<OrderTask> orderTasks = new ArrayList<>(8);
-//        orderTasks.add(OrderTaskAssembler.setHallPowerEnable(0));
+        List<OrderTask> orderTasks = new ArrayList<>(4);
         orderTasks.add(OrderTaskAssembler.getAllSlotAdvType());
-        orderTasks.add(OrderTaskAssembler.getSlotTriggerType(0));
-        orderTasks.add(OrderTaskAssembler.getSlotTriggerType(1));
-        orderTasks.add(OrderTaskAssembler.getSlotTriggerType(2));
-        orderTasks.add(OrderTaskAssembler.getSensorType());
-        orderTasks.add(OrderTaskAssembler.getDeviceType());
-        orderTasks.add(OrderTaskAssembler.getHallPowerEnable());
+//        orderTasks.add(OrderTaskAssembler.getSensorType());
+//        orderTasks.add(OrderTaskAssembler.getHallPowerEnable());
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
     }
 
@@ -204,9 +205,6 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
             if (MokoConstants.ACTION_ORDER_TIMEOUT.equals(action)) {
                 dismissSyncProgressDialog();
             }
-            if (MokoConstants.ACTION_ORDER_FINISH.equals(action)) {
-                dismissSyncProgressDialog();
-            }
             if (MokoConstants.ACTION_ORDER_RESULT.equals(action)) {
                 OrderTaskResponse response = event.getResponse();
                 OrderCHAR orderCHAR = (OrderCHAR) response.orderCHAR;
@@ -232,6 +230,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                             }
                         }
                         break;
+
                     case CHAR_PARAMS:
                         if (null != value && value.length >= 4) {
                             int header = value[0] & 0xFF;// 0xEB
@@ -244,32 +243,62 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                             if (flag == 0x01 && length == 0x01) {
                                 // write
                                 int result = value[4] & 0xFF;
-                                if (configKeyEnum == ParamsKeyEnum.KEY_ADV_MODE) {
-                                    if (result == 0xAA) {
-                                        ToastUtils.showToast(this, "Success");
-                                    } else {
-                                        ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
-                                    }
+                                switch (configKeyEnum){
+                                    case KEY_ADV_MODE:
+                                    case KEY_BATTERY_MODE:
+                                    case KEY_ADV_CHANNEL:
+                                        if (result == 0xAA) {
+                                            ToastUtils.showToast(this, "Success");
+                                        } else {
+                                            ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
+                                        }
+                                        break;
                                 }
-                            }
-                            if (flag == 0x00) {
+                            } else if (flag == 0x00) {
                                 // read
                                 switch (configKeyEnum) {
                                     case KEY_ALL_SLOT_ADV_TYPE:
-                                        if (length == 6) {
-                                            slotBytes = Arrays.copyOfRange(value, 4, 4 + length);
+                                        if (length == 3) {
+                                            byte[] slotBytes = Arrays.copyOfRange(value, 4, 4 + length);
+                                            slotFragment.setSlotType(slotBytes);
+                                            TriggerEvent triggerEvent = new TriggerEvent();
+                                            triggerEvent.triggerType = NO_TRIGGER;
+                                            List<OrderTask> orderTasks = new ArrayList<>(3);
+                                            if ((slotBytes[0] & 0xff) == NO_DATA) {
+                                                slotFragment.setSlotTriggerType(SLOT1, triggerEvent);
+                                            } else {
+                                                orderTasks.add(OrderTaskAssembler.getSlotTriggerType(SLOT1));
+                                            }
+                                            if ((slotBytes[1] & 0xff) == NO_DATA) {
+                                                slotFragment.setSlotTriggerType(SLOT2, triggerEvent);
+                                            } else {
+                                                orderTasks.add(OrderTaskAssembler.getSlotTriggerType(SLOT2));
+                                            }
+                                            if ((slotBytes[2] & 0xff) == NO_DATA) {
+                                                slotFragment.setSlotTriggerType(SLOT3, triggerEvent);
+                                            } else {
+                                                orderTasks.add(OrderTaskAssembler.getSlotTriggerType(SLOT3));
+                                            }
+                                            if (!orderTasks.isEmpty()) {
+                                                //获取通道触发类型
+                                                MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+                                            } else {
+                                                dismissSyncProgressDialog();
+                                            }
                                         }
                                         break;
+
                                     case KEY_SLOT_TRIGGER_TYPE:
-                                        if (length == 2) {
+                                        if (length == 9) {
                                             int slot = value[4] & 0xff;
-                                            int triggerType = value[5] & 0xff;
-                                            if (slot == 0)
-                                                slotFragment.setSlot1(slotBytes, triggerType);
-                                            else if (slot == 1)
-                                                slotFragment.setSlot2(slotBytes, triggerType);
-                                            else if (slot == 2)
-                                                slotFragment.setSlot3(slotBytes, triggerType);
+                                            TriggerEvent bean = new TriggerEvent();
+                                            bean.triggerType = value[5] & 0xff;
+                                            bean.triggerCondition = value[6] & 0xff;
+                                            bean.triggerThreshold = MokoUtils.toInt(Arrays.copyOfRange(value, 7, 9));
+                                            bean.lockAdvDuration = MokoUtils.toInt(Arrays.copyOfRange(value, 9, 11));
+                                            bean.staticPeriod = MokoUtils.toInt(Arrays.copyOfRange(value, 11, 13));
+                                            slotFragment.setSlotTriggerType(slot, bean);
+                                            dismissSyncProgressDialog();
                                         }
                                         break;
 
@@ -318,24 +347,15 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                                         }
                                         break;
 
-                                    case KEY_DEVICE_TYPE:
-                                        if (length == 2) {
-                                            isC112 = (value[4] & 0xff) == 0x23;
-                                            slotFragment.setC112(isC112);
+                                    case KEY_BATTERY_MODE:
+                                        if (length == 1) {
+                                            settingFragment.setBatteryMode(value[4] & 0xff);
                                         }
                                         break;
 
-                                    case KEY_SLOT_ADV_PARAMS:
-                                        if (length > 1) {
-                                            byte[] rawDataBytes = Arrays.copyOfRange(value, 4, 4 + length);
-                                            slotFragment.setSlotParams(rawDataBytes);
-                                        }
-                                        break;
-
-                                    case KEY_SLOT_PARAMS_BEFORE:
-                                        if (length == 9) {
-                                            byte[] rawDataBytes = Arrays.copyOfRange(value, 4, 4 + length);
-                                            slotFragment.setSlotAdvParams(rawDataBytes, isC112);
+                                    case KEY_ADV_CHANNEL:
+                                        if (length == 1){
+                                            settingFragment.setAdvChannel(value[4]&0xff);
                                         }
                                         break;
                                 }
@@ -553,17 +573,16 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
 
     private void getSettings() {
         showSyncingProgressDialog();
-        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getAdvMode());
+        List<OrderTask> orderTasks = new ArrayList<>(3);
+        orderTasks.add(OrderTaskAssembler.getBatteryMode());
+        orderTasks.add(OrderTaskAssembler.getAdvChannel());
+        orderTasks.add(OrderTaskAssembler.getAdvMode());
+        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
     }
 
     private void getSlot() {
         showSyncingProgressDialog();
-        List<OrderTask> orderTasks = new ArrayList<>(4);
-        orderTasks.add(OrderTaskAssembler.getAllSlotAdvType());
-        orderTasks.add(OrderTaskAssembler.getSlotTriggerType(0));
-        orderTasks.add(OrderTaskAssembler.getSlotTriggerType(1));
-        orderTasks.add(OrderTaskAssembler.getSlotTriggerType(2));
-        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getAllSlotAdvType());
     }
 
     public void onBack(View view) {

@@ -1,34 +1,44 @@
 package com.moko.bxp.s.activity;
 
+import static com.moko.support.s.entity.SlotAdvType.I_BEACON;
+import static com.moko.support.s.entity.SlotAdvType.SENSOR_INFO;
+import static com.moko.support.s.entity.SlotAdvType.TLM;
+import static com.moko.support.s.entity.SlotAdvType.UID;
+import static com.moko.support.s.entity.SlotAdvType.URL;
+
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.SeekBar;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
-import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
+import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep2Binding;
 import com.moko.bxp.s.dialog.BottomDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
-import com.moko.bxp.s.entity.TriggerStep1Bean;
-import com.moko.bxp.s.entity.TriggerStep2Bean;
-import com.moko.bxp.s.utils.ToastUtils;
+import com.moko.bxp.s.fragment.IBeaconFragment;
+import com.moko.bxp.s.fragment.SensorInfoFragment;
+import com.moko.bxp.s.fragment.TlmFragment;
+import com.moko.bxp.s.fragment.UidFragment;
+import com.moko.bxp.s.fragment.UrlFragment;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
 import com.moko.support.s.entity.OrderCHAR;
 import com.moko.support.s.entity.ParamsKeyEnum;
+import com.moko.support.s.entity.SlotData;
+import com.moko.support.s.entity.TriggerStep1Bean;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -36,34 +46,30 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author: jun.liu
- * @date: 2024/1/30 16:08
+ * @date: 2024/10/10 10:05
  * @des:
  */
-public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeekBarChangeListener {
+public class TriggerStep2Activity extends BaseActivity {
     private ActivityTriggerStep2Binding mBind;
     private boolean mReceiverTag;
     private int slot;
+    private final String[] frameTypeArray = {"Sensor info", "TLM", "UID", "URL", "iBeacon"};
+    private int rawFrameType;
+    private int currentIndex;
     private TriggerStep1Bean step1Bean;
-    //触发类型 1 2 3 4
-    private int triggerType;
-    private final String[] triggerTypeArray = {"Temperature detection", "Humidity detection", "Motion detection", "Door magnetic detection"};
-    private final String[] hallTriggerEventArray = {"Door close", "Door open"};
-    private final String[] axisTriggerEventArray = {"Device start moving", "Device remains stationary"};
-    private final String[] tempTriggerEventArray = {"Temperature above threshold", "Temperature below threshold"};
-    private final String[] humTriggerEventArray = {"Humidity above threshold", "Humidity below threshold"};
-    private int currentTriggerEventSelect;
-    public int hallTriggerSelect;
-    public int axisTriggerSelect;
-    public int tempTriggerSelect;
-    public int humTriggerSelect;
-    private boolean isC112;
-    private int axisStaticPeriod;
-    private int tempThreshold;
-    private int humThreshold;
+
+    private FragmentManager fragmentManager;
+    private UidFragment uidFragment;
+    private UrlFragment urlFragment;
+    private TlmFragment tlmFragment;
+    private IBeaconFragment iBeaconFragment;
+    private SensorInfoFragment sensorInfoFragment;
+    private ISlotDataAction slotDataActionImpl;
+    private int currentFrameType;
+    private SlotData originSlotData;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,55 +84,105 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
         mReceiverTag = true;
         slot = getIntent().getIntExtra("slot", 0);
         step1Bean = getIntent().getParcelableExtra("step1");
-        isC112 = getIntent().getBooleanExtra("c112", false);
-        mBind.tvTitle.setText("SLOT" + (slot + 1));
+        fragmentManager = getSupportFragmentManager();
+        createFragments();
         setListener();
-        showSyncingProgressDialog();
-        List<OrderTask> orderTasks = new ArrayList<>(4);
-        orderTasks.add(OrderTaskAssembler.getSlotTriggerType(slot));
-        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+        if (!MokoSupport.getInstance().isBluetoothOpen()) {
+            // 蓝牙未打开，开启蓝牙
+            MokoSupport.getInstance().enableBluetooth();
+        } else {
+            showSyncingProgressDialog();
+            //获取触发后的参数
+            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getTriggerAfterSlotParams(slot));
+        }
+        mBind.tvTitle.setText("SLOT" + (slot + 1));
+        mBind.tvBack.setOnClickListener(v -> finish());
     }
 
-    private void setStatus() {
-        mBind.tvTriggerType.setText(triggerTypeArray[triggerType - 1]);
-        if (triggerType == 1) {
-            //温度
-            mBind.layoutTemperature.setVisibility(View.VISIBLE);
-            mBind.layoutHum.setVisibility(View.GONE);
-            mBind.groupStaticPeriod.setVisibility(View.GONE);
-            mBind.tvTriggerEvent.setText(tempTriggerEventArray[tempTriggerSelect]);
-            mBind.sbTemp.setProgress(tempThreshold + 40);
-            mBind.tvTempValue.setText(tempThreshold + "℃");
-            currentTriggerEventSelect = tempTriggerSelect;
-        } else if (triggerType == 2) {
-            //湿度
-            mBind.layoutTemperature.setVisibility(View.GONE);
-            mBind.layoutHum.setVisibility(View.VISIBLE);
-            mBind.groupStaticPeriod.setVisibility(View.GONE);
-            mBind.tvTriggerEvent.setText(humTriggerEventArray[humTriggerSelect]);
-            mBind.sbHum.setProgress(humThreshold);
-            mBind.tvHumValue.setText(humThreshold + "%");
-            currentTriggerEventSelect = humTriggerSelect;
-        } else if (triggerType == 3) {
-            //三轴
-            mBind.layoutTemperature.setVisibility(View.GONE);
-            mBind.layoutHum.setVisibility(View.GONE);
-            mBind.groupStaticPeriod.setVisibility(View.VISIBLE);
-            mBind.tvTriggerEvent.setText(axisTriggerEventArray[axisTriggerSelect]);
-            mBind.etStaticPeriod.setText(axisStaticPeriod);
-            mBind.etStaticPeriod.setSelection(mBind.etStaticPeriod.getText().length());
-            currentTriggerEventSelect = axisTriggerSelect;
-        } else if (triggerType == 4) {
-            //霍尔
-            mBind.layoutTemperature.setVisibility(View.GONE);
-            mBind.layoutHum.setVisibility(View.GONE);
-            mBind.groupStaticPeriod.setVisibility(View.GONE);
-            mBind.tvTriggerEvent.setText(hallTriggerEventArray[hallTriggerSelect]);
-            currentTriggerEventSelect = hallTriggerSelect;
+    private void createFragments() {
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        uidFragment = UidFragment.newInstance();
+        uidFragment.setTriggerAfter(true);
+        fragmentTransaction.add(R.id.frame_slot_container, uidFragment);
+        urlFragment = UrlFragment.newInstance();
+        urlFragment.setTriggerAfter(true);
+        fragmentTransaction.add(R.id.frame_slot_container, urlFragment);
+        tlmFragment = TlmFragment.newInstance();
+        tlmFragment.setTriggerAfter(true);
+        fragmentTransaction.add(R.id.frame_slot_container, tlmFragment);
+        iBeaconFragment = IBeaconFragment.newInstance();
+        iBeaconFragment.setTriggerAfter(true);
+        fragmentTransaction.add(R.id.frame_slot_container, iBeaconFragment);
+        sensorInfoFragment = SensorInfoFragment.newInstance();
+        sensorInfoFragment.setTriggerAfter(true);
+        fragmentTransaction.add(R.id.frame_slot_container, sensorInfoFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void showFragment() {
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        switch (currentFrameType) {
+            case TLM:
+                fragmentTransaction.hide(uidFragment).hide(urlFragment).hide(iBeaconFragment).hide(sensorInfoFragment).show(tlmFragment).commit();
+                slotDataActionImpl = tlmFragment;
+                break;
+            case UID:
+                fragmentTransaction.hide(urlFragment).hide(iBeaconFragment).hide(tlmFragment).hide(sensorInfoFragment).show(uidFragment).commit();
+                slotDataActionImpl = uidFragment;
+                break;
+            case URL:
+                fragmentTransaction.hide(uidFragment).hide(iBeaconFragment).hide(tlmFragment).hide(sensorInfoFragment).show(urlFragment).commit();
+                slotDataActionImpl = urlFragment;
+                break;
+            case I_BEACON:
+                fragmentTransaction.hide(uidFragment).hide(urlFragment).hide(tlmFragment).hide(sensorInfoFragment).show(iBeaconFragment).commit();
+                slotDataActionImpl = iBeaconFragment;
+                break;
+            case SENSOR_INFO:
+                fragmentTransaction.hide(uidFragment).hide(urlFragment).hide(tlmFragment).hide(iBeaconFragment).show(sensorInfoFragment).commit();
+                slotDataActionImpl = sensorInfoFragment;
+                break;
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.POSTING, priority = 400)
+    private void setListener() {
+        mBind.tvFrameType.setOnClickListener(v -> {
+            BottomDialog dialog = new BottomDialog();
+            dialog.setDatas(new ArrayList<>(Arrays.asList(frameTypeArray)), currentIndex);
+            dialog.setListener(value -> {
+                currentIndex = value;
+                currentFrameType = getFrameTypeByIndex(value);
+                mBind.tvFrameType.setText(frameTypeArray[value]);
+                showFragment();
+                if (null != slotDataActionImpl) {
+                    if (currentFrameType == rawFrameType) {
+                        slotDataActionImpl.setParams(originSlotData);
+                    } else {
+                        SlotData slotData = new SlotData();
+                        slotData.slot = this.slot;
+                        slotData.currentFrameType = currentFrameType;
+                        slotDataActionImpl.setParams(slotData);
+                    }
+                }
+            });
+            dialog.show(getSupportFragmentManager());
+        });
+        mBind.btnNext.setOnClickListener(v -> {
+            if (slotDataActionImpl.isValid()) {
+                SlotData slotData = slotDataActionImpl.getSlotData();
+                slotData.slot = slot;
+                Intent intent = new Intent(this, TriggerStep3Activity.class);
+                intent.putExtra("step1", step1Bean);
+                intent.putExtra("step2", slotData);
+                intent.putExtra("slot", slot);
+                startActivity(intent);
+                EventBus.getDefault().unregister(this);
+                finish();
+            }
+        });
+    }
+
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
     public void onConnectStatusEvent(ConnectStatusEvent event) {
         final String action = event.getAction();
         runOnUiThread(() -> {
@@ -137,7 +193,7 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
         });
     }
 
-    @Subscribe(threadMode = ThreadMode.POSTING, priority = 400)
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
     public void onOrderTaskResponseEvent(OrderTaskResponseEvent event) {
         EventBus.getDefault().cancelEventDelivery(event);
         final String action = event.getAction();
@@ -160,145 +216,17 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
                         int length = value[3] & 0xFF;
                         if (flag == 0x00) {
                             // read
-                            switch (configKeyEnum) {
-                                case KEY_HALL_TRIGGER_EVENT:
-                                    if (length == 2) {
-                                        hallTriggerSelect = value[5] & 0xff;
-                                        setStatus();
-                                    }
-                                    break;
-
-                                case KEY_AXIS_TRIGGER_EVENT:
-                                    if (length == 4) {
-                                        axisTriggerSelect = value[5] & 0xff;
-                                        axisStaticPeriod = MokoUtils.toInt(Arrays.copyOfRange(value, 6, 8));
-                                        setStatus();
-                                    }
-                                    break;
-
-                                case KEY_TEMP_TRIGGER_EVENT:
-                                    if (length == 5) {
-                                        tempTriggerSelect = value[5] & 0xff;
-                                        tempThreshold = MokoUtils.toIntSigned(Arrays.copyOfRange(value, 6, 8));
-                                        setStatus();
-                                    }
-                                    break;
-
-                                case KEY_HUM_TRIGGER_EVENT:
-                                    if (length == 4) {
-                                        humTriggerSelect = value[5] & 0xff;
-                                        humThreshold = value[6] & 0xff;
-                                        setStatus();
-                                    }
-                                    break;
-
-                                case KEY_SLOT_TRIGGER_TYPE:
-                                    if (length == 2) {
-                                        triggerType = value[5] & 0xff;
-                                        if (triggerType == 1) {
-                                            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getTempTriggerEvent(slot));
-                                        } else if (triggerType == 2) {
-                                            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getHumTriggerEvent(slot));
-                                        } else if (triggerType == 3) {
-                                            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getAxisTriggerEvent(slot));
-                                        } else if (triggerType == 4) {
-                                            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getHallTriggerEvent(slot));
-                                        }
-                                    }
-                                    break;
+                            if (configKeyEnum == ParamsKeyEnum.KEY_SLOT_PARAMS_AFTER) {
+                                if (length >= 8) {
+                                    byte[] rawDataBytes = Arrays.copyOfRange(value, 4, 4 + length);
+                                    setSlotAdvParams(rawDataBytes);
+                                }
                             }
                         }
                     }
                 }
             }
         });
-    }
-
-    private void setListener() {
-        mBind.tvTriggerType.setText(triggerTypeArray[triggerType - 1]);
-        mBind.tvTriggerEvent.setText(getTriggerEvent()[0]);
-        mBind.tvTriggerType.setOnClickListener(v -> {
-            BottomDialog dialog = new BottomDialog();
-            dialog.setDatas(new ArrayList<>(Arrays.asList(triggerTypeArray)), triggerType - 1);
-            dialog.setListener(value -> {
-                triggerType = value + 1;
-                setStatus();
-            });
-            dialog.show(getSupportFragmentManager());
-        });
-        mBind.tvTriggerEvent.setOnClickListener(v -> {
-            BottomDialog dialog = new BottomDialog();
-            dialog.setDatas(new ArrayList<>(Arrays.asList(getTriggerEvent())), getCurrentTriggerEventSelect());
-            dialog.setListener(value -> {
-                if (triggerType == 1) tempTriggerSelect = value;
-                else if (triggerType == 2) humTriggerSelect = value;
-                else if (triggerType == 3) axisTriggerSelect = value;
-                else if (triggerType == 4) hallTriggerSelect = value;
-                currentTriggerEventSelect = value;
-                mBind.tvTriggerEvent.setText(getTriggerEvent()[value]);
-            });
-            dialog.show(getSupportFragmentManager());
-        });
-        mBind.btnNext.setOnClickListener(v -> onNext());
-        mBind.sbTemp.setOnSeekBarChangeListener(this);
-        mBind.sbHum.setOnSeekBarChangeListener(this);
-    }
-
-    private void onNext() {
-        //下一步
-        TriggerStep2Bean bean = new TriggerStep2Bean();
-        bean.triggerType = triggerType;
-        bean.triggerEventSelect = currentTriggerEventSelect;
-        if (triggerType == 1) {
-            //温度
-            bean.tempThreshold = mBind.sbTemp.getProgress() - 40;
-        } else if (triggerType == 2) {
-            //湿度
-            bean.humThreshold = mBind.sbHum.getProgress();
-        } else if (triggerType == 3) {
-            //三轴
-            if (TextUtils.isEmpty(mBind.etStaticPeriod.getText())) {
-                ToastUtils.showToast(this, "Data format incorrect!");
-                return;
-            }
-            int staticPeriod = Integer.parseInt(mBind.etStaticPeriod.getText().toString());
-            if (staticPeriod < 1 || staticPeriod > 65535) {
-                ToastUtils.showToast(this, "Data format incorrect!");
-                return;
-            }
-            bean.axisStaticPeriod = staticPeriod;
-        }
-        Intent intent = new Intent(this, TriggerStep3Activity.class);
-        intent.putExtra("step2", bean);
-        intent.putExtra("step1", step1Bean);
-        intent.putExtra("slot", slot);
-        intent.putExtra("c112", isC112);
-        startActivity(intent);
-        finish();
-    }
-
-    private String[] getTriggerEvent() {
-        if (triggerType == 1) {
-            return tempTriggerEventArray;
-        } else if (triggerType == 2) {
-            return humTriggerEventArray;
-        } else if (triggerType == 3) {
-            return axisTriggerEventArray;
-        } else {
-            return hallTriggerEventArray;
-        }
-    }
-
-    private int getCurrentTriggerEventSelect() {
-        if (triggerType == 1) {
-            return tempTriggerSelect;
-        } else if (triggerType == 2) {
-            return humTriggerSelect;
-        } else if (triggerType == 3) {
-            return axisTriggerSelect;
-        } else {
-            return hallTriggerSelect;
-        }
     }
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -338,27 +266,73 @@ public class TriggerStep2Activity extends BaseActivity implements SeekBar.OnSeek
             // 注销广播
             unregisterReceiver(mReceiver);
         }
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
     }
 
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (seekBar.getId() == R.id.sbTemp) {
-            //温度的
-            mBind.tvTempValue.setText((progress - 40) + "℃");
-        } else if (seekBar.getId() == R.id.sbHum) {
-            //湿度
-            mBind.tvHumValue.setText(progress + "%");
+    private void setSlotAdvParams(@NonNull byte[] value) {
+        rawFrameType = currentFrameType = value[7] & 0xff;
+        int index = currentIndex = getSlotIndex(rawFrameType);
+        mBind.tvFrameType.setText(frameTypeArray[index]);
+        showFragment();
+        SlotData slotData = new SlotData();
+        slotData.advInterval = MokoUtils.toInt(Arrays.copyOfRange(value, 1, 3));
+        slotData.advDuration = MokoUtils.toInt(Arrays.copyOfRange(value, 3, 5));
+        slotData.rssi = value[5];
+        slotData.txPower = value[6];
+        slotData.currentFrameType = currentFrameType;
+        slotData.slot = this.slot;
+        if (currentFrameType == UID) {
+            slotData.namespace = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 8, 18));
+            slotData.instanceId = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 18, 24));
+        } else if (currentFrameType == URL) {
+            slotData.urlScheme = value[8] & 0xff;
+            slotData.urlContent = new String(Arrays.copyOfRange(value, 9, value.length));
+        } else if (currentFrameType == I_BEACON) {
+            slotData.uuid = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 8, 24));
+            slotData.major = MokoUtils.toInt(Arrays.copyOfRange(value, 24, 26));
+            slotData.minor = MokoUtils.toInt(Arrays.copyOfRange(value, 26, 28));
+        } else if (currentFrameType == SENSOR_INFO) {
+            int nameLength = value[8] & 0xff;
+            slotData.deviceName = new String(Arrays.copyOfRange(value, 9, 9 + nameLength));
+            slotData.tagId = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 10 + nameLength, value.length));
+        }
+        if (null != slotDataActionImpl) {
+            originSlotData = slotData;
+            slotDataActionImpl.setParams(slotData);
         }
     }
 
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-
+    private int getSlotIndex(int slotType) {
+        //"Sensor info", "TLM", "UID", "URL", "iBeacon"
+        switch (slotType) {
+            case UID:
+                return 2;
+            case URL:
+                return 3;
+            case TLM:
+                return 1;
+            case I_BEACON:
+                return 4;
+            case SENSOR_INFO:
+                return 0;
+        }
+        return 0;
     }
 
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-
+    private int getFrameTypeByIndex(int index) {
+        switch (index) {
+            case 0:
+                return SENSOR_INFO;
+            case 1:
+                return TLM;
+            case 2:
+                return UID;
+            case 3:
+                return URL;
+            case 4:
+                return I_BEACON;
+        }
+        return SENSOR_INFO;
     }
 }

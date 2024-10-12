@@ -3,9 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="15dp"
-    android:paddingRight="15dp"
-    tools:background="@color/white_ffffff">
+    tools:background="@color/grey_f2f2f2">
 
     <TextView
         android:id="@+id/tvSensor"
@@ -13,18 +11,21 @@
         android:layout_height="50dp"
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:text="Sensor configurations"
         android:textColor="@color/black_333333"
         android:textSize="15sp" />
-
-    <View
-        android:id="@+id/lineSensor"
-        style="@style/divider_line" />
 
     <TextView
         android:id="@+id/tvQuickSwitch"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:layout_marginTop="1dp"
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
         android:text="Quick switch"
@@ -32,47 +33,47 @@
         android:textColor="@color/black_333333"
         android:textSize="15sp" />
 
-    <View style="@style/divider_line" />
-
     <TextView
         android:id="@+id/tvResetBeacon"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:layout_marginTop="1dp"
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
         android:text="Reset Beacon"
         android:textColor="@color/black_333333"
         android:textSize="15sp" />
 
-    <View
-        android:id="@+id/lineResetBeacon"
-        style="@style/divider_line" />
-
     <TextView
         android:id="@+id/tvModifyPwd"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_marginTop="1dp"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
         android:text="Modify password"
         android:textColor="@color/black_333333"
         android:textSize="15sp" />
 
-    <View
-        android:id="@+id/lineModifyPwd"
-        style="@style/divider_line" />
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:layout_marginTop="1dp"
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
         android:onClick="onDFU"
         android:text="DFU"
         android:textColor="@color/black_333333"
         android:textSize="15sp" />
-
-    <View style="@style/divider_line" />
 
     <TextView
         android:id="@+id/tvRemoteMinder"
@@ -81,14 +82,100 @@
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
         android:text="Remote reminder"
+        android:layout_marginTop="1dp"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
         android:textColor="@color/black_333333"
         android:textSize="15sp" />
 
-    <View style="@style/divider_line" />
+    <TextView
+        android:id="@+id/tvResetBattery"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableRight="@drawable/arrow_right"
+        android:gravity="center_vertical"
+        android:text="Reset Battery"
+        android:layout_marginTop="1dp"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:textColor="@color/black_333333"
+        android:textSize="15sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:layout_marginTop="1dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="Battery ADV mode"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvBatteryAdvMode"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@drawable/shape_radius_blue_btn_bg"
+            android:gravity="center"
+            android:minWidth="80dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            tools:text="Voltage"
+            android:textColor="@color/white_ffffff"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:layout_marginTop="1dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0px"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="ADV Channel"
+            android:textColor="@color/black_333333"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvAdvChannel"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@drawable/shape_radius_blue_btn_bg"
+            android:gravity="center"
+            android:minWidth="80dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            tools:text="CH37"
+            android:textColor="@color/white_ffffff"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white_ffffff"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:layout_marginTop="1dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -110,10 +197,8 @@
             android:minWidth="80dp"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
-            android:text="Legacy"
+            tools:text="Legacy"
             android:textColor="@color/white_ffffff"
             android:textSize="14sp" />
     </LinearLayout>
-
-    <View style="@style/divider_line" />
 </LinearLayout>

@@ -59,11 +59,11 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.TriggerStep1Activity"
+            android:name=".activity.TriggerStep2Activity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.TriggerStep2Activity"
+            android:name=".activity.TriggerStep1Activity"
             android:screenOrientation="portrait" />
 
         <activity

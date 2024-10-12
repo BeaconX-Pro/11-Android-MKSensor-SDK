@@ -15,7 +15,7 @@
             android:id="@+id/tv_back"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:drawableLeft="@drawable/back"
+            android:drawableStart="@drawable/back"
             android:drawablePadding="6dp"
             android:gravity="center_vertical"
             android:onClick="onBack"
@@ -28,7 +28,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text=""
             android:textColor="@color/white_ffffff"
             android:textSize="17sp" />
 
@@ -36,8 +35,7 @@
             android:id="@+id/iv_save"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:clickable="true"
+            android:layout_alignParentEnd="true"
             android:onClick="onSave"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
@@ -65,7 +63,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:drawableLeft="@drawable/frame_type"
+                    android:drawableStart="@drawable/frame_type"
                     android:drawablePadding="10dp"
                     android:gravity="center_vertical"
                     android:text="Frame type"
@@ -77,12 +75,11 @@
                     android:id="@+id/npv_slot_type"
                     android:layout_width="100dp"
                     android:layout_height="130dp"
-                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:background="@drawable/shape_stroke_blue_bg"
                     app:npv_DividerColor="@color/blue_2f84d0"
                     app:npv_DividerMarginLeft="15dp"
                     app:npv_DividerMarginRight="15dp"
-                    app:npv_TextArray="@array/slot_type"
                     app:npv_TextColorNormal="@color/grey_b3b3b3"
                     app:npv_TextColorSelected="@color/blue_2f84d0"
                     app:npv_TextSizeNormal="13sp"
@@ -104,8 +101,8 @@
                 android:background="@drawable/shape_radius_white_bg"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingLeft="25dp"
-                android:paddingRight="25dp">
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp">
 
                 <TextView
                     android:layout_width="0px"

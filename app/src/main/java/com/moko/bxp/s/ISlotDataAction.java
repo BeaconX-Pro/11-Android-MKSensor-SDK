@@ -1,11 +1,15 @@
 package com.moko.bxp.s;
 
-import com.moko.support.s.entity.SlotFrameTypeEnum;
+import androidx.annotation.NonNull;
+
+import com.moko.support.s.entity.SlotData;
 
 public interface ISlotDataAction {
     boolean isValid();
 
     void sendData();
 
-    void resetParams(SlotFrameTypeEnum currentFrameTypeEnum);
+    void setParams(@NonNull SlotData slotData);
+
+    SlotData getSlotData();
 }

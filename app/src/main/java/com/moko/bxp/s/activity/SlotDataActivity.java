@@ -1,5 +1,13 @@
 package com.moko.bxp.s.activity;
 
+import static com.moko.support.s.entity.SlotAdvType.I_BEACON;
+import static com.moko.support.s.entity.SlotAdvType.NO_DATA;
+import static com.moko.support.s.entity.SlotAdvType.SENSOR_INFO;
+import static com.moko.support.s.entity.SlotAdvType.SLOT_TYPE_ARRAY;
+import static com.moko.support.s.entity.SlotAdvType.TLM;
+import static com.moko.support.s.entity.SlotAdvType.UID;
+import static com.moko.support.s.entity.SlotAdvType.URL;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -12,12 +20,12 @@ import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTaskResponse;
+import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivitySlotDataBinding;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
-import com.moko.bxp.s.entity.SlotData;
 import com.moko.bxp.s.fragment.IBeaconFragment;
 import com.moko.bxp.s.fragment.SensorInfoFragment;
 import com.moko.bxp.s.fragment.TlmFragment;
@@ -28,81 +36,66 @@ import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
 import com.moko.support.s.entity.OrderCHAR;
 import com.moko.support.s.entity.ParamsKeyEnum;
-import com.moko.support.s.entity.SlotFrameTypeEnum;
+import com.moko.support.s.entity.SlotAdvType;
+import com.moko.support.s.entity.SlotData;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.Arrays;
+
 import cn.carbswang.android.numberpickerview.library.NumberPickerView;
 
 public class SlotDataActivity extends BaseActivity implements NumberPickerView.OnValueChangeListener {
+    private ActivitySlotDataBinding mBind;
     private FragmentManager fragmentManager;
+    private SensorInfoFragment sensorInfoFragment;
     private UidFragment uidFragment;
     private UrlFragment urlFragment;
     private TlmFragment tlmFragment;
     private IBeaconFragment iBeaconFragment;
-    private SensorInfoFragment sensorInfoFragment;
-    public SlotData slotData;
     private ISlotDataAction slotDataActionImpl;
-    private String[] slotTypeArray;
-    public SlotFrameTypeEnum currentFrameTypeEnum;
-    public boolean isConfigError;
+    private int slot;
+    private int currentFrameType;
+    private int originFrameType;
+    private SlotData originSlotData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivitySlotDataBinding mBind = ActivitySlotDataBinding.inflate(getLayoutInflater());
+        mBind = ActivitySlotDataBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
-        if (getIntent() != null && getIntent().getExtras() != null) {
-            slotData = (SlotData) getIntent().getSerializableExtra(AppConstants.EXTRA_KEY_SLOT_DATA);
-            if (null == slotData) return;
-            currentFrameTypeEnum = slotData.frameTypeEnum;
-            XLog.i(slotData.toString());
-        }
         fragmentManager = getSupportFragmentManager();
+        slot = getIntent().getIntExtra(AppConstants.SLOT, 0);
         createFragments();
-        slotTypeArray = getResources().getStringArray(R.array.slot_type);
-        mBind.npvSlotType.setDisplayedValues(slotTypeArray);
-        final int length = slotTypeArray.length;
+        mBind.npvSlotType.setDisplayedValues(SLOT_TYPE_ARRAY);
         mBind.npvSlotType.setMinValue(0);
         mBind.npvSlotType.setMaxValue(5);
         mBind.npvSlotType.setOnValueChangedListener(this);
-        for (int i = 0; i < length; i++) {
-            if (slotData.frameTypeEnum.getShowName().equals(slotTypeArray[i])) {
-                mBind.npvSlotType.setValue(i);
-                showFragment(i);
-                break;
-            }
-        }
-        mBind.tvSlotTitle.setText(slotData.slotEnum.getTitle());
+        mBind.tvSlotTitle.setText("SLOT" + (slot + 1));
         EventBus.getDefault().register(this);
         mBind.rlTriggerSwitch.setOnClickListener(v -> {
             Intent intent = new Intent(this, TriggerStep1Activity.class);
-            intent.putExtra("slot", slotData.slotEnum.getSlot());
-            intent.putExtra("isC112", slotData.isC112);
-            intent.putExtra("triggerType", 0);
+            intent.putExtra("slot", slot);
             startActivity(intent);
         });
+        showSyncingProgressDialog();
+        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getNormalSlotAdvParams(slot));
     }
 
     private void createFragments() {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         uidFragment = UidFragment.newInstance();
         fragmentTransaction.add(R.id.frame_slot_container, uidFragment);
-        uidFragment.setSlotData(slotData);
         urlFragment = UrlFragment.newInstance();
         fragmentTransaction.add(R.id.frame_slot_container, urlFragment);
-        urlFragment.setSlotData(slotData);
         tlmFragment = TlmFragment.newInstance();
         fragmentTransaction.add(R.id.frame_slot_container, tlmFragment);
-        tlmFragment.setSlotData(slotData);
         iBeaconFragment = IBeaconFragment.newInstance();
         fragmentTransaction.add(R.id.frame_slot_container, iBeaconFragment);
-        iBeaconFragment.setSlotData(slotData);
         sensorInfoFragment = SensorInfoFragment.newInstance();
         fragmentTransaction.add(R.id.frame_slot_container, sensorInfoFragment);
-        sensorInfoFragment.setSlotData(slotData);
         fragmentTransaction.commit();
     }
 
@@ -122,13 +115,6 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
         EventBus.getDefault().cancelEventDelivery(event);
         final String action = event.getAction();
         runOnUiThread(() -> {
-            if (MokoConstants.ACTION_ORDER_FINISH.equals(action)) {
-                ToastUtils.showToast(SlotDataActivity.this, isConfigError ? "Error" : "Successfully configure");
-                isConfigError = false;
-                dismissSyncProgressDialog();
-                SlotDataActivity.this.setResult(RESULT_OK);
-                SlotDataActivity.this.finish();
-            }
             if (MokoConstants.ACTION_ORDER_RESULT.equals(action)) {
                 OrderTaskResponse response = event.getResponse();
                 OrderCHAR orderCHAR = (OrderCHAR) response.orderCHAR;
@@ -142,17 +128,59 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
                         ParamsKeyEnum configKeyEnum = ParamsKeyEnum.fromParamKey(cmd);
                         if (configKeyEnum == null) return;
                         int length = value[3] & 0xFF;
-                        if (flag == 0x00) return;
-                        if (length > 0) {
-                            int result = value[4] & 0xFF;
-                            if (result == 0x00) {
-                                isConfigError = true;
+                        if (flag == 0x00) {
+                            if (configKeyEnum == ParamsKeyEnum.KEY_NORMAL_SLOT_ADV_PARAMS) {
+                                //广播通道参数
+                                dismissSyncProgressDialog();
+                                if (length > 0) setSlotParams(value);
+                            }
+                        } else if (flag == 1) {
+                            if (configKeyEnum == ParamsKeyEnum.KEY_NORMAL_SLOT_ADV_PARAMS) {
+                                dismissSyncProgressDialog();
+                                ToastUtils.showToast(this, (value[4] & 0xff) != 0xAA ? "Error" : "Successfully configure");
+                                setResult(RESULT_OK);
+                                finish();
                             }
                         }
                     }
                 }
             }
         });
+    }
+
+    private void setSlotParams(byte[] value) {
+        originFrameType = value[13] & 0xff;
+        int index = SlotAdvType.getSlotTypeIndex(value[13] & 0xff);
+        mBind.npvSlotType.setValue(index);
+        showFragment(index);
+        if (currentFrameType == NO_DATA) return;
+        SlotData slotData = new SlotData();
+        slotData.advInterval = MokoUtils.toInt(Arrays.copyOfRange(value, 5, 7));
+        slotData.advDuration = MokoUtils.toInt(Arrays.copyOfRange(value, 7, 9));
+        slotData.standbyDuration = MokoUtils.toInt(Arrays.copyOfRange(value, 9, 11));
+        slotData.rssi = value[11];
+        slotData.txPower = value[12];
+        slotData.currentFrameType = currentFrameType;
+        slotData.slot = this.slot;
+        if (currentFrameType == UID) {
+            slotData.namespace = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 14, 24));
+            slotData.instanceId = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 24, 30));
+        } else if (currentFrameType == URL) {
+            slotData.urlScheme = value[14] & 0xff;
+            slotData.urlContent = new String(Arrays.copyOfRange(value, 15, value.length));
+        } else if (currentFrameType == I_BEACON) {
+            slotData.uuid = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 14, 30));
+            slotData.major = MokoUtils.toInt(Arrays.copyOfRange(value, 30, 32));
+            slotData.minor = MokoUtils.toInt(Arrays.copyOfRange(value, 32, 34));
+        } else if (currentFrameType == SENSOR_INFO) {
+            int nameLength = value[14] & 0xff;
+            slotData.deviceName = new String(Arrays.copyOfRange(value, 15, 15 + nameLength));
+            slotData.tagId = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 16 + nameLength, value.length));
+        }
+        if (null != slotDataActionImpl) {
+            originSlotData = slotData;
+            slotDataActionImpl.setParams(slotData);
+        }
     }
 
     @Override
@@ -180,15 +208,21 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
         XLog.i(picker.getContentByCurrValue());
         showFragment(newVal);
         if (slotDataActionImpl != null) {
-            slotDataActionImpl.resetParams(currentFrameTypeEnum);
+            if (currentFrameType == originFrameType) {
+                slotDataActionImpl.setParams(originSlotData);
+            } else {
+                SlotData slotData = new SlotData();
+                slotData.slot = this.slot;
+                slotData.currentFrameType = currentFrameType;
+                slotDataActionImpl.setParams(slotData);
+            }
         }
     }
 
     private void showFragment(int index) {
-        SlotFrameTypeEnum slotFrameTypeEnum = SlotFrameTypeEnum.fromShowName(slotTypeArray[index]);
-        if (null == slotFrameTypeEnum) return;
+        currentFrameType = SlotAdvType.SLOT_TYPE[index];
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        switch (slotFrameTypeEnum) {
+        switch (currentFrameType) {
             case TLM:
                 fragmentTransaction.hide(uidFragment).hide(urlFragment).hide(iBeaconFragment).hide(sensorInfoFragment).show(tlmFragment).commit();
                 slotDataActionImpl = tlmFragment;
@@ -201,7 +235,7 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
                 fragmentTransaction.hide(uidFragment).hide(iBeaconFragment).hide(tlmFragment).hide(sensorInfoFragment).show(urlFragment).commit();
                 slotDataActionImpl = urlFragment;
                 break;
-            case IBEACON:
+            case I_BEACON:
                 fragmentTransaction.hide(uidFragment).hide(urlFragment).hide(tlmFragment).hide(sensorInfoFragment).show(iBeaconFragment).commit();
                 slotDataActionImpl = iBeaconFragment;
                 break;
@@ -214,7 +248,7 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
                 slotDataActionImpl = null;
                 break;
         }
-        slotData.frameTypeEnum = slotFrameTypeEnum;
+        mBind.rlTriggerSwitch.setVisibility(currentFrameType == NO_DATA ? View.GONE : View.VISIBLE);
     }
 
     public void onBack(View view) {
@@ -223,9 +257,11 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
 
     public void onSave(View view) {
         if (isWindowLocked()) return;
-        isConfigError = false;
         if (slotDataActionImpl == null) {
-            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setSlotParamsNoData(slotData.slotEnum.ordinal()));
+            SlotData slotData = new SlotData();
+            slotData.slot = slot;
+            slotData.currentFrameType = currentFrameType;
+            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setNormalSlotAdvParams(slotData));
             return;
         }
         if (!slotDataActionImpl.isValid()) return;

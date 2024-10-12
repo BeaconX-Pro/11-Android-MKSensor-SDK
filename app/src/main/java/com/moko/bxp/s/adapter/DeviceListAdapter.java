@@ -37,7 +37,7 @@ public class DeviceListAdapter extends BaseQuickAdapter<AdvInfo, BaseViewHolder>
         helper.setText(R.id.tv_mac, "MAC:" + item.mac);
         helper.setText(R.id.tv_rssi, String.format("%ddBm", item.rssi));
         helper.setText(R.id.tv_interval_time, item.intervalTime == 0 ? "<->N/A" : String.format("<->%dms", item.intervalTime));
-        helper.setText(R.id.tv_battery, item.battery < 0 ? "N/A" : String.format("%dmV", item.battery));
+        helper.setText(R.id.tv_battery, item.battery < 0 ? "N/A" : item.battery <= 100 ? item.battery + "%" : item.battery + "mV");
         helper.addOnClickListener(R.id.tv_connect);
         helper.setGone(R.id.tv_connect, item.connectState > 0);
         helper.setVisible(R.id.tv_tag_id, false);
@@ -63,6 +63,8 @@ public class DeviceListAdapter extends BaseQuickAdapter<AdvInfo, BaseViewHolder>
                 parent.addView(createSensorView(AdvInfoParser.getSensorInfo(validData.data), parent));
                 helper.setVisible(R.id.tv_tag_id, true);
                 helper.setText(R.id.tv_tag_id, String.format("Tag ID:0x%s", validData.data.substring(36)));
+            }else {
+                helper.setVisible(R.id.tv_tag_id, false);
             }
         }
     }

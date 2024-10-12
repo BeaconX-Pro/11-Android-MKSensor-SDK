@@ -14,7 +14,7 @@ public enum TxPowerEnum implements Serializable {
     POSITIVE_4(4),
     POSITIVE_6(6);
 
-    private int txPower;
+    private final int txPower;
 
     TxPowerEnum(int txPower) {
         this.txPower = txPower;

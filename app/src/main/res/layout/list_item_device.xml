@@ -98,7 +98,6 @@
             android:textSize="10sp"
             android:visibility="invisible" />
 
-
         <TextView
             android:id="@+id/tv_interval_time"
             android:layout_width="wrap_content"
@@ -119,5 +118,5 @@
         android:id="@+id/ll_adv_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"></LinearLayout>
+        android:orientation="vertical"/>
 </LinearLayout>

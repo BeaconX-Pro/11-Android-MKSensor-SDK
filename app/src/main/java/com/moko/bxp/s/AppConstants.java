@@ -10,7 +10,8 @@ public class AppConstants {
     public static final String PATTERN_YYYY_MM_DD_HH_MM_SS = "dd/MM/yyyy HH:mm:ss";
     public static final String PATTERN_YYYY_MM_DD_T_HH_MM_SS_Z = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     // sp
-    public static final String SP_NAME = "sp_name_mk_button_cr";
+    public static final String SP_NAME = "sp_name_bxp_s";
+    public static final String SLOT = "slot";
 
     public static final String SP_KEY_DEVICE_ADDRESS = "sp_key_device_address";
     public static final String SP_KEY_SAVED_PASSWORD = "SP_KEY_SAVED_PASSWORD";
@@ -25,19 +26,4 @@ public class AppConstants {
     public static final String EXTRA_KEY_TRIGGER_DATA = "EXTRA_KEY_TRIGGER_DATA";
     public static final String EXTRA_KEY_PASSWORD_VERIFICATION = "EXTRA_KEY_PASSWORD_VERIFICATION";
 
-    // request_code
-    public static final int REQUEST_CODE_DEVICE_INFO = 0x10;
-    public static final int REQUEST_CODE_SLOT_DATA = 100;
-    public static final int REQUEST_CODE_ENABLE_BT = 1001;
-    public static final int REQUEST_CODE_QUICK_SWITCH = 1002;
-    public static final int REQUEST_CODE_ALARM_MODE = 1003;
-
-
-    public static final int REQUEST_CODE_PERMISSION = 120;
-    public static final int REQUEST_CODE_PERMISSION_2 = 121;
-    public static final int REQUEST_CODE_LOCATION_SETTINGS = 122;
-    public static final int PERMISSION_REQUEST_CODE = 1;
-
-    // result_code
-    public static final int RESULT_CONN_DISCONNECTED = 2;
 }

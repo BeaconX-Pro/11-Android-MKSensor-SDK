@@ -34,271 +34,129 @@
             tools:text="SLOT1" />
     </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="15dp"
-        android:gravity="bottom"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:text="2"
-            android:textColor="@color/blue_2f84d0"
-            android:textSize="30sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:paddingBottom="2dp"
-            android:text="/3"
-            android:textColor="@color/grey_a6a6a6"
-            android:textSize="22sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:text=":"
-            android:textColor="@color/blue_2f84d0"
-            android:textSize="28sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:text="Setting trigger event"
-            android:textColor="@color/black_333333"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
-        android:layout_marginTop="25dp"
-        android:layout_marginRight="12dp"
-        android:background="@drawable/shape_radius_white_bg"
-        android:padding="15dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Trigger type"
-            android:textColor="@color/black_333333"
-            android:textSize="15sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tvTriggerType"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvTriggerType" />
-
-        <TextView
-            android:id="@+id/tvTriggerType"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:background="@drawable/shape_radius_blue_btn_bg"
-            android:gravity="center"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:text="Motion detection"
-            android:textColor="@color/white_ffffff"
-            android:textSize="15sp"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tvTriggerEvent"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginTop="15dp"
-            android:background="@drawable/shape_radius_blue_btn_bg"
-            android:gravity="center"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:text="Door Open"
-            android:textColor="@color/white_ffffff"
-            android:textSize="15sp"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTriggerType" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Trigger event"
-            android:textColor="@color/black_333333"
-            android:textSize="15sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tvTriggerEvent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvTriggerEvent" />
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/layoutStaticPeriod"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            app:layout_constraintTop_toBottomOf="@+id/tvTriggerEvent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="0px"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Static verify period"
-                android:textColor="@color/black_333333"
-                android:textSize="15sp" />
-
-            <EditText
-                android:id="@+id/etStaticPeriod"
-                android:layout_width="140dp"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="5dp"
-                android:gravity="center"
-                android:hint="1~65535"
-                android:inputType="number"
-                android:maxLength="5"
-                android:textColor="@color/black_333333"
-                android:textSize="15sp" />
-
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="s"
-                android:textColor="@color/black_333333"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="2"
+                    android:textColor="@color/blue_2f84d0"
+                    android:textSize="30sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:paddingBottom="2dp"
+                    android:text="/3"
+                    android:textColor="@color/grey_a6a6a6"
+                    android:textSize="22sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text=":"
+                    android:textColor="@color/blue_2f84d0"
+                    android:textSize="28sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:text="Event occurs setting"
+                    android:textColor="@color/black_333333"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="15dp"
+                android:lineSpacingMultiplier="1.2"
+                android:text="*In this step, you can configure the advertising parameters of trigger event occurs."
+                android:textColor="#ff561f"
+                android:textSize="14sp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="12dp"
+                android:background="@drawable/shape_radius_white_bg"
+                android:paddingTop="15dp"
+                android:paddingBottom="10dp">
+
+                <TextView
+                    android:id="@+id/tvFrameTypeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:drawableLeft="@drawable/frame_type"
+                    android:drawablePadding="10dp"
+                    android:gravity="center_vertical"
+                    android:text="Frame type"
+                    android:textColor="@color/black_333333"
+                    android:textSize="15sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/tvFrameType"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/tvFrameType" />
+
+                <TextView
+                    android:id="@+id/tvFrameType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="12dp"
+                    android:background="@drawable/shape_radius_blue_btn_bg"
+                    android:gravity="center_vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="Sensor info"
+                    android:textColor="@color/white_ffffff"
+                    android:textSize="15sp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <FrameLayout
+                    android:id="@+id/frame_slot_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginRight="12dp"
+                    app:layout_constraintTop_toBottomOf="@+id/tvFrameType" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <Button
+                android:id="@+id/btnNext"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="50dp"
+                android:background="@drawable/shape_radius_blue_btn_bg"
+                android:text="Next"
+                android:textColor="@color/white_ffffff"
                 android:textSize="15sp" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvStaticTip"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:lineSpacingMultiplier="1.2"
-            android:text=" *Static verify period: the parameter that determines when a stationary event occurs on the device"
-            android:textColor="#ff561f"
-            android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@+id/layoutStaticPeriod" />
-
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/groupStaticPeriod"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:constraint_referenced_ids="layoutStaticPeriod,tvStaticTip" />
-
-        <RelativeLayout
-            android:id="@+id/layoutTemperature"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@+id/tvTriggerEvent">
-
-            <TextView
-                android:id="@+id/tvTemperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Temperature threshold"
-                android:textColor="@color/black_333333"
-                android:textSize="15sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@id/tvTemperature"
-                android:layout_marginLeft="10dp"
-                android:layout_toRightOf="@id/tvTemperature"
-                android:text="(-40℃~150℃)"
-                android:textColor="@color/grey_b3b3b3"
-                android:textSize="12sp" />
-
-            <SeekBar
-                android:id="@+id/sbTemp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/tvTemperature"
-                android:layout_marginTop="10dp"
-                android:layout_toLeftOf="@+id/tvTempValue"
-                android:max="190"
-                android:progress="0" />
-
-            <TextView
-                android:id="@id/tvTempValue"
-                android:layout_width="60dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/tvTemperature"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="15dp"
-                android:gravity="right"
-                android:text="0℃"
-                android:textStyle="bold"
-                android:textColor="@color/black_333333"
-                android:textSize="15sp" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/layoutHum"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@+id/tvTriggerEvent">
-
-            <TextView
-                android:id="@+id/tvHumidity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Humidity threshold"
-                android:textColor="@color/black_333333"
-                android:textSize="15sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@id/tvHumidity"
-                android:layout_marginLeft="10dp"
-                android:layout_toRightOf="@id/tvHumidity"
-                android:text="(0%~95%)"
-                android:textColor="@color/grey_b3b3b3"
-                android:textSize="12sp" />
-
-            <SeekBar
-                android:id="@+id/sbHum"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/tvHumidity"
-                android:layout_marginTop="10dp"
-                android:layout_toLeftOf="@+id/tvHumValue"
-                android:max="95"
-                android:progress="0" />
-
-            <TextView
-                android:id="@id/tvHumValue"
-                android:layout_width="60dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/tvHumidity"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="15dp"
-                android:gravity="right"
-                android:text="50%"
-                android:textStyle="bold"
-                android:textColor="@color/black_333333"
-                android:textSize="15sp" />
-        </RelativeLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <Button
-        android:id="@+id/btnNext"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="100dp"
-        android:background="@drawable/shape_radius_blue_btn_bg"
-        android:text="Next"
-        android:textColor="@color/white_ffffff"
-        android:textSize="15sp" />
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

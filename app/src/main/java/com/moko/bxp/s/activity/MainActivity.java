@@ -278,7 +278,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    XLog.e(e);
                 }
                 updateDevices();
             }
@@ -417,7 +417,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
             }
             mSelectedDeviceMac = advInfo.mac;
             showLoadingProgressDialog();
-            mBind.ivRefresh.postDelayed(() -> MokoSupport.getInstance().connDevice(mSelectedDeviceMac), 500);
+            MokoSupport.getInstance().connDevice(mSelectedDeviceMac);
         }
     }
 

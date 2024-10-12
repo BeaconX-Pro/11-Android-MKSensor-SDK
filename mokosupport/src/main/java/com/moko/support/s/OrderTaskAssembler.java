@@ -5,6 +5,8 @@ import androidx.annotation.NonNull;
 
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.support.s.entity.ParamsKeyEnum;
+import com.moko.support.s.entity.SlotData;
+import com.moko.support.s.entity.TriggerStep1Bean;
 import com.moko.support.s.task.GetFirmwareRevisionTask;
 import com.moko.support.s.task.GetHardwareRevisionTask;
 import com.moko.support.s.task.GetManufacturerNameTask;
@@ -142,9 +144,33 @@ public class OrderTaskAssembler {
         return task;
     }
 
+    public static OrderTask getBatteryMode() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_BATTERY_MODE);
+        return task;
+    }
+
+    public static OrderTask setBatteryMode(int mode){
+        ParamsTask task = new ParamsTask();
+        task.setBatteryMode(mode);
+        return task;
+    }
+
     public static OrderTask getMagneticTriggerCount() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_MAGNETIC_TRIGGER_COUNT);
+        return task;
+    }
+
+    public static OrderTask getAdvChannel() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_ADV_CHANNEL);
+        return task;
+    }
+
+    public static OrderTask setAdvChannel(int channel) {
+        ParamsTask task = new ParamsTask();
+        task.setAdvChannel(channel);
         return task;
     }
 
@@ -157,6 +183,18 @@ public class OrderTaskAssembler {
     public static OrderTask getAxisParams() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_AXIS_PARAMS);
+        return task;
+    }
+
+    public static OrderTask getNormalSlotAdvParams(int slot) {
+        ParamsTask task = new ParamsTask();
+        task.getNormalSlotAdvParams(slot);
+        return task;
+    }
+
+    public static OrderTask setNormalSlotAdvParams(@NonNull SlotData slotData) {
+        ParamsTask task = new ParamsTask();
+        task.setNormalSlotAdvParams(slotData);
         return task;
     }
 
@@ -192,7 +230,7 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask setHallPowerEnable(int enable){
+    public static OrderTask setHallPowerEnable(int enable) {
         ParamsTask task = new ParamsTask();
         task.setHallPowerEnable(enable);
         return task;
@@ -356,108 +394,33 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask setSlotAdvParamsBefore(@IntRange(from = 0, to = 5) int slot,
-                                                   @IntRange(from = 100, to = 10000) int interval,
-                                                   @IntRange(from = 1, to = 65535) int duration,
-                                                   @IntRange(from = 0, to = 65535) int standbyDuration,
-                                                   @IntRange(from = -100, to = 0) int rssi, int txPower) {
+    public static OrderTask setSlotAdvParamsBefore(@NonNull SlotData beforeBean) {
         ParamsTask task = new ParamsTask();
-        task.setSlotAdvParamsBefore(slot, interval, duration, standbyDuration, rssi, txPower);
+        task.setSlotAdvParamsBefore(beforeBean);
         return task;
     }
 
-    public static OrderTask setSlotAdvParamsAfter(int slot, int interval, int duration, int rssi, int txPower) {
+    public static OrderTask setSlotAdvParamsAfter(@NonNull SlotData afterBean) {
         ParamsTask task = new ParamsTask();
-        task.setSlotAdvParamsAfter(slot, interval, duration, rssi, txPower);
+        task.setSlotAdvParamsAfter(afterBean);
         return task;
     }
 
-    public static OrderTask getTriggerBeforeSlotParams(@IntRange(from = 0, to = 5) int slot) {
+    public static OrderTask getTriggerBeforeSlotParams(@IntRange(from = 0, to = 2) int slot) {
         ParamsTask task = new ParamsTask();
         task.getTriggerBeforeSlotParams(slot);
         return task;
     }
 
-    public static OrderTask getTriggerAfterSlotParams(@IntRange(from = 0, to = 5) int slot) {
+    public static OrderTask getTriggerAfterSlotParams(@IntRange(from = 0, to = 2) int slot) {
         ParamsTask task = new ParamsTask();
         task.getTriggerAfterSlotParams(slot);
         return task;
     }
 
-    public static OrderTask setSlotTriggerType(int slot, int triggerType) {
+    public static OrderTask setSlotTriggerType(@NonNull TriggerStep1Bean triggerBean) {
         ParamsTask task = new ParamsTask();
-        task.setSlotTriggerType(slot, triggerType);
+        task.setSlotTriggerType(triggerBean);
         return task;
     }
-
-    public static OrderTask setSlotParamsNoData(@IntRange(from = 0, to = 5) int slot) {
-        ParamsTask task = new ParamsTask();
-        task.setSlotParamsNoData(slot);
-        return task;
-    }
-
-    public static OrderTask setSlotParamsUID(@IntRange(from = 0, to = 5) int slot,
-                                             String namespaceId, String instanceId) {
-        ParamsTask task = new ParamsTask();
-        task.setSlotParamsUID(slot, namespaceId, instanceId);
-        return task;
-    }
-
-    public static OrderTask setSlotParamsURL(@IntRange(from = 0, to = 5) int slot,
-                                             int urlScheme, @NonNull String urlContent) {
-        ParamsTask task = new ParamsTask();
-        task.setSlotParamsURL(slot, urlScheme, urlContent);
-        return task;
-    }
-
-    public static OrderTask setSlotParamsTagInfo(@IntRange(from = 0, to = 5) int slot,
-                                                 String deviceName, String tagId) {
-        ParamsTask task = new ParamsTask();
-        task.setSlotParamsTagInfo(slot, deviceName, tagId);
-        return task;
-    }
-
-    public static OrderTask setSlotParamsIBeacon(@IntRange(from = 0, to = 5) int slot,
-                                                 int major, int minor, String uuid) {
-        ParamsTask task = new ParamsTask();
-        task.setSlotParamsIBeacon(slot, major, minor, uuid);
-        return task;
-    }
-
-    public static OrderTask setSlotParamsTLM(@IntRange(from = 0, to = 5) int slot) {
-        ParamsTask task = new ParamsTask();
-        task.setSlotParamsTLM(slot);
-        return task;
-    }
-
-    public static OrderTask setSlotParamsTH(@IntRange(from = 0, to = 5) int slot) {
-        ParamsTask task = new ParamsTask();
-        task.setSlotParamsTH(slot);
-        return task;
-    }
-
-    public static OrderTask setHallTriggerEvent(int slot, int enable) {
-        ParamsTask task = new ParamsTask();
-        task.setHallTriggerEvent(slot, enable);
-        return task;
-    }
-
-    public static OrderTask setAxisTriggerEvent(int slot, int enable, int staticPeriod) {
-        ParamsTask task = new ParamsTask();
-        task.setAxisTriggerEvent(slot, enable, staticPeriod);
-        return task;
-    }
-
-    public static OrderTask setHumTriggerEvent(int slot, int enable, int threshold) {
-        ParamsTask task = new ParamsTask();
-        task.setHumTriggerEvent(slot, enable, threshold);
-        return task;
-    }
-
-    public static OrderTask setTempTriggerEvent(int slot, int enable, int threshold) {
-        ParamsTask task = new ParamsTask();
-        task.setTempTriggerEvent(slot, enable, threshold);
-        return task;
-    }
-
 }
