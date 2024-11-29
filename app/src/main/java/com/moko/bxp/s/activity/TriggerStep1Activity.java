@@ -27,6 +27,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
+import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep1Binding;
 import com.moko.bxp.s.dialog.BottomDialog;
@@ -45,6 +46,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author: jun.liu
@@ -56,7 +58,8 @@ public class TriggerStep1Activity extends BaseActivity {
     private boolean mReceiverTag;
     private int slot;
     private int triggerType;
-    private final String[] triggerTypeArray = {"Temperature detection", "Humidity detection", "Motion detection", "Magnetic detection"};
+    //1 2 3 4
+//    private final String[] triggerTypeArray = {"Temperature detection", "Humidity detection", "Motion detection", "Magnetic detection"};
     private final String[] tempTriggerEventArray = {"Temperature above threshold", "Temperature below threshold"};
     private final String[] humTriggerEventArray = {"Humidity above threshold", "Humidity below threshold"};
     private final String[] motionTriggerEventArray = {"Device start moving", "Device remains stationary"};
@@ -66,10 +69,6 @@ public class TriggerStep1Activity extends BaseActivity {
     public int motionTriggerSelect;
     public int tempTriggerSelect;
     public int humTriggerSelect;
-    private int axisStaticPeriod;
-    private int tempThreshold;
-    private int humThreshold;
-    private int lockedAdvDuration;
     private TriggerEvent triggerEvent;
     private boolean isTriggerOpen = true;
     private FragmentManager fragmentManager;
@@ -78,6 +77,15 @@ public class TriggerStep1Activity extends BaseActivity {
     private MotionTriggerFragment motionTriggerFragment;
     private HallTriggerFragment hallTriggerFragment;
     private int rawTriggerType;
+    private int accStatus;
+    private int thStatus;
+    private boolean isHallPowerEnable;
+    private boolean isButtonPowerEnable;
+    private final List<String> triggerList = new ArrayList<>();
+    private final String MOTION_DETECTION = "Motion detection";
+    private final String TEMPERATURE_DETECTION = "Temperature detection";
+    private final String HUMIDITY_DETECTION = "Humidity detection";
+    private final String MAGNETIC_DETECTION = "Magnetic detection";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,14 +98,65 @@ public class TriggerStep1Activity extends BaseActivity {
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mReceiver, filter);
         mReceiverTag = true;
-        slot = getIntent().getIntExtra("slot", 0);
-        triggerEvent = getIntent().getParcelableExtra("trigger");
+        slot = getIntent().getIntExtra(AppConstants.SLOT, 0);
+        triggerEvent = getIntent().getParcelableExtra(AppConstants.EXTRA_KEY1);
+        accStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY2, 0);
+        thStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY3, 0);
+        isHallPowerEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY4, false);
+        isButtonPowerEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY5, false);
         mBind.tvTitle.setText("SLOT" + (slot + 1));
-        rawTriggerType = triggerType = null == triggerEvent ? MOTION_TRIGGER : triggerEvent.triggerType;
+        rawTriggerType = triggerType = null == triggerEvent ? getNoTriggerType() : triggerEvent.triggerType;
         fragmentManager = getSupportFragmentManager();
         initFragment();
         initListener();
         showFragment();
+        if (accStatus > 0) {
+            triggerList.add(MOTION_DETECTION);
+        }
+        if (thStatus == 1 || thStatus == 2 || thStatus == 4) {
+            triggerList.add(TEMPERATURE_DETECTION);
+            triggerList.add(HUMIDITY_DETECTION);
+        } else if (thStatus == 3) {
+            triggerList.add(TEMPERATURE_DETECTION);
+        }
+        if (!isHallPowerEnable && !isButtonPowerEnable) {
+            triggerList.add(MAGNETIC_DETECTION);
+        }
+    }
+
+    private int getNoTriggerType() {
+        if (accStatus > 0) return MOTION_TRIGGER;
+        if (thStatus > 0) return TEMP_TRIGGER;
+        return HALL_TRIGGER;
+    }
+
+    private int getIndexByTriggerType() {
+        switch (triggerType){
+            case TEMP_TRIGGER:
+                for (int i = 0; i < triggerList.size(); i++) {
+                    if (TEMPERATURE_DETECTION.equals(triggerList.get(i))) return i;
+                }
+                break;
+
+            case HUM_TRIGGER:
+                for (int i = 0; i < triggerList.size(); i++) {
+                    if (HUMIDITY_DETECTION.equals(triggerList.get(i))) return i;
+                }
+                break;
+
+            case MOTION_TRIGGER:
+                for (int i = 0; i < triggerList.size(); i++) {
+                    if (MOTION_DETECTION.equals(triggerList.get(i))) return i;
+                }
+                break;
+
+            case HALL_TRIGGER:
+                for (int i = 0; i < triggerList.size(); i++) {
+                    if (MAGNETIC_DETECTION.equals(triggerList.get(i))) return i;
+                }
+                break;
+        }
+        return 0;
     }
 
     private void initFragment() {
@@ -137,13 +196,12 @@ public class TriggerStep1Activity extends BaseActivity {
     }
 
     private void setStatus() {
-        mBind.tvTriggerType.setText(triggerTypeArray[triggerType - 1]);
+        mBind.tvTriggerType.setText(triggerList.get(getIndexByTriggerType()));
         if (triggerType == TEMP_TRIGGER) {
             //温度
             if (null != triggerEvent && triggerType == rawTriggerType) {
                 tempTriggerSelect = triggerEvent.triggerCondition == TEMP_TRIGGER_ABOVE ? 0 : 1;
                 triggerCondition = triggerEvent.triggerCondition;
-                tempThreshold = triggerEvent.triggerThreshold;
                 temperatureTriggerFragment.setValues(triggerEvent.triggerThreshold, triggerEvent.lockAdvDuration);
             } else {
                 tempTriggerSelect = 0;
@@ -156,7 +214,6 @@ public class TriggerStep1Activity extends BaseActivity {
             if (null != triggerEvent && triggerType == rawTriggerType) {
                 humTriggerSelect = triggerEvent.triggerCondition == HUM_TRIGGER_ABOVE ? 0 : 1;
                 triggerCondition = triggerEvent.triggerCondition;
-                humThreshold = triggerEvent.triggerThreshold;
                 humidityTriggerFragment.setValue(triggerEvent.triggerThreshold, triggerEvent.lockAdvDuration);
             } else {
                 humTriggerSelect = 0;
@@ -169,7 +226,6 @@ public class TriggerStep1Activity extends BaseActivity {
             if (null != triggerEvent && triggerType == rawTriggerType) {
                 motionTriggerSelect = triggerEvent.triggerCondition == MOTION_TRIGGER_MOTION ? 0 : 1;
                 triggerCondition = triggerEvent.triggerCondition;
-                axisStaticPeriod = triggerEvent.staticPeriod;
                 motionTriggerFragment.setValue(triggerEvent.staticPeriod, triggerEvent.lockAdvDuration);
             } else {
                 motionTriggerSelect = 0;
@@ -190,7 +246,6 @@ public class TriggerStep1Activity extends BaseActivity {
             }
             mBind.tvTriggerEvent.setText(hallTriggerEventArray[hallTriggerSelect]);
         }
-        if (null != triggerEvent) lockedAdvDuration = triggerEvent.lockAdvDuration;
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
@@ -208,7 +263,7 @@ public class TriggerStep1Activity extends BaseActivity {
         setStatus();
         mBind.tvTriggerType.setOnClickListener(v -> {
             BottomDialog dialog = new BottomDialog();
-            dialog.setDatas(new ArrayList<>(Arrays.asList(triggerTypeArray)), triggerType - 1);
+            dialog.setDatas((ArrayList<String>) triggerList, getIndexByTriggerType());
             dialog.setListener(value -> {
                 triggerType = value + 1;
                 showFragment();

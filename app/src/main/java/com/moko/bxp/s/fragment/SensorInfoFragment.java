@@ -3,7 +3,6 @@ package com.moko.bxp.s.fragment;
 import static com.moko.support.s.entity.SlotAdvType.NO_DATA;
 
 import android.annotation.SuppressLint;
-import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.method.ReplacementTransformationMethod;
@@ -14,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
@@ -27,10 +26,9 @@ import com.moko.support.s.entity.TxPowerEnum;
 
 import java.util.Objects;
 
-public class SensorInfoFragment extends Fragment implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
+public class SensorInfoFragment extends BaseFragment<FragmentSensorInfoBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
     private static final String TAG = "SensorInfoFragment";
     private final String FILTER_ASCII = "[ -~]*";
-    private FragmentSensorInfoBinding mBind;
     private boolean isLowPowerMode;
     private SlotData slotData;
     private int mRssi;
@@ -45,9 +43,8 @@ public class SensorInfoFragment extends Fragment implements SeekBar.OnSeekBarCha
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    protected void onCreateView() {
         Log.i(TAG, "onCreateView: ");
-        mBind = FragmentSensorInfoBinding.inflate(inflater, container, false);
         if (isTriggerAfter) {
             mBind.layoutLowPower.setVisibility(View.GONE);
             mBind.layoutStandDuration.setVisibility(View.GONE);
@@ -66,7 +63,12 @@ public class SensorInfoFragment extends Fragment implements SeekBar.OnSeekBarCha
             isLowPowerMode = !isLowPowerMode;
             changeView();
         });
-        return mBind.getRoot();
+        mBind.ivDetail.setOnClickListener(v -> showLowPowerTips());
+    }
+
+    @Override
+    protected FragmentSensorInfoBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentSensorInfoBinding.inflate(inflater, container, false);
     }
 
     private void changeView() {

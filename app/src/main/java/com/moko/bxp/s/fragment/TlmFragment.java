@@ -3,7 +3,6 @@ package com.moko.bxp.s.fragment;
 import static com.moko.support.s.entity.SlotAdvType.NO_DATA;
 
 import android.annotation.SuppressLint;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
@@ -25,9 +24,8 @@ import com.moko.support.s.entity.TxPowerEnum;
 
 import java.util.Objects;
 
-public class TlmFragment extends Fragment implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
+public class TlmFragment extends BaseFragment<FragmentTlmBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
     private static final String TAG = "TlmFragment";
-    private FragmentTlmBinding mBind;
     private boolean isLowPowerMode;
     private SlotData slotData;
     private int mTxPower;
@@ -41,9 +39,8 @@ public class TlmFragment extends Fragment implements SeekBar.OnSeekBarChangeList
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    protected void onCreateView() {
         Log.i(TAG, "onCreateView: ");
-        mBind = FragmentTlmBinding.inflate(inflater, container, false);
         if (isTriggerAfter) {
             mBind.layoutLowPower.setVisibility(View.GONE);
             mBind.layoutStandDuration.setVisibility(View.GONE);
@@ -54,7 +51,12 @@ public class TlmFragment extends Fragment implements SeekBar.OnSeekBarChangeList
             isLowPowerMode = !isLowPowerMode;
             changeView();
         });
-        return mBind.getRoot();
+        mBind.ivDetail.setOnClickListener(v -> showLowPowerTips());
+    }
+
+    @Override
+    protected FragmentTlmBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentTlmBinding.inflate(inflater, container, false);
     }
 
     public void setTriggerAfter(boolean isTriggerAfter) {

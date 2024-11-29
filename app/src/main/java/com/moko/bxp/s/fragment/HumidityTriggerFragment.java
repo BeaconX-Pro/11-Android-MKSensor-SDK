@@ -1,16 +1,13 @@
 package com.moko.bxp.s.fragment;
 
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import com.moko.bxp.s.databinding.FragmentHumidityTriggerBinding;
 
@@ -19,16 +16,16 @@ import com.moko.bxp.s.databinding.FragmentHumidityTriggerBinding;
  * @date: 2024/9/27 16:00
  * @des:
  */
-public class HumidityTriggerFragment extends Fragment implements SeekBar.OnSeekBarChangeListener {
-    private FragmentHumidityTriggerBinding mBind;
-
-    @Nullable
+public class HumidityTriggerFragment extends BaseFragment<FragmentHumidityTriggerBinding> implements SeekBar.OnSeekBarChangeListener {
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mBind = FragmentHumidityTriggerBinding.inflate(inflater, container, false);
+    protected void onCreateView() {
         mBind.sbHum.setOnSeekBarChangeListener(this);
         mBind.cbLockAdv.setOnCheckedChangeListener((buttonView, isChecked) -> mBind.group.setVisibility(isChecked ? View.VISIBLE : View.GONE));
-        return mBind.getRoot();
+    }
+
+    @Override
+    protected FragmentHumidityTriggerBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentHumidityTriggerBinding.inflate(inflater, container, false);
     }
 
     public void setValue(int threshold, int lockedAdvDuration) {

@@ -41,7 +41,7 @@ public class THDataActivity extends BaseActivity {
     private final SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.PATTERN_YYYY_MM_DD_HH_MM_SS, Locale.getDefault());
     private ActivityThBinding mBind;
     private boolean isParamsError;
-    private int deviceType;
+    private boolean isOnlyTemp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +70,8 @@ public class THDataActivity extends BaseActivity {
             isTHStoreEnable = !isTHStoreEnable;
             mBind.imgStore.setImageResource(isTHStoreEnable ? R.drawable.ic_checked : R.drawable.ic_unchecked);
         });
-        deviceType = getIntent().getIntExtra("type", 0);
-        if (deviceType == 3) {
+        isOnlyTemp = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY1,false);
+        if (isOnlyTemp) {
             //只有温度
             mBind.group.setVisibility(View.GONE);
             mBind.tvTitle.setText("Temperature");
@@ -226,7 +226,7 @@ public class THDataActivity extends BaseActivity {
         if (isWindowLocked()) return;
         // 跳转导出数据页面
         Intent intent = new Intent(this, ExportTHDataActivity.class);
-        intent.putExtra("type", deviceType);
+        intent.putExtra(AppConstants.EXTRA_KEY1, isOnlyTemp);
         startActivity(intent);
     }
 

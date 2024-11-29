@@ -53,12 +53,6 @@ public class OrderTaskAssembler {
         return new GetFirmwareRevisionTask();
     }
 
-    public static OrderTask getHistoryHallData() {
-        ParamsTask task = new ParamsTask();
-        task.getData(ParamsKeyEnum.KEY_HALL_HISTORY_DATA);
-        return task;
-    }
-
     public static OrderTask getTHStore() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_TH_STORE);
@@ -108,51 +102,27 @@ public class OrderTaskAssembler {
         return new GetSoftwareRevisionTask();
     }
 
-    public static OrderTask getHallTriggerEvent(int slot) {
-        ParamsTask task = new ParamsTask();
-        task.getHallTriggerEvent(slot);
-        return task;
-    }
-
-    public static OrderTask getAxisTriggerEvent(int slot) {
-        ParamsTask task = new ParamsTask();
-        task.getAxisTriggerEvent(slot);
-        return task;
-    }
-
-    public static OrderTask getHumTriggerEvent(int slot) {
-        ParamsTask task = new ParamsTask();
-        task.getHumTriggerEvent(slot);
-        return task;
-    }
-
-    public static OrderTask getTempTriggerEvent(int slot) {
-        ParamsTask task = new ParamsTask();
-        task.getTempTriggerEvent(slot);
-        return task;
-    }
-
-    public static OrderTask getDeviceType() {
-        ParamsTask task = new ParamsTask();
-        task.getData(ParamsKeyEnum.KEY_DEVICE_TYPE);
-        return task;
-    }
-
-    public static OrderTask getHallStoreEnable() {
-        ParamsTask task = new ParamsTask();
-        task.getData(ParamsKeyEnum.KEY_HALL_STORE_ENABLE);
-        return task;
-    }
-
     public static OrderTask getBatteryMode() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_BATTERY_MODE);
         return task;
     }
 
-    public static OrderTask setBatteryMode(int mode){
+    public static OrderTask setBatteryMode(int mode) {
         ParamsTask task = new ParamsTask();
         task.setBatteryMode(mode);
+        return task;
+    }
+
+    public static OrderTask getBatteryPercent() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_BATTERY_PERCENT);
+        return task;
+    }
+
+    public static OrderTask setBatteryPercent(int percent) {
+        ParamsTask task = new ParamsTask();
+        task.setBatteryPercent(percent);
         return task;
     }
 
@@ -224,15 +194,15 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask getHallPowerEnable() {
+    public static OrderTask getButtonTurnOffEnable() {
         ParamsTask task = new ParamsTask();
-        task.getData(ParamsKeyEnum.KEY_HALL_POWER_ENABLE);
+        task.getData(ParamsKeyEnum.KEY_BUTTON_TURN_OFF_ENABLE);
         return task;
     }
 
-    public static OrderTask setHallPowerEnable(int enable) {
+    public static OrderTask setButtonTurnOffEnable(int enable) {
         ParamsTask task = new ParamsTask();
-        task.setHallPowerEnable(enable);
+        task.setButtonTurnOffEnable(enable);
         return task;
     }
 
@@ -266,21 +236,21 @@ public class OrderTaskAssembler {
         return task;
     }
 
+    public static OrderTask getAoaCteStatus() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_AOA_CTE_ENABLE);
+        return task;
+    }
+
     public static OrderTask getTagIdAutoFillStatus() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_TAG_ID_AUTO_FILL_ENABLE);
         return task;
     }
 
-    public static OrderTask getResetByButtonStatus() {
+    public static OrderTask getResetByButtonEnable() {
         ParamsTask task = new ParamsTask();
-        task.getData(ParamsKeyEnum.KEY_RESET_BY_BUTTON_ENABLE);
-        return task;
-    }
-
-    public static OrderTask getTurnOffByButtonStatus() {
-        ParamsTask task = new ParamsTask();
-        task.getData(ParamsKeyEnum.KEY_HALL_POWER_ENABLE);
+        task.getData(ParamsKeyEnum.KEY_BUTTON_RESET_ENABLE);
         return task;
     }
 
@@ -302,13 +272,6 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask setTriggerLedStatus(@IntRange(from = 0, to = 1) int enable) {
-        ParamsTask task = new ParamsTask();
-        task.setTriggerLedStatus(enable);
-        return task;
-    }
-
-    //新增
     public static OrderTask getAllSlotAdvType() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_ALL_SLOT_ADV_TYPE);
@@ -321,16 +284,29 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask setRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
-                                              @IntRange(from = 1, to = 600) int time) {
+    public static OrderTask setLedRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
+                                                 @IntRange(from = 1, to = 600) int time) {
         ParamsTask task = new ParamsTask();
-        task.setRemoteReminder(interval, time);
+        task.setLedRemoteReminder(interval, time);
+        return task;
+    }
+
+    public static OrderTask setBuzzerRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
+                                                    @IntRange(from = 1, to = 600) int time) {
+        ParamsTask task = new ParamsTask();
+        task.setBuzzerRemoteReminder(interval, time);
         return task;
     }
 
     public static OrderTask setConnectStatus(int status) {
         ParamsTask task = new ParamsTask();
         task.setStatus(status, ParamsKeyEnum.KEY_CONNECT_ENABLE);
+        return task;
+    }
+
+    public static OrderTask setAoaCteStatus(int status) {
+        ParamsTask task = new ParamsTask();
+        task.setStatus(status, ParamsKeyEnum.KEY_AOA_CTE_ENABLE);
         return task;
     }
 
@@ -348,13 +324,7 @@ public class OrderTaskAssembler {
 
     public static OrderTask setResetByButton(int status) {
         ParamsTask task = new ParamsTask();
-        task.setStatus(status, ParamsKeyEnum.KEY_RESET_BY_BUTTON_ENABLE);
-        return task;
-    }
-
-    public static OrderTask setTurnOffByButton(int status) {
-        ParamsTask task = new ParamsTask();
-        task.setStatus(status, ParamsKeyEnum.KEY_HALL_POWER_ENABLE);
+        task.setStatus(status, ParamsKeyEnum.KEY_BUTTON_RESET_ENABLE);
         return task;
     }
 
@@ -364,33 +334,15 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask setHallStoreEnable(int enable) {
-        ParamsTask task = new ParamsTask();
-        task.setHallStoreEnable(enable);
-        return task;
-    }
-
     public static OrderTask setCurrentTime() {
         ParamsTask task = new ParamsTask();
         task.setCurrentTime();
         return task;
     }
 
-    public static OrderTask clearHallHistory() {
-        ParamsTask task = new ParamsTask();
-        task.setData(ParamsKeyEnum.KEY_CLEAR_HISTORY_HALL);
-        return task;
-    }
-
     public static OrderTask clearHistoryTHData() {
         ParamsTask task = new ParamsTask();
         task.setData(ParamsKeyEnum.KEY_CLEAR_HISTORY_TH);
-        return task;
-    }
-
-    public static OrderTask getSlotAdvParams(@IntRange(from = 0, to = 5) int slot) {
-        ParamsTask task = new ParamsTask();
-        task.getSlotAdvParams(slot);
         return task;
     }
 

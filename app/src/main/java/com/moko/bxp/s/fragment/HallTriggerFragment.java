@@ -1,6 +1,5 @@
 package com.moko.bxp.s.fragment;
 
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +7,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import com.moko.bxp.s.databinding.FragmentHallTriggerBinding;
 
@@ -17,15 +15,15 @@ import com.moko.bxp.s.databinding.FragmentHallTriggerBinding;
  * @date: 2024/9/27 15:49
  * @des:
  */
-public class HallTriggerFragment extends Fragment {
-    private FragmentHallTriggerBinding mBind;
-
-    @Nullable
+public class HallTriggerFragment extends BaseFragment<FragmentHallTriggerBinding> {
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mBind = FragmentHallTriggerBinding.inflate(inflater, container, false);
+    protected void onCreateView() {
         mBind.cbLockAdv.setOnCheckedChangeListener((buttonView, isChecked) -> mBind.group.setVisibility(isChecked ? View.VISIBLE : View.GONE));
-        return mBind.getRoot();
+    }
+
+    @Override
+    protected FragmentHallTriggerBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentHallTriggerBinding.inflate(inflater, container, false);
     }
 
     public void setValue(int lockedAdvDuration) {

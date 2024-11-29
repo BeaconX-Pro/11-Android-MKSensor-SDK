@@ -12,6 +12,11 @@ public class AppConstants {
     // sp
     public static final String SP_NAME = "sp_name_bxp_s";
     public static final String SLOT = "slot";
+    public static final String EXTRA_KEY1 = "extra_key1";
+    public static final String EXTRA_KEY2 = "extra_key2";
+    public static final String EXTRA_KEY3 = "extra_key3";
+    public static final String EXTRA_KEY4 = "extra_key4";
+    public static final String EXTRA_KEY5 = "extra_key5";
 
     public static final String SP_KEY_DEVICE_ADDRESS = "sp_key_device_address";
     public static final String SP_KEY_SAVED_PASSWORD = "SP_KEY_SAVED_PASSWORD";

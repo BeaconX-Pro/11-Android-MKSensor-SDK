@@ -22,7 +22,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * @author: jun.liu
- * @date: 2024/1/24 15:25
+ * @date: 2024/10/28 15:25
  * @des: 远程提醒
  */
 public class RemoteReminderActivity extends BaseActivity {
@@ -34,11 +34,12 @@ public class RemoteReminderActivity extends BaseActivity {
         mBind = ActivityRemoteReminderBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         EventBus.getDefault().register(this);
-        mBind.btnRemind.setOnClickListener(v -> onRemindClick());
+        mBind.btnRemind.setOnClickListener(v -> onLedRemindClick());
+        mBind.btnBuzzerRemind.setOnClickListener(v -> onBuzzerRemindClick());
     }
 
     //远程提醒
-    private void onRemindClick() {
+    private void onLedRemindClick() {
         if (TextUtils.isEmpty(mBind.etInterval.getText()) || TextUtils.isEmpty(mBind.etTime.getText())) {
             ToastUtils.showToast(this, "Opps！Please check the input characters and try again.");
             return;
@@ -54,7 +55,26 @@ public class RemoteReminderActivity extends BaseActivity {
             return;
         }
         showSyncingProgressDialog();
-        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setRemoteReminder(interval * 100, time));
+        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setLedRemoteReminder(interval * 100, time));
+    }
+
+    private void onBuzzerRemindClick() {
+        if (TextUtils.isEmpty(mBind.etBuzzerInterval.getText()) || TextUtils.isEmpty(mBind.etBuzzerTime.getText())) {
+            ToastUtils.showToast(this, "Opps！Please check the input characters and try again.");
+            return;
+        }
+        int interval = Integer.parseInt(mBind.etBuzzerInterval.getText().toString().trim());
+        int time = Integer.parseInt(mBind.etBuzzerTime.getText().toString().trim());
+        if (interval < 1 || interval > 100) {
+            ToastUtils.showToast(this, "Blinking interval should in 1~100");
+            return;
+        }
+        if (time < 1 || time > 600) {
+            ToastUtils.showToast(this, "Blinking time should in 1~600");
+            return;
+        }
+        showSyncingProgressDialog();
+        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setBuzzerRemoteReminder(interval * 100, time));
     }
 
     public void onBack(View view) {
@@ -92,13 +112,18 @@ public class RemoteReminderActivity extends BaseActivity {
                         ParamsKeyEnum configKeyEnum = ParamsKeyEnum.fromParamKey(cmd);
                         if (header != 0xEB || configKeyEnum == null) return;
                         int length = value[3] & 0xFF;
-                        if (flag == 0x01 && length == 0x01 && configKeyEnum == ParamsKeyEnum.KEY_REMOTE_REMINDER) {
-                            // write
-                            int result = value[4] & 0xFF;
-                            if (result == 0xAA) {
-                                ToastUtils.showToast(this, "success");
-                            } else {
-                                ToastUtils.showToast(this, "fail");
+                        if (flag == 0x01 && length == 0x01) {
+                            switch (configKeyEnum){
+                                case KEY_LED_REMOTE_REMINDER:
+                                case KEY_BUZZER_REMOTE_REMINDER:
+                                    // write
+                                    int result = value[4] & 0xFF;
+                                    if (result == 0xAA) {
+                                        ToastUtils.showToast(this, "success");
+                                    } else {
+                                        ToastUtils.showToast(this, "fail");
+                                    }
+                                    break;
                             }
                         }
                     }
@@ -119,7 +144,6 @@ public class RemoteReminderActivity extends BaseActivity {
         mLoadingMessageDialog = new LoadingMessageDialog();
         mLoadingMessageDialog.setMessage("Syncing..");
         mLoadingMessageDialog.show(getSupportFragmentManager());
-
     }
 
     public void dismissSyncProgressDialog() {

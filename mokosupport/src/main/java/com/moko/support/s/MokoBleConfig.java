@@ -3,6 +3,7 @@ package com.moko.support.s;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 
@@ -17,6 +18,12 @@ import com.moko.support.s.entity.OrderServices;
 
 import java.util.UUID;
 
+import no.nordicsemi.android.ble.callback.DataReceivedCallback;
+import no.nordicsemi.android.ble.callback.DataSentCallback;
+import no.nordicsemi.android.ble.callback.FailCallback;
+import no.nordicsemi.android.ble.callback.SuccessCallback;
+import no.nordicsemi.android.ble.data.Data;
+
 final class MokoBleConfig extends MokoBleManager {
 
     private MokoResponseCallback mMokoResponseCallback;
@@ -27,6 +34,7 @@ final class MokoBleConfig extends MokoBleManager {
     private BluetoothGattCharacteristic hallCharacteristic;
     private BluetoothGattCharacteristic thCharacteristic;
     private BluetoothGattCharacteristic historyTHCharacteristic;
+    private BluetoothGatt gatt;
 
     public MokoBleConfig(@NonNull Context context, MokoResponseCallback callback) {
         super(context);
@@ -37,6 +45,7 @@ final class MokoBleConfig extends MokoBleManager {
     public boolean init(BluetoothGatt gatt) {
         final BluetoothGattService service = gatt.getService(OrderServices.SERVICE_CUSTOM.getUuid());
         if (service != null) {
+            this.gatt = gatt;
             paramsCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_PARAMS.getUuid());
             disconnectCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_DISCONNECT.getUuid());
             accCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_ACC.getUuid());
@@ -44,9 +53,12 @@ final class MokoBleConfig extends MokoBleManager {
             thCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_TH_NOTIFY.getUuid());
             historyTHCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_TH_HISTORY.getUuid());
             passwordCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_PASSWORD.getUuid());
+            enablePasswordNotify();
             enableParamsNotify();
             enableDisconnectNotify();
-            enablePasswordNotify();
+            requestMtu(247).done(bluetoothDevice -> {
+                mMokoResponseCallback.onServicesDiscovered(gatt);
+            }).enqueue();
             return true;
         }
         return false;
@@ -54,6 +66,7 @@ final class MokoBleConfig extends MokoBleManager {
 
     @Override
     public void write(BluetoothGattCharacteristic characteristic, byte[] value) {
+        XLog.e("write******************");
     }
 
     @Override
@@ -63,9 +76,9 @@ final class MokoBleConfig extends MokoBleManager {
 
     @Override
     public void discovered(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        UUID lastCharacteristicUUID = characteristic.getUuid();
-        if (passwordCharacteristic.getUuid().equals(lastCharacteristicUUID))
-            mMokoResponseCallback.onServicesDiscovered(gatt);
+//        UUID lastCharacteristicUUID = characteristic.getUuid();
+//        if (passwordCharacteristic.getUuid().equals(lastCharacteristicUUID))
+//            mMokoResponseCallback.onServicesDiscovered(gatt);
     }
 
     @Override
@@ -190,10 +203,33 @@ final class MokoBleConfig extends MokoBleManager {
             XLog.e("device to app : " + MokoUtils.bytesToHexString(value));
             mMokoResponseCallback.onCharacteristicChanged(historyTHCharacteristic, value);
         });
-        enableNotifications(historyTHCharacteristic).enqueue();
+        enableIndications(historyTHCharacteristic).fail(new FailCallback() {
+            @Override
+            public void onRequestFailed(@NonNull BluetoothDevice bluetoothDevice, int i) {
+                XLog.e("fail**************" + i);
+            }
+        }).done(new SuccessCallback() {
+            @Override
+            public void onRequestCompleted(@NonNull BluetoothDevice bluetoothDevice) {
+                XLog.e("done***************");
+            }
+        }).enqueue();
+
+
+//        enableNotifications(historyTHCharacteristic).fail(new FailCallback() {
+//            @Override
+//            public void onRequestFailed(@NonNull BluetoothDevice bluetoothDevice, int i) {
+//                XLog.e("fail*******************"+i);
+//            }
+//        }).done(new SuccessCallback() {
+//            @Override
+//            public void onRequestCompleted(@NonNull BluetoothDevice bluetoothDevice) {
+//                XLog.e("done***********************");
+//            }
+//        }).enqueue();
     }
 
     public void disableHistoryTHNotify() {
-        disableNotifications(historyTHCharacteristic).enqueue();
+        disableIndications(historyTHCharacteristic).enqueue();
     }
 }

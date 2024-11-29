@@ -1,9 +1,6 @@
 package com.moko.bxp.s.entity;
 
-import java.io.Serializable;
-
-
-public class AdvTLM implements Serializable {
+public class AdvTLM {
     // 电池电压
     public String vbatt;
     // 芯片内部温度

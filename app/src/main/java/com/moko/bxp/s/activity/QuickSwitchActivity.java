@@ -40,7 +40,7 @@ public class QuickSwitchActivity extends BaseActivity {
     private boolean enableTagIdAutoFill;
     private boolean resetBeaconByButton;
     private boolean turnOffByButton;
-
+    private boolean aoaCte;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +63,9 @@ public class QuickSwitchActivity extends BaseActivity {
             orderTasks.add(OrderTaskAssembler.getTriggerLedStatus());
             orderTasks.add(OrderTaskAssembler.getVerifyPasswordEnable());
             orderTasks.add(OrderTaskAssembler.getTagIdAutoFillStatus());
-            orderTasks.add(OrderTaskAssembler.getResetByButtonStatus());
-            orderTasks.add(OrderTaskAssembler.getTurnOffByButtonStatus());
+            orderTasks.add(OrderTaskAssembler.getResetByButtonEnable());
+            orderTasks.add(OrderTaskAssembler.getButtonTurnOffEnable());
+            orderTasks.add(OrderTaskAssembler.getAoaCteStatus());
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         }
         setListener();
@@ -107,11 +108,12 @@ public class QuickSwitchActivity extends BaseActivity {
                                 // write
                                 int result = value[4] & 0xFF;
                                 switch (configKeyEnum) {
-                                    case KEY_TRIGGER_LED_ENABLE:
                                     case KEY_CONNECT_ENABLE:
+                                    case KEY_TRIGGER_LED_ENABLE:
                                     case KEY_TAG_ID_AUTO_FILL_ENABLE:
-                                    case KEY_RESET_BY_BUTTON_ENABLE:
-                                    case KEY_HALL_POWER_ENABLE:
+                                    case KEY_BUTTON_RESET_ENABLE:
+                                    case KEY_BUTTON_TURN_OFF_ENABLE:
+                                    case KEY_AOA_CTE_ENABLE:
                                         if (result != 0xAA) {
                                             ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
                                         } else {
@@ -138,14 +140,19 @@ public class QuickSwitchActivity extends BaseActivity {
                                         setStatus(enableTagIdAutoFill, mBind.ivEnableTagId, mBind.tvTagIdEnableStatus);
                                         break;
 
-                                    case KEY_RESET_BY_BUTTON_ENABLE:
+                                    case KEY_BUTTON_RESET_ENABLE:
                                         this.resetBeaconByButton = result == 1;
                                         setStatus(resetBeaconByButton, mBind.ivEnableReset, mBind.tvResetEnableStatus);
                                         break;
 
-                                    case KEY_HALL_POWER_ENABLE:
+                                    case KEY_BUTTON_TURN_OFF_ENABLE:
                                         this.turnOffByButton = result == 1;
                                         setStatus(turnOffByButton, mBind.ivEnableTurnOff, mBind.tvTurnOffEnableStatus);
+                                        break;
+
+                                    case KEY_AOA_CTE_ENABLE:
+                                        this.aoaCte = result == 1;
+                                        setStatus(aoaCte, mBind.ivEnableDirection, mBind.tvDirectionEnableStatus);
                                         break;
                                 }
                             }
@@ -199,7 +206,7 @@ public class QuickSwitchActivity extends BaseActivity {
         mBind.ivTriggerLed.setOnClickListener(v -> {
             showSyncingProgressDialog();
             List<OrderTask> orderTasks = new ArrayList<>(2);
-            orderTasks.add(OrderTaskAssembler.setTriggerLedStatus(enableLedIndicator ? 0 : 1));
+            orderTasks.add(OrderTaskAssembler.setTriggerIndicatorStatus(enableLedIndicator ? 0 : 1));
             orderTasks.add(OrderTaskAssembler.getTriggerLedStatus());
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         });
@@ -246,13 +253,20 @@ public class QuickSwitchActivity extends BaseActivity {
                 setTurnOffByButton(false);
             }
         });
+        mBind.ivEnableDirection.setOnClickListener(v -> {
+            showSyncingProgressDialog();
+            List<OrderTask> orderTasks = new ArrayList<>(2);
+            orderTasks.add(OrderTaskAssembler.setAoaCteStatus(aoaCte ? 0 : 1));
+            orderTasks.add(OrderTaskAssembler.getAoaCteStatus());
+            MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+        });
     }
 
     private void setTurnOffByButton(boolean enable) {
         showSyncingProgressDialog();
         List<OrderTask> orderTasks = new ArrayList<>(2);
-        orderTasks.add(OrderTaskAssembler.setTurnOffByButton(enable ? 0 : 1));
-        orderTasks.add(OrderTaskAssembler.getTurnOffByButtonStatus());
+        orderTasks.add(OrderTaskAssembler.setButtonTurnOffEnable(enable ? 0 : 1));
+        orderTasks.add(OrderTaskAssembler.getButtonTurnOffEnable());
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
     }
 
@@ -260,7 +274,7 @@ public class QuickSwitchActivity extends BaseActivity {
         showSyncingProgressDialog();
         List<OrderTask> orderTasks = new ArrayList<>(2);
         orderTasks.add(OrderTaskAssembler.setResetByButton(enable ? 0 : 1));
-        orderTasks.add(OrderTaskAssembler.getResetByButtonStatus());
+        orderTasks.add(OrderTaskAssembler.getResetByButtonEnable());
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
     }
 
@@ -289,14 +303,13 @@ public class QuickSwitchActivity extends BaseActivity {
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent != null) {
-                String action = intent.getAction();
-                if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                    int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-                    if (blueState == BluetoothAdapter.STATE_TURNING_OFF) {
-                        dismissSyncProgressDialog();
-                        finish();
-                    }
+            if (null == intent) return;
+            String action = intent.getAction();
+            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
+                if (blueState == BluetoothAdapter.STATE_TURNING_OFF) {
+                    dismissSyncProgressDialog();
+                    finish();
                 }
             }
         }

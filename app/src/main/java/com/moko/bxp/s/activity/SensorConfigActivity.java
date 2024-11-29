@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
+import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.databinding.ActivitySensorConfigBinding;
 
 import org.greenrobot.eventbus.EventBus;
@@ -13,41 +14,34 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 public class SensorConfigActivity extends BaseActivity {
-    private ActivitySensorConfigBinding mBind;
-    private byte[] deviceTypeBytes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ActivitySensorConfigBinding.inflate(getLayoutInflater());
+        ActivitySensorConfigBinding mBind = ActivitySensorConfigBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         EventBus.getDefault().register(this);
-        deviceTypeBytes = getIntent().getByteArrayExtra("deviceTypeBytes");
-        boolean isHallPowerEnable = getIntent().getBooleanExtra("hallEnable", false);
-        if (null != deviceTypeBytes && deviceTypeBytes.length == 2) {
-            if ((deviceTypeBytes[0] & 0xff) == 0) {
-                mBind.tvAccConfig.setVisibility(View.GONE);
-                mBind.lineAcc.setVisibility(View.GONE);
-            }
-            if ((deviceTypeBytes[1] & 0xff) == 0) {
-                mBind.tvTH.setVisibility(View.GONE);
-                mBind.lineTH.setVisibility(View.GONE);
-            } else {
-                mBind.tvTH.setVisibility(View.VISIBLE);
-                mBind.lineTH.setVisibility(View.VISIBLE);
-                if ((deviceTypeBytes[1] & 0xff) == 3) {
-                    //只有温度
-                    mBind.tvTH.setText("Temperature");
-                }
+        int accStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY1, 0);
+        int thStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY2, 0);
+        boolean isHallPowerEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY3, false);
+        boolean isButtonPowerEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY4, false);
+        mBind.tvAccConfig.setVisibility(accStatus == 0 ? View.GONE : View.VISIBLE);
+        if (thStatus == 0) {
+            mBind.tvTH.setVisibility(View.GONE);
+        } else {
+            mBind.tvTH.setVisibility(View.VISIBLE);
+            if (thStatus == 3) {
+                //只有温度
+                mBind.tvTH.setText("Temperature");
             }
         }
-        if (isHallPowerEnable) {
-            mBind.tvHall.setVisibility(View.GONE);
-            mBind.lineHall.setVisibility(View.GONE);
+        if (!isHallPowerEnable && !isButtonPowerEnable) {
+            mBind.tvHall.setVisibility(View.VISIBLE);
         }
         mBind.tvTH.setOnClickListener(v -> {
             Intent intent = new Intent(this, THDataActivity.class);
-            intent.putExtra("type",deviceTypeBytes[1] & 0xff);
+            //是否只有温度传感器
+            intent.putExtra(AppConstants.EXTRA_KEY1, thStatus == 3);
             startActivity(intent);
         });
     }
@@ -94,13 +88,5 @@ public class SensorConfigActivity extends BaseActivity {
         if (isWindowLocked()) return;
         Intent intent = new Intent(this, HallSensorConfigActivity.class);
         startActivity(intent);
-    }
-
-    @Subscribe
-    public void onHallChange(String hallDisable){
-        if ("hallDisable".equals(hallDisable)){
-            mBind.tvHall.setVisibility(View.GONE);
-            mBind.lineHall.setVisibility(View.GONE);
-        }
     }
 }

@@ -1,9 +1,8 @@
 package com.moko.bxp.s.entity;
 
-import java.io.Serializable;
 import java.util.HashMap;
 
-public class AdvInfo implements Serializable {
+public class AdvInfo {
     public static final int VALID_DATA_FRAME_TYPE_UID = 0x00;
     public static final int VALID_DATA_FRAME_TYPE_URL = 0x10;
     public static final int VALID_DATA_FRAME_TYPE_TLM = 0x20;

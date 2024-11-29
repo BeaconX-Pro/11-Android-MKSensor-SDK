@@ -1,18 +1,14 @@
 package com.moko.bxp.s.fragment;
 
-import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.databinding.FragmentDeviceBinding;
 
-public class DeviceFragment extends Fragment {
-    private FragmentDeviceBinding mBind;
-
+public class DeviceFragment extends BaseFragment<FragmentDeviceBinding> {
     public DeviceFragment() {
     }
 
@@ -21,40 +17,43 @@ public class DeviceFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBind = FragmentDeviceBinding.inflate(inflater, container, false);
-        return mBind.getRoot();
+    protected FragmentDeviceBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentDeviceBinding.inflate(inflater, container, false);
     }
 
     public void setBattery(int battery) {
         mBind.tvBattery.setText(battery + "mV");
     }
 
-    public void setMacAddress(String macAddress){
+    public void setBatteryPercent(int percent) {
+        mBind.tvBatteryPercent.setText(percent + "%");
+    }
+
+    public void setMacAddress(String macAddress) {
         mBind.tvMacAddress.setText(macAddress);
     }
 
-    public void setProductMode(String productMode){
+    public void setProductMode(String productMode) {
         mBind.tvDeviceModel.setText(productMode);
     }
 
-    public void setSoftwareVersion(String softwareVersion){
+    public void setSoftwareVersion(String softwareVersion) {
         mBind.tvSoftwareVersion.setText(softwareVersion);
     }
 
-    public void setFirmwareVersion(String firmwareVersion){
+    public void setFirmwareVersion(String firmwareVersion) {
         mBind.tvFirmwareVersion.setText(firmwareVersion);
     }
 
-    public void setHardwareVersion(String hardwareVersion){
+    public void setHardwareVersion(String hardwareVersion) {
         mBind.tvHardwareVersion.setText(hardwareVersion);
     }
 
-    public void setProductDate(String productDate){
+    public void setProductDate(String productDate) {
         mBind.tvProductDate.setText(productDate);
     }
 
-    public void setManufacturer(String manufacturer){
+    public void setManufacturer(String manufacturer) {
         mBind.tvManufacturer.setText(manufacturer);
     }
 }

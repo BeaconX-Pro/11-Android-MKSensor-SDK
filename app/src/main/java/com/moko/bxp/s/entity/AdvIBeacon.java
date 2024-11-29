@@ -1,9 +1,6 @@
 package com.moko.bxp.s.entity;
 
-import java.io.Serializable;
-
-
-public class AdvIBeacon implements Serializable {
+public class AdvIBeacon {
     public String rssi;
     public String uuid;
     public String major;

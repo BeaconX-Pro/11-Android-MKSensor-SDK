@@ -29,18 +29,31 @@
             android:id="@+id/layoutLowPower"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
             android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/tvLowPowerMode"
-                android:layout_width="0px"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Low-power mode"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/ivDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="5dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="10dp"
+                android:src="@drawable/bxs_detail" />
+
+            <View
+                android:layout_width="0px"
+                android:layout_height="1px"
+                android:layout_weight="1" />
 
             <ImageView
                 android:id="@+id/ivLowPowerMode"

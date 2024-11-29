@@ -68,15 +68,15 @@ public class ExportTHDataActivity extends BaseActivity {
     private static String PATH_LOGCAT;
     private boolean mReceiverTag = false;
     private boolean isSync;
-    private StringBuilder thStoreString = new StringBuilder();
+    private final StringBuilder thStoreString = new StringBuilder();
     private final List<THStoreData> thStoreData = new LinkedList<>();
     private final List<THStoreData> filterThStoreData = new LinkedList<>();
     private THDataListAdapter mAdapter;
     private ActivityExportThDataBinding mBind;
-    private int deviceType;
     private final SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.PATTERN_YYYY_MM_DD_HH_MM_SS, Locale.getDefault());
     private Date startDate;
     private Date endDate;
+    private boolean isOnlyTemp;
     private final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
     @Override
@@ -85,8 +85,8 @@ public class ExportTHDataActivity extends BaseActivity {
         mBind = ActivityExportThDataBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         PATH_LOGCAT = BaseApplication.PATH_LOGCAT + File.separator + TRACKED_FILE;
-        deviceType = getIntent().getIntExtra("type", 0);
-        if (deviceType == 3) {
+        isOnlyTemp = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY1, false);
+        if (isOnlyTemp) {
             mBind.tvTitle.setText("Export Temperature data");
             mBind.tvHumidity.setVisibility(View.GONE);
             mBind.humiChartView.setVisibility(View.GONE);
@@ -102,11 +102,11 @@ public class ExportTHDataActivity extends BaseActivity {
                     for (THStoreData bean : filterThStoreData) {
                         if (bean.timeStamp >= startDate.getTime() && bean.timeStamp <= endDate.getTime()) {
                             tempList.add(0, Float.valueOf(bean.temp));
-                            if (deviceType != 3) humList.add(0, Float.valueOf(bean.humidity));
+                            if (!isOnlyTemp) humList.add(0, Float.valueOf(bean.humidity));
                         }
                     }
                     mBind.tempChartView.setxValue(tempList);
-                    if (deviceType != 3) mBind.humiChartView.setxValue(humList);
+                    if (!isOnlyTemp) mBind.humiChartView.setxValue(humList);
                     int length = tempList.size();
                     mBind.thChartTotal.setText(getString(R.string.th_chart_total, length));
                     mBind.thChartDisplay.setText(getString(R.string.th_chart_display, Math.min(length, 1000)));
@@ -115,10 +115,10 @@ public class ExportTHDataActivity extends BaseActivity {
                     List<Float> humList = new LinkedList<>();
                     for (THStoreData bean : thStoreData) {
                         tempList.add(0, Float.valueOf(bean.temp));
-                        if (deviceType != 3) humList.add(0, Float.valueOf(bean.humidity));
+                        if (!isOnlyTemp) humList.add(0, Float.valueOf(bean.humidity));
                     }
                     mBind.tempChartView.setxValue(tempList);
-                    if (deviceType != 3) mBind.humiChartView.setxValue(humList);
+                    if (!isOnlyTemp) mBind.humiChartView.setxValue(humList);
                     int length = tempList.size();
                     mBind.thChartTotal.setText(getString(R.string.th_chart_total, length));
                     mBind.thChartDisplay.setText(getString(R.string.th_chart_display, Math.min(length, 1000)));
@@ -129,7 +129,7 @@ public class ExportTHDataActivity extends BaseActivity {
                 mBind.llThChartView.setVisibility(View.GONE);
             }
         });
-        mAdapter = new THDataListAdapter(deviceType);
+        mAdapter = new THDataListAdapter(isOnlyTemp);
         mAdapter.replaceData(thStoreData);
         mBind.rvThData.setAdapter(mAdapter);
 
@@ -153,13 +153,13 @@ public class ExportTHDataActivity extends BaseActivity {
             mAdapter.replaceData(thStoreData);
             mBind.tvSumRecord.setText("Sum records:" + thStoreData.size());
             mBind.tvFilterRecord.setText("Filtered records:" + thStoreData.size());
-            if (thStoreData.size() > 0) {
-                Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
-                mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+            Drawable top;
+            if (!thStoreData.isEmpty()) {
+                top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
             } else {
-                Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download, null);
-                mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+                top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download, null);
             }
+            mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
         });
         mBind.tvStart.setOnClickListener(v -> onStartClick());
     }
@@ -176,13 +176,13 @@ public class ExportTHDataActivity extends BaseActivity {
         mAdapter.replaceData(filterThStoreData);
         mBind.tvSumRecord.setText("Sum records:" + thStoreData.size());
         mBind.tvFilterRecord.setText("Filtered records:" + filterThStoreData.size());
-        if (filterThStoreData.size() > 0) {
-            Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
-            mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+        Drawable top;
+        if (!filterThStoreData.isEmpty()) {
+            top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
         } else {
-            Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download, null);
-            mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
+            top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download, null);
         }
+        mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
     }
 
     private void onSelectTimeClick(int flag) {
@@ -336,7 +336,7 @@ public class ExportTHDataActivity extends BaseActivity {
                         ParamsKeyEnum configKeyEnum = ParamsKeyEnum.fromParamKey(key);
                         if (configKeyEnum == ParamsKeyEnum.KEY_CLEAR_HISTORY_TH) {
                             if ((value[4] & 0xff) == 0xAA) {
-                                thStoreString = new StringBuilder();
+                                thStoreString.setLength(0);
                                 writeTHFile("");
                                 thStoreData.clear();
                                 mAdapter.replaceData(thStoreData);
@@ -423,7 +423,7 @@ public class ExportTHDataActivity extends BaseActivity {
             fileWriter.flush();
             fileWriter.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            XLog.e(e);
         }
     }
 
@@ -435,7 +435,7 @@ public class ExportTHDataActivity extends BaseActivity {
                 XLog.i(a);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            XLog.e(e);
         }
         return file;
     }
@@ -468,7 +468,7 @@ public class ExportTHDataActivity extends BaseActivity {
         if (isWindowLocked()) return;
         if (null != startDate && null != endDate && !TextUtils.isEmpty(mBind.tvStartDate.getText()) && !TextUtils.isEmpty(mBind.tvEndDate.getText())) {
             for (THStoreData storeData : filterThStoreData) {
-                if (deviceType == 3) {
+                if (isOnlyTemp) {
                     thStoreString.append(String.format("%s T%s", storeData.time, storeData.temp)).append("\n");
                 } else {
                     thStoreString.append(String.format("%s T%s H%s", storeData.time, storeData.temp, storeData.humidity)).append("\n");
@@ -476,7 +476,7 @@ public class ExportTHDataActivity extends BaseActivity {
             }
         } else {
             for (THStoreData storeData : thStoreData) {
-                if (deviceType == 3) {
+                if (isOnlyTemp) {
                     thStoreString.append(String.format("%s T%s", storeData.time, storeData.temp)).append("\n");
                 } else {
                     thStoreString.append(String.format("%s T%s H%s", storeData.time, storeData.temp, storeData.humidity)).append("\n");
@@ -500,8 +500,9 @@ public class ExportTHDataActivity extends BaseActivity {
     public void onEmpty(View view) {
         if (isWindowLocked()) return;
         AlertMessageDialog dialog = new AlertMessageDialog();
+        String msg = isOnlyTemp ? "temperature" : "temperature and humidity";
         dialog.setTitle("Warning!");
-        dialog.setMessage("Are you sure to erase all the saved T&H data?");
+        dialog.setMessage("Are you sure to erase all the saved " + msg + "data?");
         dialog.setConfirm("OK");
         dialog.setOnAlertConfirmListener(() -> {
             showSyncingProgressDialog();

@@ -6,26 +6,28 @@ import static com.moko.support.s.entity.SlotAdvType.SLOT2;
 import static com.moko.support.s.entity.SlotAdvType.SLOT3;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.activity.SlotDataActivity;
 import com.moko.bxp.s.activity.TriggerStep1Activity;
 import com.moko.bxp.s.databinding.FragmentSlotBinding;
 import com.moko.bxp.s.entity.TriggerEvent;
+import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.entity.SlotAdvType;
 
-public class SlotFragment extends Fragment {
-    private FragmentSlotBinding mBind;
+public class SlotFragment extends BaseFragment<FragmentSlotBinding> {
     private TriggerEvent slot1TriggerEvent;
     private TriggerEvent slot2TriggerEvent;
     private TriggerEvent slot3TriggerEvent;
+    private boolean isHallPowerEnable;
+    private boolean isButtonPowerEnable;
+    private int accStatus;
+    private int thStatus;
 
     public SlotFragment() {
     }
@@ -35,10 +37,13 @@ public class SlotFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBind = FragmentSlotBinding.inflate(inflater, container, false);
+    protected void onCreateView() {
         setListener();
-        return mBind.getRoot();
+    }
+
+    @Override
+    protected FragmentSlotBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentSlotBinding.inflate(inflater, container, false);
     }
 
     private void setListener() {
@@ -72,9 +77,18 @@ public class SlotFragment extends Fragment {
     }
 
     private void toTriggerActivity(int slot, TriggerEvent triggerEvent) {
+        //先判断是否有传感器
+        if (accStatus == 0 && thStatus == 0 && (isHallPowerEnable || isButtonPowerEnable)) {
+            ToastUtils.showToast(requireContext(), "当前没有传感器");
+            return;
+        }
         Intent intent = new Intent(requireActivity(), TriggerStep1Activity.class);
-        intent.putExtra("slot", slot);
-        intent.putExtra("trigger", triggerEvent);
+        intent.putExtra(AppConstants.SLOT, slot);
+        intent.putExtra(AppConstants.EXTRA_KEY1, triggerEvent);
+        intent.putExtra(AppConstants.EXTRA_KEY2, accStatus);
+        intent.putExtra(AppConstants.EXTRA_KEY3, thStatus);
+        intent.putExtra(AppConstants.EXTRA_KEY4, isHallPowerEnable);
+        intent.putExtra(AppConstants.EXTRA_KEY5, isButtonPowerEnable);
         startActivity(intent);
     }
 
@@ -94,5 +108,12 @@ public class SlotFragment extends Fragment {
         if (slot == SLOT1) slot1TriggerEvent = event;
         else if (slot == SLOT2) slot2TriggerEvent = event;
         else if (slot == SLOT3) slot3TriggerEvent = event;
+    }
+
+    public void setDeviceTypeValue(int accStatus, int thStatus, boolean isHallPowerEnable, boolean isButtonPowerEnable) {
+        this.accStatus = accStatus;
+        this.thStatus = thStatus;
+        this.isHallPowerEnable = isHallPowerEnable;
+        this.isButtonPowerEnable = isButtonPowerEnable;
     }
 }

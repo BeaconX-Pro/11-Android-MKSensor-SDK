@@ -1,15 +1,12 @@
 package com.moko.bxp.s.fragment;
 
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import com.moko.bxp.s.databinding.FragmentMotionTriggerBinding;
 
@@ -18,15 +15,15 @@ import com.moko.bxp.s.databinding.FragmentMotionTriggerBinding;
  * @date: 2024/9/27 12:26
  * @des:
  */
-public class MotionTriggerFragment extends Fragment {
-    private FragmentMotionTriggerBinding mBind;
-
-    @Nullable
+public class MotionTriggerFragment extends BaseFragment<FragmentMotionTriggerBinding> {
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mBind = FragmentMotionTriggerBinding.inflate(inflater, container, false);
+    protected void onCreateView() {
         mBind.cbLockAdv.setOnCheckedChangeListener((buttonView, isChecked) -> mBind.group.setVisibility(isChecked ? View.VISIBLE : View.GONE));
-        return mBind.getRoot();
+    }
+
+    @Override
+    protected FragmentMotionTriggerBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentMotionTriggerBinding.inflate(inflater, container, false);
     }
 
     public void setValue(int staticPeriod, int lockedAdvDuration) {

@@ -106,15 +106,14 @@ public class AccDataActivity extends BaseActivity {
                             switch (configKeyEnum) {
                                 case KEY_AXIS_PARAMS:
                                 case KEY_MOTION_TRIGGER_COUNT:
-                                    if ((value[4] & 0xFF) == 0) {
-                                        ToastUtils.showToast(AccDataActivity.this, "Opps！Save failed. Please check the input characters and try again.");
-                                    } else {
+                                    if ((value[4] & 0xFF) == 0xAA) {
                                         ToastUtils.showToast(this, "Success");
+                                    } else {
+                                        ToastUtils.showToast(AccDataActivity.this, "Opps！Save failed. Please check the input characters and try again.");
                                     }
                                     break;
                             }
-                        }
-                        if (flag == 0x00) {
+                        } else if (flag == 0x00) {
                             // read
                             switch (configKeyEnum) {
                                 case KEY_MOTION_TRIGGER_COUNT:
@@ -230,9 +229,7 @@ public class AccDataActivity extends BaseActivity {
         }
         // 保存
         showSyncingProgressDialog();
-        ArrayList<OrderTask> orderTasks = new ArrayList<>();
-        orderTasks.add(OrderTaskAssembler.setAxisParams(mSelectedRate, mSelectedScale, threshold));
-        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
+        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setAxisParams(mSelectedRate, mSelectedScale, threshold));
     }
 
 
@@ -240,7 +237,7 @@ public class AccDataActivity extends BaseActivity {
         if (isWindowLocked()) return;
         // 保存
         showSyncingProgressDialog();
-        ArrayList<OrderTask> orderTasks = new ArrayList<>();
+        ArrayList<OrderTask> orderTasks = new ArrayList<>(2);
         orderTasks.add(OrderTaskAssembler.clearMotionTriggerCount());
         orderTasks.add(OrderTaskAssembler.getMotionTriggerCount());
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));

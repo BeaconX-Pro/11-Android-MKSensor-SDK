@@ -1,15 +1,15 @@
 package com.moko.bxp.s.fragment;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.annotation.Nullable;
 
 import com.moko.ble.lib.task.OrderTask;
+import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.activity.DeviceInfoActivity;
 import com.moko.bxp.s.activity.RemoteReminderActivity;
 import com.moko.bxp.s.activity.SensorConfigActivity;
@@ -24,12 +24,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SettingFragment extends Fragment {
-    private FragmentSettingBinding mBind;
+public class SettingFragment extends BaseFragment<FragmentSettingBinding> {
     private final String[] advModeArray = {"Legacy", "Long Range"};
     private int mSelected;
-    private byte[] deviceTypeBytes;
     private boolean isHallPowerEnable;
+    private boolean isButtonPowerEnable;
+    private int accStatus = -1;
+    private int thStatus;
     private final String[] batteryModeArray = {"Percentage", "Voltage"};
     private int batteryModeSelect;
     //01 02 04 07
@@ -44,10 +45,13 @@ public class SettingFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mBind = FragmentSettingBinding.inflate(inflater, container, false);
+    protected void onCreateView() {
         setListener();
-        return mBind.getRoot();
+    }
+
+    @Override
+    protected FragmentSettingBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentSettingBinding.inflate(inflater, container, false);
     }
 
     private int getIndexByChannel(int channel) {
@@ -105,16 +109,19 @@ public class SettingFragment extends Fragment {
         });
         mBind.tvRemoteMinder.setOnClickListener(v -> startActivity(new Intent(getActivity(), RemoteReminderActivity.class)));
         mBind.tvSensor.setOnClickListener(v -> {
-            if (null == deviceTypeBytes) {
-                List<OrderTask> orderTasks = new ArrayList<>(2);
+            if (accStatus == -1) {
+                List<OrderTask> orderTasks = new ArrayList<>(3);
                 orderTasks.add(OrderTaskAssembler.getSensorType());
-                orderTasks.add(OrderTaskAssembler.getHallPowerEnable());
+                orderTasks.add(OrderTaskAssembler.getButtonTurnOffEnable());
+                orderTasks.add(OrderTaskAssembler.getResetByButtonEnable());
                 MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
                 return;
             }
-            Intent intent = new Intent(getActivity(), SensorConfigActivity.class);
-            intent.putExtra("deviceTypeBytes", deviceTypeBytes);
-            intent.putExtra("hallEnable", isHallPowerEnable);
+            Intent intent = new Intent(requireActivity(), SensorConfigActivity.class);
+            intent.putExtra(AppConstants.EXTRA_KEY1, accStatus);
+            intent.putExtra(AppConstants.EXTRA_KEY2, thStatus);
+            intent.putExtra(AppConstants.EXTRA_KEY3, isHallPowerEnable);
+            intent.putExtra(AppConstants.EXTRA_KEY4, isButtonPowerEnable);
             startActivity(intent);
         });
         mBind.tvBatteryAdvMode.setOnClickListener(v -> onBatteryModeClick());
@@ -129,7 +136,10 @@ public class SettingFragment extends Fragment {
         dialog.setCancel("Cancel");
         dialog.setConfirm("OK");
         dialog.setOnAlertConfirmListener(() -> {
-
+            if (null != getActivity()) {
+                ((DeviceInfoActivity) getActivity()).showSyncingProgressDialog();
+                MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setBatteryPercent(100));
+            }
         });
         dialog.show(getChildFragmentManager());
     }
@@ -141,6 +151,7 @@ public class SettingFragment extends Fragment {
             advChannelSelect = value;
             mBind.tvAdvChannel.setText(getIndexByChannel(value));
             if (null != getActivity()) {
+                ((DeviceInfoActivity) getActivity()).showSyncingProgressDialog();
                 List<OrderTask> orderTasks = new ArrayList<>(2);
                 orderTasks.add(OrderTaskAssembler.setAdvChannel(getChannelByIndex(value)));
                 orderTasks.add(OrderTaskAssembler.getAdvChannel());
@@ -209,8 +220,10 @@ public class SettingFragment extends Fragment {
         mBind.tvSensor.setVisibility(View.GONE);
     }
 
-    public void setDeviceTypeValue(byte[] deviceTypeBytes, boolean isHallPowerEnable) {
-        this.deviceTypeBytes = deviceTypeBytes;
+    public void setDeviceTypeValue(int accStatus, int thStatus, boolean isHallPowerEnable, boolean isButtonPowerEnable) {
+        this.accStatus = accStatus;
+        this.thStatus = thStatus;
         this.isHallPowerEnable = isHallPowerEnable;
+        this.isButtonPowerEnable = isButtonPowerEnable;
     }
 }

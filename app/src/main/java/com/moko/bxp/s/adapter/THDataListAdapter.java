@@ -9,17 +9,17 @@ import com.moko.bxp.s.R;
 import com.moko.bxp.s.entity.THStoreData;
 
 public class THDataListAdapter extends BaseQuickAdapter<THStoreData, BaseViewHolder> {
-    private final int deviceType;
+    private final boolean isOnlyTemp;
 
-    public THDataListAdapter(int deviceType) {
+    public THDataListAdapter(boolean isOnlyTemp) {
         super(R.layout.item_export_th_data);
-        this.deviceType = deviceType;
+        this.isOnlyTemp = isOnlyTemp;
     }
 
     @Override
     protected void convert(BaseViewHolder helper, THStoreData item) {
         TextView tvHum = helper.getView(R.id.tv_humidity);
-        if (deviceType == 3) {
+        if (isOnlyTemp) {
             tvHum.setVisibility(View.GONE);
         } else {
             tvHum.setVisibility(View.VISIBLE);

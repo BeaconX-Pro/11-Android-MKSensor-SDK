@@ -74,9 +74,6 @@
             android:name=".activity.DeviceTypeSelectActivity"
             android:screenOrientation="portrait" />
 
-        <activity android:name=".activity.ExportHallHistoryDataActivity"
-            android:screenOrientation="portrait"/>
-
         <activity android:name=".activity.SlotDataActivity"
             android:screenOrientation="portrait"/>
 

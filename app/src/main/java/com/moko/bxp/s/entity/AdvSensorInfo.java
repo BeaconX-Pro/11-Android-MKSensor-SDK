@@ -1,9 +1,6 @@
 package com.moko.bxp.s.entity;
 
-import java.io.Serializable;
-
-
-public class AdvSensorInfo implements Serializable {
+public class AdvSensorInfo {
     public String hallStatus;
     public String motionStatus;
     public boolean isAccEnable;

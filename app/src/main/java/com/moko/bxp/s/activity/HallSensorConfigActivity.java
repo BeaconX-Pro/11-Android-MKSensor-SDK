@@ -14,10 +14,7 @@ import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
-import com.moko.bxp.s.AppConstants;
-import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityHallConfigBinding;
-import com.moko.bxp.s.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
@@ -29,20 +26,15 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * 霍尔传感器
  */
 public class HallSensorConfigActivity extends BaseActivity {
     private boolean mReceiverTag = false;
-    private boolean isHallStoreEnable;
     private ActivityHallConfigBinding mBind;
-    private final SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.PATTERN_YYYY_MM_DD_HH_MM_SS, Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,31 +52,8 @@ public class HallSensorConfigActivity extends BaseActivity {
             MokoSupport.getInstance().enableBluetooth();
         } else {
             showSyncingProgressDialog();
-            ArrayList<OrderTask> orderTasks = new ArrayList<>(4);
-            orderTasks.add(OrderTaskAssembler.getMagneticTriggerCount());
-            orderTasks.add(OrderTaskAssembler.getHallStoreEnable());
-            orderTasks.add(OrderTaskAssembler.getCurrentTime());
-            MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
+            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getMagneticTriggerCount());
         }
-        setListener();
-    }
-
-    private void setListener() {
-        mBind.ivDoorStatusStore.setOnClickListener(v -> {
-            showSyncingProgressDialog();
-            List<OrderTask> orderTasks = new ArrayList<>(2);
-            orderTasks.add(OrderTaskAssembler.setHallStoreEnable(isHallStoreEnable ? 0 : 1));
-            orderTasks.add(OrderTaskAssembler.getHallStoreEnable());
-            MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
-        });
-        mBind.tvUpdate.setOnClickListener(v -> {
-            showSyncingProgressDialog();
-            List<OrderTask> orderTasks = new ArrayList<>(2);
-            orderTasks.add(OrderTaskAssembler.setCurrentTime());
-            orderTasks.add(OrderTaskAssembler.getCurrentTime());
-            MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
-        });
-        mBind.tvExportData.setOnClickListener(v -> startActivity(new Intent(this, ExportHallHistoryDataActivity.class)));
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
@@ -122,69 +91,22 @@ public class HallSensorConfigActivity extends BaseActivity {
                         if (flag == 0x01 && length == 0x01) {
                             // write
                             int result = value[4] & 0xFF;
-                            switch (configKeyEnum) {
-                                case KEY_HALL_POWER_ENABLE:
-                                    if (result == 0xAA) {
-                                        ToastUtils.showToast(this, "Success");
-                                        //打开了霍尔关机功能
-                                        EventBus.getDefault().post("hallDisable");
-                                        back();
-                                    } else {
-                                        ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
-                                    }
-                                    break;
-
-                                case KEY_SYNC_CURRENT_TIME:
-                                case KEY_HALL_STORE_ENABLE:
-                                case KEY_MAGNETIC_TRIGGER_COUNT:
-                                    if (result == 0xAA) {
-                                        ToastUtils.showToast(this, "Success");
-                                    } else {
-                                        ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
-                                    }
-                                    break;
+                            if (configKeyEnum == ParamsKeyEnum.KEY_MAGNETIC_TRIGGER_COUNT) {
+                                if (result == 0xAA) {
+                                    ToastUtils.showToast(this, "Success");
+                                } else {
+                                    ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
+                                }
                             }
                         } else if (flag == 0x00) {
                             // read
-                            switch (configKeyEnum) {
-                                case KEY_MAGNETIC_TRIGGER_COUNT:
-                                    if (length == 2) {
-                                        int count = MokoUtils.toInt(Arrays.copyOfRange(value, 4, 6));
-                                        mBind.tvTriggerCount.setText(String.valueOf(count));
-                                    }
-                                    break;
-
-                                case KEY_HALL_STORE_ENABLE:
-                                    if (length == 1) {
-                                        isHallStoreEnable = (value[4] & 0xFF) == 1;
-                                        mBind.ivDoorStatusStore.setImageResource(isHallStoreEnable ? R.drawable.ic_checked : R.drawable.ic_unchecked);
-                                    }
-                                    break;
-
-                                case KEY_SYNC_CURRENT_TIME:
-                                    if (length == 4) {
-                                        int time = MokoUtils.toInt(Arrays.copyOfRange(value, 4, 4 + length));
-                                        mBind.tvUpdateDate.setText(sdf.format(time * 1000L));
-                                    }
-                                    MokoSupport.getInstance().enableHallStatusNotify();
-                                    break;
+                            if (configKeyEnum == ParamsKeyEnum.KEY_MAGNETIC_TRIGGER_COUNT) {
+                                if (length == 2) {
+                                    int count = MokoUtils.toInt(Arrays.copyOfRange(value, 4, 6));
+                                    mBind.tvTriggerCount.setText(String.valueOf(count));
+                                }
                             }
                         }
-                    }
-                }
-            }
-            if (MokoConstants.ACTION_CURRENT_DATA.equals(action)) {
-                OrderTaskResponse response = event.getResponse();
-                byte[] value = response.responseValue;
-                if (null != value && value.length == 5) {
-                    int header = value[0] & 0xFF;// 0xEB
-                    int flag = value[1] & 0xFF;// read or write
-                    int cmd = value[2] & 0xFF;
-                    if (header != 0xEB) return;
-                    int length = value[3] & 0xFF;
-                    if (length == 1 && flag == 2 && cmd == 0x90) {
-                        int status = value[4] & 0xFF;
-                        mBind.tvMagnetStatus.setText(status == 0 ? "Closed" : "Open");
                     }
                 }
             }
@@ -215,7 +137,6 @@ public class HallSensorConfigActivity extends BaseActivity {
             // 注销广播
             unregisterReceiver(mReceiver);
         }
-        MokoSupport.getInstance().disableHallStatusNotify();
         EventBus.getDefault().unregister(this);
     }
 
@@ -234,7 +155,6 @@ public class HallSensorConfigActivity extends BaseActivity {
 
     private void back() {
         // 关闭通知
-        MokoSupport.getInstance().disableHallStatusNotify();
         finish();
     }
 
@@ -255,20 +175,5 @@ public class HallSensorConfigActivity extends BaseActivity {
         orderTasks.add(OrderTaskAssembler.clearMagneticTriggerCount());
         orderTasks.add(OrderTaskAssembler.getMagneticTriggerCount());
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
-    }
-
-    public void onHallSensorEnable(View view) {
-        if (isWindowLocked()) return;
-        //能到这里霍尔关机功能是禁用的
-        AlertMessageDialog dialog = new AlertMessageDialog();
-        dialog.setTitle("Warning！");
-        dialog.setMessage("*If you enable it, you will not be able to use the Hall trigger and count functions");
-        dialog.setConfirm("OK");
-        dialog.setCancel("Cancel");
-        dialog.setOnAlertConfirmListener(() -> {
-            showSyncingProgressDialog();
-            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setTurnOffByButton(1));
-        });
-        dialog.show(getSupportFragmentManager());
     }
 }

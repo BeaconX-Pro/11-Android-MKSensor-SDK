@@ -3,7 +3,6 @@ package com.moko.bxp.s.fragment;
 import static com.moko.support.s.entity.SlotAdvType.NO_DATA;
 
 import android.annotation.SuppressLint;
-import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.util.Log;
@@ -13,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
@@ -29,10 +28,9 @@ import com.moko.support.s.entity.UrlSchemeEnum;
 
 import java.util.Objects;
 
-public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
+public class UrlFragment extends BaseFragment<FragmentUrlBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
     private static final String TAG = "UrlFragment";
     private final String FILTER_ASCII = "[!-~]*";
-    private FragmentUrlBinding mBind;
     private boolean isLowPowerMode;
     private SlotData slotData;
     private int mRssi;
@@ -48,9 +46,8 @@ public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeList
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    protected void onCreateView() {
         Log.i(TAG, "onCreateView: ");
-        mBind = FragmentUrlBinding.inflate(inflater, container, false);
         if (isTriggerAfter) {
             mBind.layoutLowPower.setVisibility(View.GONE);
             mBind.layoutStandDuration.setVisibility(View.GONE);
@@ -67,7 +64,12 @@ public class UrlFragment extends Fragment implements SeekBar.OnSeekBarChangeList
             isLowPowerMode = !isLowPowerMode;
             changeView();
         });
-        return mBind.getRoot();
+        mBind.ivDetail.setOnClickListener(v -> showLowPowerTips());
+    }
+
+    @Override
+    protected FragmentUrlBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentUrlBinding.inflate(inflater, container, false);
     }
 
     public void setTriggerAfter(boolean isTriggerAfter) {

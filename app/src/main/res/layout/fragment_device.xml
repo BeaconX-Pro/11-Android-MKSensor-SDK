@@ -1,22 +1,26 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:background="@color/white_ffffff"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/grey_f2f2f2">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp">
-        <RelativeLayout
+        android:orientation="vertical">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="50dp"
+            android:background="@color/white_ffffff"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:text="Battery voltage"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
@@ -24,26 +28,53 @@
             <TextView
                 android:id="@+id/tvBattery"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:text=""
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
                 android:textColor="@color/grey_666666"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
+        </LinearLayout>
 
-            <View
-                style="@style/divider_line"
-                android:layout_alignParentBottom="true" />
-        </RelativeLayout>
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="50dp"
+            android:layout_marginTop="1dp"
+            android:background="@color/white_ffffff"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp">
 
             <TextView
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="Battery Percentage"
+                android:textColor="@color/black_333333"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/tvBatteryPercent"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:textColor="@color/grey_666666"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="1dp"
+            android:background="@color/white_ffffff"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp">
+
+            <TextView
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:text="Mac address"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
@@ -51,26 +82,26 @@
             <TextView
                 android:id="@+id/tv_mac_address"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:text=""
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
                 android:textColor="@color/grey_666666"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
+        </LinearLayout>
 
-            <View
-                style="@style/divider_line"
-                android:layout_alignParentBottom="true" />
-        </RelativeLayout>
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="50dp"
+            android:layout_marginTop="1dp"
+            android:background="@color/white_ffffff"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:text="Product model"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
@@ -78,26 +109,26 @@
             <TextView
                 android:id="@+id/tv_device_model"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:text=""
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
                 android:textColor="@color/grey_666666"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
+        </LinearLayout>
 
-            <View
-                style="@style/divider_line"
-                android:layout_alignParentBottom="true" />
-        </RelativeLayout>
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="50dp"
+            android:layout_marginTop="1dp"
+            android:background="@color/white_ffffff"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:text="Software version"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
@@ -105,26 +136,26 @@
             <TextView
                 android:id="@+id/tv_software_version"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:text=""
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
                 android:textColor="@color/grey_666666"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
+        </LinearLayout>
 
-            <View
-                style="@style/divider_line"
-                android:layout_alignParentBottom="true" />
-        </RelativeLayout>
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="50dp"
+            android:layout_marginTop="1dp"
+            android:background="@color/white_ffffff"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:text="Firmware version"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
@@ -132,26 +163,26 @@
             <TextView
                 android:id="@+id/tv_firmware_version"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:text=""
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
                 android:textColor="@color/grey_666666"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
+        </LinearLayout>
 
-            <View
-                style="@style/divider_line"
-                android:layout_alignParentBottom="true" />
-        </RelativeLayout>
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="50dp"
+            android:layout_marginTop="1dp"
+            android:background="@color/white_ffffff"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:text="Hardware version"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
@@ -159,26 +190,26 @@
             <TextView
                 android:id="@+id/tv_hardware_version"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:text=""
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
                 android:textColor="@color/grey_666666"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
+        </LinearLayout>
 
-            <View
-                style="@style/divider_line"
-                android:layout_alignParentBottom="true" />
-        </RelativeLayout>
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="50dp"
+            android:layout_marginTop="1dp"
+            android:background="@color/white_ffffff"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:text="Manufacture date"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
@@ -186,28 +217,26 @@
             <TextView
                 android:id="@+id/tv_product_date"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:text=""
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
                 android:textColor="@color/grey_666666"
-                android:textSize="14sp" />
+                android:textSize="15sp" />
+        </LinearLayout>
 
-            <View
-                style="@style/divider_line"
-                android:layout_alignParentBottom="true" />
-        </RelativeLayout>
-
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="50dp"
+            android:layout_marginTop="1dp"
+            android:background="@color/white_ffffff"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp">
 
             <TextView
-                android:id="@+id/manufacturer_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
+                android:layout_width="0px"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
                 android:text="Manufacturer"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
@@ -215,18 +244,10 @@
             <TextView
                 android:id="@+id/tv_manufacturer"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/manufacturer_title"
-                android:gravity="right"
-                android:text=""
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
                 android:textColor="@color/grey_666666"
                 android:textSize="14sp" />
-
-            <View
-                style="@style/divider_line"
-                android:layout_alignParentBottom="true" />
-        </RelativeLayout>
+        </LinearLayout>
     </LinearLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>
