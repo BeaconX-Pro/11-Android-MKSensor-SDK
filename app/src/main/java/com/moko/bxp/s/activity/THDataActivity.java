@@ -36,12 +36,15 @@ import java.util.List;
 import java.util.Locale;
 
 public class THDataActivity extends BaseActivity {
+    private ActivityThBinding mBind;
     private boolean mReceiverTag = false;
     private boolean isTHStoreEnable;
     private final SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.PATTERN_YYYY_MM_DD_HH_MM_SS, Locale.getDefault());
-    private ActivityThBinding mBind;
     private boolean isParamsError;
     private boolean isOnlyTemp;
+    private int samplingInterval;
+    private int storageInterval;
+    private String deviceMac;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +64,7 @@ public class THDataActivity extends BaseActivity {
         } else {
             showSyncingProgressDialog();
             ArrayList<OrderTask> orderTasks = new ArrayList<>(4);
+            orderTasks.add(OrderTaskAssembler.getDeviceMac());
             orderTasks.add(OrderTaskAssembler.getTHSampleInterval());
             orderTasks.add(OrderTaskAssembler.getTHStore());
             orderTasks.add(OrderTaskAssembler.getCurrentTime());
@@ -70,7 +74,7 @@ public class THDataActivity extends BaseActivity {
             isTHStoreEnable = !isTHStoreEnable;
             mBind.imgStore.setImageResource(isTHStoreEnable ? R.drawable.ic_checked : R.drawable.ic_unchecked);
         });
-        isOnlyTemp = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY1,false);
+        isOnlyTemp = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY1, false);
         if (isOnlyTemp) {
             //只有温度
             mBind.group.setVisibility(View.GONE);
@@ -116,9 +120,9 @@ public class THDataActivity extends BaseActivity {
                                 case KEY_TH_SAMPLE_RATE:
                                     if (length == 2) {
                                         byte[] period = Arrays.copyOfRange(value, 4, 6);
-                                        String periodStr = String.valueOf(MokoUtils.toInt(period));
-                                        mBind.etPeriod.setText(periodStr);
-                                        mBind.etPeriod.setSelection(periodStr.length());
+                                        samplingInterval = MokoUtils.toInt(period);
+                                        mBind.etPeriod.setText(String.valueOf(samplingInterval));
+                                        mBind.etPeriod.setSelection(mBind.etPeriod.getText().length());
                                     }
                                     break;
 
@@ -126,7 +130,8 @@ public class THDataActivity extends BaseActivity {
                                     if (length == 3) {
                                         isTHStoreEnable = (value[4] & 0xff) == 1;
                                         mBind.imgStore.setImageResource(isTHStoreEnable ? R.drawable.ic_checked : R.drawable.ic_unchecked);
-                                        mBind.etStorageInterval.setText(String.valueOf(MokoUtils.toInt(Arrays.copyOfRange(value, 5, 7))));
+                                        storageInterval = MokoUtils.toInt(Arrays.copyOfRange(value, 5, 7));
+                                        mBind.etStorageInterval.setText(String.valueOf(storageInterval));
                                         mBind.etStorageInterval.setSelection(mBind.etStorageInterval.getText().length());
                                     }
                                     break;
@@ -137,6 +142,12 @@ public class THDataActivity extends BaseActivity {
                                         mBind.tvUpdateDate.setText(sdf.format(time * 1000L));
                                     }
                                     MokoSupport.getInstance().enableTHNotify();
+                                    break;
+
+                                case KEY_DEVICE_MAC:
+                                    if (length > 0) {
+                                        deviceMac = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 4, value.length)).toUpperCase();
+                                    }
                                     break;
                             }
                         } else if (flag == 1) {
@@ -227,7 +238,22 @@ public class THDataActivity extends BaseActivity {
         // 跳转导出数据页面
         Intent intent = new Intent(this, ExportTHDataActivity.class);
         intent.putExtra(AppConstants.EXTRA_KEY1, isOnlyTemp);
+        intent.putExtra(AppConstants.EXTRA_KEY2, samplingInterval);
+        intent.putExtra(AppConstants.EXTRA_KEY3, storageInterval);
+        intent.putExtra(AppConstants.EXTRA_KEY4, deviceMac);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        MokoSupport.getInstance().disableTHNotify();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        MokoSupport.getInstance().enableTHNotify();
     }
 
     public void onUpdate(View view) {

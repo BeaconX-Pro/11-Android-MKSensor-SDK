@@ -15,6 +15,7 @@ import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
+import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityQuickSwitchBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
@@ -348,7 +349,8 @@ public class QuickSwitchActivity extends BaseActivity {
     private void back() {
         Intent intent = new Intent();
         intent.putExtra("pwdEnable", enablePasswordVerify);
-        intent.putExtra("hallEnable", turnOffByButton);
+        intent.putExtra(AppConstants.EXTRA_KEY1, turnOffByButton);
+        intent.putExtra(AppConstants.EXTRA_KEY2, resetBeaconByButton);
         setResult(RESULT_OK, intent);
         finish();
     }

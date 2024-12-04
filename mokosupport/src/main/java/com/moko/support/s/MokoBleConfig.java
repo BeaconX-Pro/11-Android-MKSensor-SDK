@@ -56,9 +56,7 @@ final class MokoBleConfig extends MokoBleManager {
             enablePasswordNotify();
             enableParamsNotify();
             enableDisconnectNotify();
-            requestMtu(247).done(bluetoothDevice -> {
-                mMokoResponseCallback.onServicesDiscovered(gatt);
-            }).enqueue();
+            requestMtu(247).done(bluetoothDevice -> mMokoResponseCallback.onServicesDiscovered(gatt)).enqueue();
             return true;
         }
         return false;
@@ -66,7 +64,6 @@ final class MokoBleConfig extends MokoBleManager {
 
     @Override
     public void write(BluetoothGattCharacteristic characteristic, byte[] value) {
-        XLog.e("write******************");
     }
 
     @Override
@@ -203,30 +200,8 @@ final class MokoBleConfig extends MokoBleManager {
             XLog.e("device to app : " + MokoUtils.bytesToHexString(value));
             mMokoResponseCallback.onCharacteristicChanged(historyTHCharacteristic, value);
         });
-        enableIndications(historyTHCharacteristic).fail(new FailCallback() {
-            @Override
-            public void onRequestFailed(@NonNull BluetoothDevice bluetoothDevice, int i) {
-                XLog.e("fail**************" + i);
-            }
-        }).done(new SuccessCallback() {
-            @Override
-            public void onRequestCompleted(@NonNull BluetoothDevice bluetoothDevice) {
-                XLog.e("done***************");
-            }
-        }).enqueue();
-
-
-//        enableNotifications(historyTHCharacteristic).fail(new FailCallback() {
-//            @Override
-//            public void onRequestFailed(@NonNull BluetoothDevice bluetoothDevice, int i) {
-//                XLog.e("fail*******************"+i);
-//            }
-//        }).done(new SuccessCallback() {
-//            @Override
-//            public void onRequestCompleted(@NonNull BluetoothDevice bluetoothDevice) {
-//                XLog.e("done***********************");
-//            }
-//        }).enqueue();
+        enableIndications(historyTHCharacteristic).fail((bluetoothDevice, i) -> XLog.e("fail**************" + i)).
+                done(bluetoothDevice -> XLog.e("done***************")).enqueue();
     }
 
     public void disableHistoryTHNotify() {

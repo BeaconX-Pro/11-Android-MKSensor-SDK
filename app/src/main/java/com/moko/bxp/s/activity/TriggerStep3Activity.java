@@ -118,27 +118,32 @@ public class TriggerStep3Activity extends BaseActivity {
             case UID:
                 UidFragment uidFragment = UidFragment.newInstance();
                 fragmentTransaction.add(R.id.frame_slot_container, uidFragment).show(uidFragment).commit();
+                uidFragment.setTriggerAfter(false, step1Bean);
                 slotDataActionImpl = uidFragment;
                 break;
             case URL:
                 UrlFragment urlFragment = UrlFragment.newInstance();
                 fragmentTransaction.add(R.id.frame_slot_container, urlFragment).show(urlFragment).commit();
                 slotDataActionImpl = urlFragment;
+                urlFragment.setTriggerAfter(false, step1Bean);
                 break;
             case TLM:
                 TlmFragment tlmFragment = TlmFragment.newInstance();
                 fragmentTransaction.add(R.id.frame_slot_container, tlmFragment).show(tlmFragment).commit();
                 slotDataActionImpl = tlmFragment;
+                tlmFragment.setTriggerAfter(false, step1Bean);
                 break;
             case I_BEACON:
                 IBeaconFragment iBeaconFragment = IBeaconFragment.newInstance();
                 fragmentTransaction.add(R.id.frame_slot_container, iBeaconFragment).show(iBeaconFragment).commit();
                 slotDataActionImpl = iBeaconFragment;
+                iBeaconFragment.setTriggerAfter(false, step1Bean);
                 break;
             case SENSOR_INFO:
                 SensorInfoFragment sensorInfoFragment = SensorInfoFragment.newInstance();
                 fragmentTransaction.add(R.id.frame_slot_container, sensorInfoFragment).show(sensorInfoFragment).commit();
                 slotDataActionImpl = sensorInfoFragment;
+                sensorInfoFragment.setTriggerAfter(false, step1Bean);
                 break;
         }
     }
@@ -174,6 +179,9 @@ public class TriggerStep3Activity extends BaseActivity {
         step3Bean = slotDataActionImpl.getSlotData();
         step3Bean.slot = this.slot;
         step3Bean.currentFrameType = !isAdvBeforeTrigger ? NO_DATA : step2Bean.currentFrameType;
+        if (step1Bean.triggerType == MOTION_TRIGGER && step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY) {
+            step3Bean.advDuration = step1Bean.axisStaticPeriod;
+        }
         orderTasks.add(OrderTaskAssembler.setSlotAdvParamsBefore(step3Bean));
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
     }

@@ -33,6 +33,7 @@ import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
+import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityDeviceInfoBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
@@ -74,10 +75,8 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
     private boolean mReceiverTag = false;
     private int mDisconnectType;
     private boolean isModifyPassword;
-    public boolean isSupportAcc;
-    public boolean isSupportTH;
-    private boolean isHallPowerEnable;
     private boolean isButtonPowerEnable;
+    private boolean isButtonResetEnable;
     private boolean enablePwd;
     private int accStatus = -1;
     private int thStatus;
@@ -238,7 +237,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                             ParamsKeyEnum configKeyEnum = ParamsKeyEnum.fromParamKey(cmd);
                             if (configKeyEnum == null) return;
                             int length = value[3] & 0xFF;
-                            if (flag == 0x01 && length == 0x01) {
+                            if (flag == 1 && length == 1) {
                                 // write
                                 int result = value[4] & 0xFF;
                                 switch (configKeyEnum) {
@@ -253,7 +252,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                                         }
                                         break;
                                 }
-                            } else if (flag == 0x00) {
+                            } else if (flag == 0) {
                                 // read
                                 switch (configKeyEnum) {
                                     case KEY_ALL_SLOT_ADV_TYPE:
@@ -288,14 +287,14 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                                         break;
 
                                     case KEY_SLOT_TRIGGER_TYPE:
-                                        if (length == 9) {
+                                        if (length == 8) {
                                             int slot = value[4] & 0xff;
                                             TriggerEvent bean = new TriggerEvent();
                                             bean.triggerType = value[5] & 0xff;
                                             bean.triggerCondition = value[6] & 0xff;
                                             bean.triggerThreshold = MokoUtils.toInt(Arrays.copyOfRange(value, 7, 9));
-                                            bean.lockAdvDuration = MokoUtils.toInt(Arrays.copyOfRange(value, 9, 11));
-                                            bean.staticPeriod = MokoUtils.toInt(Arrays.copyOfRange(value, 11, 13));
+                                            bean.lockAdvDuration = value[9] & 0xff;
+                                            bean.staticPeriod = MokoUtils.toInt(Arrays.copyOfRange(value, 10, 12));
                                             slotFragment.setSlotTriggerType(slot, bean);
                                             dismissSyncProgressDialog();
                                         }
@@ -324,18 +323,18 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
 
                                     case KEY_BUTTON_TURN_OFF_ENABLE:
                                         if (length == 1) {
-                                            isHallPowerEnable = (value[4] & 0xff) == 1;
+                                            isButtonPowerEnable = (value[4] & 0xff) == 1;
                                         }
                                         break;
 
                                     case KEY_BUTTON_RESET_ENABLE:
                                         if (length == 1) {
-                                            isButtonPowerEnable = (value[4] & 0xff) == 1;
-                                            if (accStatus == 0 && thStatus == 0 && (isHallPowerEnable || isButtonPowerEnable)) {
+                                            isButtonResetEnable = (value[4] & 0xff) == 1;
+                                            if (accStatus == 0 && thStatus == 0 && (isButtonPowerEnable || isButtonResetEnable)) {
                                                 settingFragment.setSensorGone();
                                             }
-                                            settingFragment.setDeviceTypeValue(accStatus, thStatus, isHallPowerEnable, isButtonPowerEnable);
-                                            slotFragment.setDeviceTypeValue(accStatus, thStatus, isHallPowerEnable, isButtonPowerEnable);
+                                            settingFragment.setDeviceTypeValue(accStatus, thStatus, isButtonPowerEnable, isButtonResetEnable);
+                                            slotFragment.setDeviceTypeValue(accStatus, thStatus, isButtonPowerEnable, isButtonResetEnable);
                                         }
                                         break;
 
@@ -369,33 +368,48 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                                             settingFragment.setAdvChannel(value[4] & 0xff);
                                         }
                                         break;
+
+                                    case KEY_PRODUCT_MODEL:
+                                        if (length > 0) {
+                                            deviceFragment.setProductMode(new String(Arrays.copyOfRange(value, 4, value.length)));
+                                        }
+                                        break;
+
+                                    case KEY_SOFTWARE_VERSION:
+                                        if (length > 0) {
+                                            deviceFragment.setSoftwareVersion(new String(Arrays.copyOfRange(value, 4, value.length)));
+                                        }
+                                        break;
+
+                                    case KEY_FIRMWARE_VERSION:
+                                        if (length > 0) {
+                                            deviceFragment.setFirmwareVersion(new String(Arrays.copyOfRange(value, 4, value.length)));
+                                        }
+                                        break;
+
+                                    case KEY_HARDWARE_VERSION:
+                                        if (length > 0) {
+                                            deviceFragment.setHardwareVersion(new String(Arrays.copyOfRange(value, 4, value.length)));
+                                        }
+                                        break;
+
+                                    case KEY_MANUFACTURE_DATE:
+                                        if (length > 0) {
+                                            String year = String.valueOf(MokoUtils.toInt(Arrays.copyOfRange(value, 4, 6)));
+                                            String month = (value[6] & 0xff) < 10 ? "0" + (value[4] & 0xff) : String.valueOf(value[4] & 0xff);
+                                            String day = (value[7] & 0xff) < 10 ? "0" + (value[7] & 0xff) : String.valueOf(value[7] & 0xff);
+                                            deviceFragment.setProductDate(year + "/" + month + "/" + day);
+                                        }
+                                        break;
+
+                                    case KEY_MANUFACTURE:
+                                        if (length > 0) {
+                                            deviceFragment.setManufacturer(new String(Arrays.copyOfRange(value, 4, value.length)));
+                                        }
+                                        break;
                                 }
                             }
                         }
-                        break;
-
-                    case CHAR_MODEL_NUMBER:
-                        deviceFragment.setProductMode(new String(value).trim());
-                        break;
-
-                    case CHAR_SOFTWARE_REVISION:
-                        deviceFragment.setSoftwareVersion(new String(value).trim());
-                        break;
-
-                    case CHAR_FIRMWARE_REVISION:
-                        deviceFragment.setFirmwareVersion(new String(value).trim());
-                        break;
-
-                    case CHAR_HARDWARE_REVISION:
-                        deviceFragment.setHardwareVersion(new String(value).trim());
-                        break;
-
-                    case CHAR_SERIAL_NUMBER:
-                        deviceFragment.setProductDate(new String(value).trim());
-                        break;
-
-                    case CHAR_MANUFACTURER_NAME:
-                        deviceFragment.setManufacturer(new String(value).trim());
                         break;
                 }
             }
@@ -448,25 +462,19 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         quickLauncher.launch(new Intent(this, QuickSwitchActivity.class));
     }
 
-    @Subscribe
-    public void onHallDisable(String hallDisable) {
-        if ("hallDisable".equals(hallDisable)) {
-            //禁用了霍尔关机功能
-            isHallPowerEnable = true;
-            settingFragment.setDeviceTypeValue(accStatus, thStatus, true, isButtonPowerEnable);
-        }
-    }
-
     private final ActivityResultLauncher<Intent> quickLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
         if (null != result && null != result.getData()) {
             Intent intent = result.getData();
             boolean pwdEnable = intent.getBooleanExtra("pwdEnable", false);
-            isHallPowerEnable = intent.getBooleanExtra("hallEnable", false);
-            settingFragment.setDeviceTypeValue(accStatus, thStatus, isHallPowerEnable, isButtonPowerEnable);
-            if (!isSupportAcc && !isSupportTH && isHallPowerEnable) {
+            isButtonPowerEnable = intent.getBooleanExtra(AppConstants.EXTRA_KEY1, false);
+            isButtonResetEnable = intent.getBooleanExtra(AppConstants.EXTRA_KEY2, false);
+            settingFragment.setDeviceTypeValue(accStatus, thStatus, isButtonPowerEnable, isButtonResetEnable);
+            if (accStatus == 0 && thStatus == 0 && (isButtonPowerEnable || isButtonResetEnable)) {
                 settingFragment.setSensorGone();
             }
+            slotFragment.setDeviceTypeValue(accStatus, thStatus, isButtonPowerEnable, isButtonResetEnable);
             settingFragment.setResetVisibility(pwdEnable);
+            settingFragment.setModifyPasswordShown(enablePwd && pwdEnable);
         }
     });
 
@@ -582,7 +590,15 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
             getSettings();
         } else if (checkedId == R.id.radioBtn_device) {
             showDeviceFragment();
-            if (!hasGetInfo) getDeviceInfo();
+            if (!hasGetInfo) {
+                getDeviceInfo();
+            } else {
+                showSyncingProgressDialog();
+                ArrayList<OrderTask> orderTasks = new ArrayList<>(2);
+                orderTasks.add(OrderTaskAssembler.getBattery());
+                orderTasks.add(OrderTaskAssembler.getBatteryPercent());
+                MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+            }
         }
     }
 

@@ -27,8 +27,8 @@ import java.util.List;
 public class SettingFragment extends BaseFragment<FragmentSettingBinding> {
     private final String[] advModeArray = {"Legacy", "Long Range"};
     private int mSelected;
-    private boolean isHallPowerEnable;
     private boolean isButtonPowerEnable;
+    private boolean isButtonResetEnable;
     private int accStatus = -1;
     private int thStatus;
     private final String[] batteryModeArray = {"Percentage", "Voltage"};
@@ -120,8 +120,8 @@ public class SettingFragment extends BaseFragment<FragmentSettingBinding> {
             Intent intent = new Intent(requireActivity(), SensorConfigActivity.class);
             intent.putExtra(AppConstants.EXTRA_KEY1, accStatus);
             intent.putExtra(AppConstants.EXTRA_KEY2, thStatus);
-            intent.putExtra(AppConstants.EXTRA_KEY3, isHallPowerEnable);
-            intent.putExtra(AppConstants.EXTRA_KEY4, isButtonPowerEnable);
+            intent.putExtra(AppConstants.EXTRA_KEY3, isButtonPowerEnable);
+            intent.putExtra(AppConstants.EXTRA_KEY4, isButtonResetEnable);
             startActivity(intent);
         });
         mBind.tvBatteryAdvMode.setOnClickListener(v -> onBatteryModeClick());
@@ -138,7 +138,7 @@ public class SettingFragment extends BaseFragment<FragmentSettingBinding> {
         dialog.setOnAlertConfirmListener(() -> {
             if (null != getActivity()) {
                 ((DeviceInfoActivity) getActivity()).showSyncingProgressDialog();
-                MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setBatteryPercent(100));
+                MokoSupport.getInstance().sendOrder(OrderTaskAssembler.resetBatteryPercent());
             }
         });
         dialog.show(getChildFragmentManager());
@@ -220,10 +220,10 @@ public class SettingFragment extends BaseFragment<FragmentSettingBinding> {
         mBind.tvSensor.setVisibility(View.GONE);
     }
 
-    public void setDeviceTypeValue(int accStatus, int thStatus, boolean isHallPowerEnable, boolean isButtonPowerEnable) {
+    public void setDeviceTypeValue(int accStatus, int thStatus, boolean isHallPowerEnable, boolean isButtonResetEnable) {
         this.accStatus = accStatus;
         this.thStatus = thStatus;
-        this.isHallPowerEnable = isHallPowerEnable;
-        this.isButtonPowerEnable = isButtonPowerEnable;
+        this.isButtonPowerEnable = isHallPowerEnable;
+        this.isButtonResetEnable = isButtonResetEnable;
     }
 }

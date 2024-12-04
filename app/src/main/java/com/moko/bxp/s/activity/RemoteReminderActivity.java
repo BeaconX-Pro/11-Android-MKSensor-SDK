@@ -8,7 +8,9 @@ import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTaskResponse;
+import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.databinding.ActivityRemoteReminderBinding;
+import com.moko.bxp.s.dialog.BottomDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
@@ -20,6 +22,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * @author: jun.liu
  * @date: 2024/10/28 15:25
@@ -27,6 +32,8 @@ import org.greenrobot.eventbus.ThreadMode;
  */
 public class RemoteReminderActivity extends BaseActivity {
     private ActivityRemoteReminderBinding mBind;
+    private final String[] array = {"4000", "4500"};
+    private int mSelect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +43,18 @@ public class RemoteReminderActivity extends BaseActivity {
         EventBus.getDefault().register(this);
         mBind.btnRemind.setOnClickListener(v -> onLedRemindClick());
         mBind.btnBuzzerRemind.setOnClickListener(v -> onBuzzerRemindClick());
+        showSyncingProgressDialog();
+        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getBuzzerFrequency());
+        mBind.btnFrequency.setOnClickListener(v -> {
+            BottomDialog dialog = new BottomDialog();
+            dialog.setDatas(new ArrayList<>(Arrays.asList(array)), mSelect);
+            dialog.setListener(value -> {
+                showSyncingProgressDialog();
+                mSelect = value;
+                MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setBuzzerFrequency(value == 0 ? 4000 : 4500));
+            });
+            dialog.show(getSupportFragmentManager());
+        });
     }
 
     //远程提醒
@@ -51,11 +70,12 @@ public class RemoteReminderActivity extends BaseActivity {
             return;
         }
         if (time < 1 || time > 600) {
+            //单位100ms
             ToastUtils.showToast(this, "Blinking time should in 1~600");
             return;
         }
         showSyncingProgressDialog();
-        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setLedRemoteReminder(interval * 100, time));
+        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setLedRemoteReminder(interval * 100, time * 10));
     }
 
     private void onBuzzerRemindClick() {
@@ -74,7 +94,7 @@ public class RemoteReminderActivity extends BaseActivity {
             return;
         }
         showSyncingProgressDialog();
-        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setBuzzerRemoteReminder(interval * 100, time));
+        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setBuzzerRemoteReminder(interval * 100, time * 10));
     }
 
     public void onBack(View view) {
@@ -113,7 +133,7 @@ public class RemoteReminderActivity extends BaseActivity {
                         if (header != 0xEB || configKeyEnum == null) return;
                         int length = value[3] & 0xFF;
                         if (flag == 0x01 && length == 0x01) {
-                            switch (configKeyEnum){
+                            switch (configKeyEnum) {
                                 case KEY_LED_REMOTE_REMINDER:
                                 case KEY_BUZZER_REMOTE_REMINDER:
                                     // write
@@ -124,6 +144,19 @@ public class RemoteReminderActivity extends BaseActivity {
                                         ToastUtils.showToast(this, "fail");
                                     }
                                     break;
+                                case KEY_BUZZER_FREQUENCY:
+                                    ToastUtils.showToast(this, (value[4] & 0xff) == 0xAA ? "success" : "fail");
+                                    if ((value[4] & 0xff) == 0xAA) {
+                                        mBind.btnFrequency.setText(array[mSelect]);
+                                    }
+                                    break;
+                            }
+                        } else if (flag == 0) {
+                            if (length > 0) {
+                                int frequency = MokoUtils.toInt(Arrays.copyOfRange(value, 4, value.length));
+                                if (frequency == 4000) mSelect = 0;
+                                else mSelect = 1;
+                                mBind.btnFrequency.setText(array[mSelect]);
                             }
                         }
                     }

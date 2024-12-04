@@ -86,7 +86,7 @@
             android:id="@+id/tvTimeUnit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="x 1s"
+            android:text="s"
             android:textColor="@color/black_333333"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/tvTime"
@@ -200,7 +200,7 @@
             android:id="@+id/tvTimeUnit1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="x 1s"
+            android:text="s"
             android:textColor="@color/black_333333"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/tvBuzzerTime"
@@ -258,5 +258,42 @@
             app:layout_constraintBottom_toBottomOf="@+id/tvIntervalUnit1"
             app:layout_constraintRight_toLeftOf="@+id/tvIntervalUnit1"
             app:layout_constraintTop_toTopOf="@+id/tvIntervalUnit1" />
+
+        <TextView
+            android:id="@+id/tv1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Ringing frequency"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvBuzzerInterval" />
+
+        <TextView
+            android:id="@+id/tvIntervalUnit2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hz"
+            android:textColor="@color/black_333333"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/tv1"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv1" />
+
+        <Button
+            android:id="@+id/btnFrequency"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
+            android:background="@drawable/shape_radius_blue_btn_bg"
+            android:text="4000"
+            android:textColor="@color/white_ffffff"
+            android:textSize="15sp"
+            android:layout_marginRight="20dp"
+            app:layout_constraintBottom_toBottomOf="@+id/tvIntervalUnit2"
+            app:layout_constraintRight_toLeftOf="@+id/tvIntervalUnit2"
+            app:layout_constraintTop_toTopOf="@+id/tvIntervalUnit2" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

@@ -23,8 +23,8 @@ public class SensorConfigActivity extends BaseActivity {
         EventBus.getDefault().register(this);
         int accStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY1, 0);
         int thStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY2, 0);
-        boolean isHallPowerEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY3, false);
-        boolean isButtonPowerEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY4, false);
+        boolean isButtonPowerEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY3, false);
+        boolean isButtonResetEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY4, false);
         mBind.tvAccConfig.setVisibility(accStatus == 0 ? View.GONE : View.VISIBLE);
         if (thStatus == 0) {
             mBind.tvTH.setVisibility(View.GONE);
@@ -35,7 +35,7 @@ public class SensorConfigActivity extends BaseActivity {
                 mBind.tvTH.setText("Temperature");
             }
         }
-        if (!isHallPowerEnable && !isButtonPowerEnable) {
+        if (!isButtonResetEnable && !isButtonPowerEnable) {
             mBind.tvHall.setVisibility(View.VISIBLE);
         }
         mBind.tvTH.setOnClickListener(v -> {

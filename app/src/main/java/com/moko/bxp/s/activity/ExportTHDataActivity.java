@@ -29,13 +29,14 @@ import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.AppConstants;
-import com.moko.bxp.s.BaseApplication;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.adapter.THDataListAdapter;
 import com.moko.bxp.s.databinding.ActivityExportThDataBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
+import com.moko.bxp.s.dialog.TipsDialogFragment;
 import com.moko.bxp.s.entity.THStoreData;
+import com.moko.bxp.s.utils.ExcelHelper;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.bxp.s.utils.Utils;
 import com.moko.support.s.MokoSupport;
@@ -48,8 +49,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -57,6 +56,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author: jun.liu
@@ -64,28 +64,33 @@ import java.util.Locale;
  * @des:
  */
 public class ExportTHDataActivity extends BaseActivity {
-    private static final String TRACKED_FILE = "T&HDatas.txt";
-    private static String PATH_LOGCAT;
+    private ActivityExportThDataBinding mBind;
     private boolean mReceiverTag = false;
     private boolean isSync;
-    private final StringBuilder thStoreString = new StringBuilder();
-    private final List<THStoreData> thStoreData = new LinkedList<>();
-    private final List<THStoreData> filterThStoreData = new LinkedList<>();
+    private final LinkedList<THStoreData> thStoreData = new LinkedList<>();
+    private final LinkedList<THStoreData> filterThStoreData = new LinkedList<>();
     private THDataListAdapter mAdapter;
-    private ActivityExportThDataBinding mBind;
     private final SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.PATTERN_YYYY_MM_DD_HH_MM_SS, Locale.getDefault());
     private Date startDate;
     private Date endDate;
     private boolean isOnlyTemp;
     private final SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+    private int totalHistoryCount;
+    private int samplingInterval;
+    private int storageInterval;
+    private String deviceMac;
+    private final SimpleDateFormat sdfExcel = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
+    private String filePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBind = ActivityExportThDataBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
-        PATH_LOGCAT = BaseApplication.PATH_LOGCAT + File.separator + TRACKED_FILE;
         isOnlyTemp = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY1, false);
+        samplingInterval = getIntent().getIntExtra(AppConstants.EXTRA_KEY2, 0);
+        storageInterval = getIntent().getIntExtra(AppConstants.EXTRA_KEY3, 0);
+        deviceMac = getIntent().getStringExtra(AppConstants.EXTRA_KEY4);
         if (isOnlyTemp) {
             mBind.tvTitle.setText("Export Temperature data");
             mBind.tvHumidity.setVisibility(View.GONE);
@@ -162,6 +167,7 @@ public class ExportTHDataActivity extends BaseActivity {
             mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
         });
         mBind.tvStart.setOnClickListener(v -> onStartClick());
+        filePath = getExternalFilesDir("excel").getAbsolutePath();
     }
 
     private void onStartClick() {
@@ -174,7 +180,7 @@ public class ExportTHDataActivity extends BaseActivity {
             }
         }
         mAdapter.replaceData(filterThStoreData);
-        mBind.tvSumRecord.setText("Sum records:" + thStoreData.size());
+        mBind.tvSumRecord.setText("Sum records:" + totalHistoryCount);
         mBind.tvFilterRecord.setText("Filtered records:" + filterThStoreData.size());
         Drawable top;
         if (!filterThStoreData.isEmpty()) {
@@ -191,7 +197,7 @@ public class ExportTHDataActivity extends BaseActivity {
             this.endDate = null;
         }
         Calendar startDate = Calendar.getInstance();
-        startDate.set(2024, 0, 1);
+        startDate.set(2024, 11, 1);
         Calendar currentDate = Calendar.getInstance();
         currentDate.set(Calendar.getInstance().get(Calendar.YEAR), Calendar.getInstance().get(Calendar.MONTH),
                 Calendar.getInstance().get(Calendar.DATE), Calendar.getInstance().get(Calendar.HOUR_OF_DAY),
@@ -274,20 +280,22 @@ public class ExportTHDataActivity extends BaseActivity {
                         int header = value[0] & 0xff;
                         int flag = value[1] & 0xff;
                         int key = value[2] & 0xff;
-                        if (header == 0xEC && key == 0x80 && flag == 2) {
+                        if (header == 0xEB && key == 0x80 && flag == 0x03) {
                             //历史数据通知
                             int totalPackage = MokoUtils.toInt(Arrays.copyOfRange(value, 3, 5));
                             int packageIndex = MokoUtils.toInt(Arrays.copyOfRange(value, 5, 7));
+                            int length = value[7] & 0xff;
                             if (totalPackage == 0 || totalPackage - 1 == packageIndex) {
                                 //最后一帧数据了
                                 isSync = false;
                                 mBind.cbDataShow.setEnabled(true);
                                 mBind.ivSync.clearAnimation();
                                 mBind.tvSync.setText("Sync");
-                                dismissSyncProgressDialog();
                                 MokoSupport.getInstance().disableHistoryThNotify();
+                                mBind.tvExport.postDelayed(() -> {
+                                    if (null != dialogFragment) dialogFragment.dismiss();
+                                }, 2500);
                             }
-                            int length = value[7] & 0xff;
                             if (length > 0) {
                                 byte[] data = Arrays.copyOfRange(value, 8, length + 8);
                                 mBind.llThData.setVisibility(View.VISIBLE);
@@ -299,8 +307,10 @@ public class ExportTHDataActivity extends BaseActivity {
                                     storeData.time = sdf.format(new Date(year * 1000L));
                                     storeData.timeStamp = year * 1000L;
                                     float temp = MokoUtils.byte2short(Arrays.copyOfRange(bytes, 4, 6)) * 0.1f;
+                                    storeData.intTemp = MokoUtils.byte2short(Arrays.copyOfRange(bytes, 4, 6));
                                     storeData.temp = MokoUtils.getDecimalFormat("0.0").format(temp);
                                     float hum = MokoUtils.byte2short(Arrays.copyOfRange(bytes, 6, 8)) * 0.1f;
+                                    storeData.intHumidity = MokoUtils.byte2short(Arrays.copyOfRange(bytes, 6, 8));
                                     storeData.humidity = MokoUtils.getDecimalFormat("0.0").format(hum);
                                     thStoreData.add(0, storeData);
                                 }
@@ -308,19 +318,22 @@ public class ExportTHDataActivity extends BaseActivity {
                                     onStartClick();
                                 } else {
                                     mAdapter.replaceData(thStoreData);
-                                    mBind.tvSumRecord.setText("Sum records:" + thStoreData.size());
+                                    mBind.tvSumRecord.setText("Sum records:" + totalHistoryCount);
                                     mBind.tvFilterRecord.setText("Filtered records:" + thStoreData.size());
-                                    if (thStoreData.size() > 0) {
+                                    if (!thStoreData.isEmpty()) {
                                         Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
                                         mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
                                     }
                                 }
-                                if (thStoreData.size() > 0) {
+                                if (null != dialogFragment) {
+                                    dialogFragment.updateContent("Total history records: " + totalHistoryCount + "\nReading data ...... ,update " + thStoreData.size() + " records");
+                                }
+                                if (!thStoreData.isEmpty()) {
                                     mBind.tvStart.setEnabled(true);
                                     mBind.tvStart.setBackgroundResource(R.drawable.shape_radius_blue_btn_bg);
                                 }
                             } else {
-                                mBind.tvSumRecord.setText("Sum records:0");
+                                mBind.tvSumRecord.setText("Sum records:" + totalHistoryCount);
                                 mBind.tvFilterRecord.setText("Filtered records:0");
                             }
                         }
@@ -336,8 +349,6 @@ public class ExportTHDataActivity extends BaseActivity {
                         ParamsKeyEnum configKeyEnum = ParamsKeyEnum.fromParamKey(key);
                         if (configKeyEnum == ParamsKeyEnum.KEY_CLEAR_HISTORY_TH) {
                             if ((value[4] & 0xff) == 0xAA) {
-                                thStoreString.setLength(0);
-                                writeTHFile("");
                                 thStoreData.clear();
                                 mAdapter.replaceData(thStoreData);
                                 mBind.llThData.setVisibility(View.GONE);
@@ -353,6 +364,11 @@ public class ExportTHDataActivity extends BaseActivity {
                             } else {
                                 ToastUtils.showToast(this, "Failed");
                             }
+                        } else if (configKeyEnum == ParamsKeyEnum.KEY_TH_HISTORY_COUNT) {
+                            //获取历史数据的总条数
+                            totalHistoryCount = MokoUtils.toInt(Arrays.copyOfRange(value, 4, value.length));
+                            mBind.tvSumRecord.setText("Sum records:" + totalHistoryCount);
+                            syncHistoryThData();
                         }
                     }
                 }
@@ -411,35 +427,6 @@ public class ExportTHDataActivity extends BaseActivity {
         back();
     }
 
-    public static void writeTHFile(String thLog) {
-        File file = new File(PATH_LOGCAT);
-        try {
-            if (!file.exists()) {
-                boolean a = file.createNewFile();
-                XLog.e(a);
-            }
-            FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(thLog);
-            fileWriter.flush();
-            fileWriter.close();
-        } catch (IOException e) {
-            XLog.e(e);
-        }
-    }
-
-    public static File getTHFile() {
-        File file = new File(PATH_LOGCAT);
-        try {
-            if (!file.exists()) {
-                boolean a = file.createNewFile();
-                XLog.i(a);
-            }
-        } catch (IOException e) {
-            XLog.e(e);
-        }
-        return file;
-    }
-
     public void onBack(View view) {
         back();
     }
@@ -447,8 +434,22 @@ public class ExportTHDataActivity extends BaseActivity {
     public void onSync(View view) {
         if (isWindowLocked()) return;
         if (!isSync) {
-            isSync = true;
+            //获取历史数据总条数
             showSyncingProgressDialog();
+            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getTHHistoryCount());
+        }
+    }
+
+    private TipsDialogFragment dialogFragment;
+
+    private void showTips(String content, String flag) {
+        dialogFragment = new TipsDialogFragment(content);
+        dialogFragment.showNow(getSupportFragmentManager(), flag);
+    }
+
+    private void syncHistoryThData() {
+        if (!isSync) {
+            isSync = true;
             MokoSupport.getInstance().enableHistoryThNotify();
             Animation animation = AnimationUtils.loadAnimation(this, R.anim.rotate_refresh);
             mBind.ivSync.startAnimation(animation);
@@ -461,40 +462,50 @@ public class ExportTHDataActivity extends BaseActivity {
             mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
             mBind.tvStart.setEnabled(false);
             mBind.tvStart.setBackgroundResource(R.drawable.shape_radius_grey);
+            showTips("Total history records: " + totalHistoryCount + "\nReading data ...... ,update " + thStoreData.size() + " records", "total");
         }
     }
 
     public void onExport(View view) {
         if (isWindowLocked()) return;
+        List<THStoreData> excelData;
         if (null != startDate && null != endDate && !TextUtils.isEmpty(mBind.tvStartDate.getText()) && !TextUtils.isEmpty(mBind.tvEndDate.getText())) {
-            for (THStoreData storeData : filterThStoreData) {
-                if (isOnlyTemp) {
-                    thStoreString.append(String.format("%s T%s", storeData.time, storeData.temp)).append("\n");
-                } else {
-                    thStoreString.append(String.format("%s T%s H%s", storeData.time, storeData.temp, storeData.humidity)).append("\n");
-                }
-            }
+            excelData = filterThStoreData;
         } else {
-            for (THStoreData storeData : thStoreData) {
-                if (isOnlyTemp) {
-                    thStoreString.append(String.format("%s T%s", storeData.time, storeData.temp)).append("\n");
-                } else {
-                    thStoreString.append(String.format("%s T%s H%s", storeData.time, storeData.temp, storeData.humidity)).append("\n");
-                }
-            }
+            excelData = thStoreData;
         }
-        if (TextUtils.isEmpty(thStoreString)) return;
+        if (excelData.isEmpty()) return;
         showSyncingProgressDialog();
-        writeTHFile("");
-        mBind.tvExport.postDelayed(() -> {
-            dismissSyncProgressDialog();
-            writeTHFile(thStoreString.toString());
-            File file = getTHFile();
-            // 发送邮件
-            String address = "Development@mokotechnology.com";
-            String title = "T&H Log";
-            Utils.sendEmail(this, address, title, title, "Choose Email Client", file);
-        }, 500);
+        new Thread(() -> {
+            ExcelHelper helper = new ExcelHelper();
+            try {
+                List<Map<String, String>> mapRecord = helper.handleLoggerData(excelData);
+                Map<String, String> mapTotal = helper.handleTotalData(deviceMac, samplingInterval, storageInterval, isOnlyTemp, excelData);
+                String path = filePath + "/" + deviceMac + "_" + sdfExcel.format(new Date(System.currentTimeMillis())) + ".xls";
+                File file = helper.createExcel(path);
+                helper.writeToExcel(mapRecord, mapTotal, file);
+                runOnUiThread(() -> {
+                    dismissSyncProgressDialog();
+                    sendMail(file);
+                });
+            } catch (Exception e) {
+                XLog.e(e);
+                runOnUiThread(() -> {
+                    dismissSyncProgressDialog();
+                    ToastUtils.showToast(this, "Data export exception");
+                });
+            }
+        }).start();
+    }
+
+    private void sendMail(File excelFile) {
+        String address = "develop@mokotechnology.com";
+        StringBuilder mailContent = new StringBuilder();
+        Calendar calendar = Calendar.getInstance();
+        String date = Utils.calendar2strDate(calendar, "yyyy-MM-dd");
+        mailContent.append(date);
+        String title = mailContent.toString();
+        Utils.sendEmail(this, address, "", title, "Choose Email Client", excelFile);
     }
 
     public void onEmpty(View view) {

@@ -7,12 +7,6 @@ import com.moko.ble.lib.task.OrderTask;
 import com.moko.support.s.entity.ParamsKeyEnum;
 import com.moko.support.s.entity.SlotData;
 import com.moko.support.s.entity.TriggerStep1Bean;
-import com.moko.support.s.task.GetFirmwareRevisionTask;
-import com.moko.support.s.task.GetHardwareRevisionTask;
-import com.moko.support.s.task.GetManufacturerNameTask;
-import com.moko.support.s.task.GetModelNumberTask;
-import com.moko.support.s.task.GetSerialNumberTask;
-import com.moko.support.s.task.GetSoftwareRevisionTask;
 import com.moko.support.s.task.ParamsTask;
 import com.moko.support.s.task.PasswordTask;
 
@@ -22,35 +16,54 @@ public class OrderTaskAssembler {
      * 获取制造商
      */
     public static OrderTask getManufacturer() {
-        return new GetManufacturerNameTask();
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_MANUFACTURE);
+        return task;
     }
 
     /**
      * 获取设备型号
      */
     public static OrderTask getDeviceModel() {
-        return new GetModelNumberTask();
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_PRODUCT_MODEL);
+        return task;
     }
 
     /**
      * 获取生产日期
      */
     public static OrderTask getProductDate() {
-        return new GetSerialNumberTask();
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_MANUFACTURE_DATE);
+        return task;
     }
 
     /**
      * 获取硬件版本
      */
     public static OrderTask getHardwareVersion() {
-        return new GetHardwareRevisionTask();
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_HARDWARE_VERSION);
+        return task;
     }
 
     /**
      * 获取固件版本
      */
     public static OrderTask getFirmwareVersion() {
-        return new GetFirmwareRevisionTask();
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_FIRMWARE_VERSION);
+        return task;
+    }
+
+    /**
+     * 获取软件版本
+     */
+    public static OrderTask getSoftwareVersion() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_SOFTWARE_VERSION);
+        return task;
     }
 
     public static OrderTask getTHStore() {
@@ -95,13 +108,6 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    /**
-     * 获取软件版本
-     */
-    public static OrderTask getSoftwareVersion() {
-        return new GetSoftwareRevisionTask();
-    }
-
     public static OrderTask getBatteryMode() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_BATTERY_MODE);
@@ -120,9 +126,9 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask setBatteryPercent(int percent) {
+    public static OrderTask resetBatteryPercent() {
         ParamsTask task = new ParamsTask();
-        task.setBatteryPercent(percent);
+        task.resetBatteryPercent();
         return task;
     }
 
@@ -230,6 +236,12 @@ public class OrderTaskAssembler {
         return task;
     }
 
+    public static OrderTask getBuzzerFrequency() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_BUZZER_FREQUENCY);
+        return task;
+    }
+
     public static OrderTask getConnectStatus() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_CONNECT_ENABLE);
@@ -260,6 +272,12 @@ public class OrderTaskAssembler {
         return task;
     }
 
+    public static OrderTask getTHHistoryCount(){
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_TH_HISTORY_COUNT);
+        return task;
+    }
+
     public static OrderTask setVerifyPasswordEnable(@IntRange(from = 0, to = 1) int enable) {
         PasswordTask task = new PasswordTask();
         task.setVerifyPasswordEnable(enable);
@@ -285,14 +303,14 @@ public class OrderTaskAssembler {
     }
 
     public static OrderTask setLedRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
-                                                 @IntRange(from = 1, to = 600) int time) {
+                                                 @IntRange(from = 10, to = 6000) int time) {
         ParamsTask task = new ParamsTask();
         task.setLedRemoteReminder(interval, time);
         return task;
     }
 
     public static OrderTask setBuzzerRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
-                                                    @IntRange(from = 1, to = 600) int time) {
+                                                    @IntRange(from = 10, to = 6000) int time) {
         ParamsTask task = new ParamsTask();
         task.setBuzzerRemoteReminder(interval, time);
         return task;
@@ -313,6 +331,12 @@ public class OrderTaskAssembler {
     public static OrderTask setTriggerIndicatorStatus(int status) {
         ParamsTask task = new ParamsTask();
         task.setStatus(status, ParamsKeyEnum.KEY_TRIGGER_LED_ENABLE);
+        return task;
+    }
+
+    public static OrderTask setBuzzerFrequency(int frequency) {
+        ParamsTask task = new ParamsTask();
+        task.setBuzzerFrequency(frequency);
         return task;
     }
 

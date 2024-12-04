@@ -1,5 +1,8 @@
 package com.moko.bxp.s.fragment;
 
+import static com.moko.support.s.entity.SlotAdvType.MOTION_TRIGGER;
+import static com.moko.support.s.entity.SlotAdvType.MOTION_TRIGGER_MOTION;
+import static com.moko.support.s.entity.SlotAdvType.MOTION_TRIGGER_STATIONARY;
 import static com.moko.support.s.entity.SlotAdvType.NO_DATA;
 
 import android.annotation.SuppressLint;
@@ -22,6 +25,7 @@ import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
 import com.moko.support.s.entity.SlotData;
+import com.moko.support.s.entity.TriggerStep1Bean;
 import com.moko.support.s.entity.TxPowerEnum;
 import com.moko.support.s.entity.UrlExpansionEnum;
 import com.moko.support.s.entity.UrlSchemeEnum;
@@ -37,6 +41,8 @@ public class UrlFragment extends BaseFragment<FragmentUrlBinding> implements See
     private int mTxPower;
     private int mUrlScheme;
     private boolean isTriggerAfter;
+    private TriggerStep1Bean step1Bean;
+    private int maxAdvDuration;
 
     public UrlFragment() {
     }
@@ -51,7 +57,21 @@ public class UrlFragment extends BaseFragment<FragmentUrlBinding> implements See
         if (isTriggerAfter) {
             mBind.layoutLowPower.setVisibility(View.GONE);
             mBind.layoutStandDuration.setVisibility(View.GONE);
-            mBind.etAdvDuration.setHint("0~65535");
+            mBind.advDuration.setText("Total adv duration");
+            if (step1Bean.triggerType == MOTION_TRIGGER && step1Bean.triggerCondition == MOTION_TRIGGER_MOTION) {
+                mBind.etAdvDuration.setHint("0~" + step1Bean.axisStaticPeriod);
+                maxAdvDuration = step1Bean.axisStaticPeriod;
+            } else {
+                mBind.etAdvDuration.setHint("0~65535");
+                maxAdvDuration = 65535;
+            }
+        } else {
+            if (step1Bean.triggerType == MOTION_TRIGGER && step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY) {
+                //不支持设置lowPowerMode功能
+                isLowPowerMode = false;
+                mBind.ivLowPowerMode.setEnabled(false);
+                changeView();
+            }
         }
         mBind.sbRssi.setOnSeekBarChangeListener(this);
         mBind.sbTxPower.setOnSeekBarChangeListener(this);
@@ -72,12 +92,27 @@ public class UrlFragment extends BaseFragment<FragmentUrlBinding> implements See
         return FragmentUrlBinding.inflate(inflater, container, false);
     }
 
-    public void setTriggerAfter(boolean isTriggerAfter) {
+    public void setTriggerAfter(boolean isTriggerAfter, TriggerStep1Bean step1Bean) {
         this.isTriggerAfter = isTriggerAfter;
+        this.step1Bean = step1Bean;
         if (isTriggerAfter && null != mBind) {
             mBind.layoutLowPower.setVisibility(View.GONE);
             mBind.layoutStandDuration.setVisibility(View.GONE);
-            mBind.etAdvDuration.setHint("0~65535");
+            mBind.advDuration.setText("Total adv duration");
+            if (step1Bean.triggerType == MOTION_TRIGGER && step1Bean.triggerCondition == MOTION_TRIGGER_MOTION) {
+                mBind.etAdvDuration.setHint("0~" + step1Bean.axisStaticPeriod);
+                maxAdvDuration = step1Bean.axisStaticPeriod;
+            } else {
+                mBind.etAdvDuration.setHint("0~65535");
+                maxAdvDuration = 65535;
+            }
+        } else if (!isTriggerAfter && null != mBind) {
+            if (step1Bean.triggerType == MOTION_TRIGGER && step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY) {
+                //不支持设置lowPowerMode功能
+                isLowPowerMode = false;
+                mBind.ivLowPowerMode.setEnabled(false);
+                changeView();
+            }
         }
     }
 
@@ -149,8 +184,8 @@ public class UrlFragment extends BaseFragment<FragmentUrlBinding> implements See
             }
             int advDurationInt = Integer.parseInt(advDuration);
             if (isTriggerAfter) {
-                if (advDurationInt > 65535) {
-                    ToastUtils.showToast(requireContext(), "The Adv duration range is 0~65535");
+                if (advDurationInt > maxAdvDuration) {
+                    ToastUtils.showToast(requireContext(), "The Adv duration range is 0~" + maxAdvDuration);
                     return false;
                 }
             } else {

@@ -1,6 +1,5 @@
 package com.moko.bxp.s.fragment;
 
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,7 @@ public class HumidityTriggerFragment extends BaseFragment<FragmentHumidityTrigge
     @Override
     protected void onCreateView() {
         mBind.sbHum.setOnSeekBarChangeListener(this);
-        mBind.cbLockAdv.setOnCheckedChangeListener((buttonView, isChecked) -> mBind.group.setVisibility(isChecked ? View.VISIBLE : View.GONE));
+        mBind.cbLockAdv.setOnCheckedChangeListener((buttonView, isChecked) -> mBind.tvTips.setVisibility(isChecked ? View.VISIBLE : View.GONE));
     }
 
     @Override
@@ -30,27 +29,7 @@ public class HumidityTriggerFragment extends BaseFragment<FragmentHumidityTrigge
 
     public void setValue(int threshold, int lockedAdvDuration) {
         mBind.sbHum.setProgress(threshold);
-        mBind.cbLockAdv.setChecked(lockedAdvDuration > 0);
-        if (lockedAdvDuration > 0) {
-            mBind.etLockDuration.setText(String.valueOf(lockedAdvDuration));
-            mBind.etLockDuration.setSelection(mBind.etLockDuration.getText().length());
-        }
-    }
-
-    public boolean isValid() {
-        if (mBind.cbLockAdv.isChecked()) {
-            if (TextUtils.isEmpty(mBind.etLockDuration.getText())) return false;
-            int duration = Integer.parseInt(mBind.etLockDuration.getText().toString());
-            return duration >= 1 && duration <= 65535;
-        }
-        return true;
-    }
-
-    public int getLockedDuration() {
-        if (mBind.cbLockAdv.isChecked()) {
-            return Integer.parseInt(mBind.etLockDuration.getText().toString());
-        }
-        return 0;
+        mBind.cbLockAdv.setChecked(lockedAdvDuration == 1);
     }
 
     public int getHumThreshold() {

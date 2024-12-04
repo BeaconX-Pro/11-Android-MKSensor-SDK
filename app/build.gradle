@@ -106,6 +106,7 @@ dependencies {
     implementation 'com.guolindev.permissionx:permissionx:1.7.1'
     implementation(name: 'pickerview', ext: 'aar')
     implementation(name: 'wheelview', ext: 'aar')
+    implementation files('libs\\jxl.jar')
     if (!isLibrary.toBoolean()) {
         implementation project(path: ':mokosupport')
     } else {

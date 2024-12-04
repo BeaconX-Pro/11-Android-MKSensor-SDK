@@ -41,7 +41,7 @@
 
         <activity
             android:name="com.moko.bxp.s.activity.DeviceInfoActivity"
-            android:hardwareAccelerated="true"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
@@ -52,10 +52,54 @@
             android:name="com.moko.bxp.s.activity.QuickSwitchActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
+
         <activity
-            android:name="com.moko.bxp.s.activity.PowerSavingConfigActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan" />
+            android:name="com.moko.bxp.s.activity.RemoteReminderActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.moko.bxp.s.activity.SensorConfigActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.moko.bxp.s.activity.HallSensorConfigActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.moko.bxp.s.activity.THDataActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.moko.bxp.s.activity.ExportTHDataActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SENDTO" />
+                <data android:scheme="mailto" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.moko.bxp.s.activity.TriggerStep2Activity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.moko.bxp.s.activity.TriggerStep1Activity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.moko.bxp.s.activity.TriggerStep3Activity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.moko.bxp.s.activity.DeviceTypeSelectActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="com.moko.bxp.s.activity.SlotDataActivity"
+            android:screenOrientation="portrait" />
 
         <service android:name="com.moko.bxp.s.service.DfuService" />
 

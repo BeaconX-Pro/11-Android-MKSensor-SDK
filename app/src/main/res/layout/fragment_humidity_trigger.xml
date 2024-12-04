@@ -61,64 +61,21 @@
         android:layout_marginTop="5dp"
         android:button="@null"
         android:drawableRight="@drawable/selector_cb_btn"
-        android:text="Locked ADV function"
+        android:text="Lock Event Occurs ADV Duration"
         android:textColor="@color/black_333333"
         android:textSize="15sp"
         app:layout_constraintTop_toBottomOf="@+id/sbHum" />
-
-    <EditText
-        android:id="@+id/etLockDuration"
-        android:layout_width="120dp"
-        android:layout_height="45dp"
-        android:layout_marginRight="12dp"
-        android:background="@drawable/shape_radius_stroke_white_bg"
-        android:gravity="center_vertical"
-        android:hint="1~65535"
-        android:inputType="number"
-        android:maxLength="5"
-        android:paddingStart="5dp"
-        android:textColor="@color/black_333333"
-        android:textSize="15sp"
-        app:layout_constraintRight_toLeftOf="@+id/tvUnit"
-        app:layout_constraintTop_toBottomOf="@id/cbLockAdv" />
-
-    <TextView
-        android:id="@+id/tvLockAdv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Locked ADV duration"
-        android:textColor="@color/black_333333"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="@+id/etLockDuration"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/etLockDuration" />
-
-    <TextView
-        android:id="@+id/tvUnit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="s"
-        android:textColor="@color/black_333333"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="@+id/etLockDuration"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/etLockDuration" />
 
     <TextView
         android:id="@+id/tvTips"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:lineSpacingMultiplier="1.1"
-        android:text="*Lock ADV duration: If the device quickly returns to a state that does not meet the trigger conditions after initially satisfying them, it may only broadcast for a short period. The lock broadcast duration feature ensures that, in such cases, the device broadcasts for the set lock broadcast duration. This feature's parameter must be set to a value less than the post-trigger broadcast duration."
+        android:text="*Lock Event Occurs ADV Duration: If the device quickly returns to a state where the triggering condition is no longer met after initially satisfying the triggering condition, it can only broadcast for a short duration, or might not broadcast at all. The Locked ADV function ensures that, in such cases, the set post-trigger broadcast duration is fully executed, regardless of changes in the triggering condition.\n\nNote: If the Event Occurs Total adv duration is set to 0, the Lock post -trigger adv duration will default to a locked broadcast of 5 seconds."
         android:textColor="#ff561f"
         android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@+id/etLockDuration" />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="tvLockAdv,etLockDuration,tvUnit,tvTips" />
+        tools:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@+id/cbLockAdv" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

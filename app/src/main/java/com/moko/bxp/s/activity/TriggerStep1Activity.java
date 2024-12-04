@@ -62,7 +62,7 @@ public class TriggerStep1Activity extends BaseActivity {
 //    private final String[] triggerTypeArray = {"Temperature detection", "Humidity detection", "Motion detection", "Magnetic detection"};
     private final String[] tempTriggerEventArray = {"Temperature above threshold", "Temperature below threshold"};
     private final String[] humTriggerEventArray = {"Humidity above threshold", "Humidity below threshold"};
-    private final String[] motionTriggerEventArray = {"Device start moving", "Device remains stationary"};
+    private final String[] motionTriggerEventArray = {"Device start moving", "Device keep static"};
     private final String[] hallTriggerEventArray = {"Door close", "Door open"};
     public int hallTriggerSelect;
     public int triggerCondition;
@@ -131,7 +131,7 @@ public class TriggerStep1Activity extends BaseActivity {
     }
 
     private int getIndexByTriggerType() {
-        switch (triggerType){
+        switch (triggerType) {
             case TEMP_TRIGGER:
                 for (int i = 0; i < triggerList.size(); i++) {
                     if (TEMPERATURE_DETECTION.equals(triggerList.get(i))) return i;
@@ -226,13 +226,14 @@ public class TriggerStep1Activity extends BaseActivity {
             if (null != triggerEvent && triggerType == rawTriggerType) {
                 motionTriggerSelect = triggerEvent.triggerCondition == MOTION_TRIGGER_MOTION ? 0 : 1;
                 triggerCondition = triggerEvent.triggerCondition;
-                motionTriggerFragment.setValue(triggerEvent.staticPeriod, triggerEvent.lockAdvDuration);
+                motionTriggerFragment.setValue(triggerEvent.staticPeriod);
             } else {
                 motionTriggerSelect = 0;
                 triggerCondition = MOTION_TRIGGER_MOTION;
-                motionTriggerFragment.setValue(0, 0);
+                motionTriggerFragment.setValue(0);
             }
             mBind.tvTriggerEvent.setText(motionTriggerEventArray[motionTriggerSelect]);
+            motionTriggerFragment.setIsStartMove(motionTriggerSelect == 0);
         } else if (triggerType == HALL_TRIGGER) {
             //霍尔触发
             if (null != triggerEvent && triggerType == rawTriggerType) {
@@ -296,6 +297,7 @@ public class TriggerStep1Activity extends BaseActivity {
         } else if (triggerType == MOTION_TRIGGER) {
             motionTriggerSelect = value;
             triggerCondition = value == 0 ? MOTION_TRIGGER_MOTION : MOTION_TRIGGER_STATIONARY;
+            motionTriggerFragment.setIsStartMove(value == 0);
         } else if (triggerType == HALL_TRIGGER) {
             hallTriggerSelect = value;
             triggerCondition = value == 0 ? HALL_TRIGGER_AWAY : HALL_TRIGGER_NEAR;
@@ -312,39 +314,20 @@ public class TriggerStep1Activity extends BaseActivity {
         bean.slot = slot;
         if (triggerType == TEMP_TRIGGER) {
             //温度
-            if (temperatureTriggerFragment.isValid()) {
-                bean.tempThreshold = temperatureTriggerFragment.getTempThreshold();
-                bean.lockedAdvDuration = temperatureTriggerFragment.getLockedDuration();
-            } else {
-                ToastUtils.showToast(this, "Data format incorrect!");
-                return;
-            }
+            bean.tempThreshold = temperatureTriggerFragment.getTempThreshold();
         } else if (triggerType == HUM_TRIGGER) {
             //湿度
-            if (humidityTriggerFragment.isValid()) {
-                bean.humThreshold = humidityTriggerFragment.getHumThreshold();
-                bean.lockedAdvDuration = humidityTriggerFragment.getLockedDuration();
-            } else {
-                ToastUtils.showToast(this, "Data format incorrect!");
-                return;
-            }
+            bean.humThreshold = humidityTriggerFragment.getHumThreshold();
         } else if (triggerType == MOTION_TRIGGER) {
             //三轴
             if (motionTriggerFragment.isValid()) {
                 bean.axisStaticPeriod = motionTriggerFragment.getPeriod();
-                bean.lockedAdvDuration = motionTriggerFragment.getLockedDuration();
             } else {
                 ToastUtils.showToast(this, "Data format incorrect!");
                 return;
             }
         } else if (triggerType == HALL_TRIGGER) {
             //霍尔
-            if (hallTriggerFragment.isValid()) {
-                bean.lockedAdvDuration = hallTriggerFragment.getLockedDuration();
-            } else {
-                ToastUtils.showToast(this, "Data format incorrect!");
-                return;
-            }
         }
         Intent intent = new Intent(this, TriggerStep2Activity.class);
         intent.putExtra("step1", bean);

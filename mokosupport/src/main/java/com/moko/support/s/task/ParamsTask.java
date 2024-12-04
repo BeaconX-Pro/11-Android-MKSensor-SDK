@@ -35,19 +35,11 @@ public class ParamsTask extends OrderTask {
     }
 
     public void getData(ParamsKeyEnum key) {
-        createGetParamsData(key.getParamsKey());
+        response.responseValue = data = new byte[]{(byte) 0xEA, (byte) 0x00, (byte) key.getParamsKey(), (byte) 0x00};
     }
 
     public void setData(ParamsKeyEnum key) {
-        createSetParamsData(key.getParamsKey());
-    }
-
-    private void createGetParamsData(int paramsKey) {
-        data = new byte[]{(byte) 0xEA, (byte) 0x00, (byte) paramsKey, (byte) 0x00};
-    }
-
-    private void createSetParamsData(int paramsKey) {
-        data = new byte[]{(byte) 0xEA, (byte) 0x01, (byte) paramsKey, (byte) 0x00};
+        response.responseValue = data = new byte[]{(byte) 0xEA, (byte) 0x01, (byte) key.getParamsKey(), (byte) 0x00};
     }
 
     public void getTriggerBeforeSlotParams(@IntRange(from = 0, to = 5) int slot) {
@@ -143,13 +135,13 @@ public class ParamsTask extends OrderTask {
         };
     }
 
-    public void setBatteryPercent(int percent) {
+    public void resetBatteryPercent() {
         response.responseValue = data = new byte[]{
                 (byte) 0xEA,
                 (byte) 0x01,
                 (byte) ParamsKeyEnum.KEY_BATTERY_PERCENT.getParamsKey(),
                 (byte) 0x01,
-                (byte) percent
+                (byte) 0x01
         };
     }
 
@@ -208,7 +200,7 @@ public class ParamsTask extends OrderTask {
 
     //设置远程控制led
     public void setLedRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
-                                     @IntRange(from = 1, to = 600) int time) {
+                                     @IntRange(from = 10, to = 6000) int time) {
         byte[] bytesInterval = MokoUtils.toByteArray(interval, 2);
         byte[] bytesTime = MokoUtils.toByteArray(time, 2);
         response.responseValue = data = new byte[]{
@@ -225,7 +217,7 @@ public class ParamsTask extends OrderTask {
     }
 
     public void setBuzzerRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
-                                     @IntRange(from = 1, to = 600) int time) {
+                                        @IntRange(from = 10, to = 6000) int time) {
         byte[] bytesInterval = MokoUtils.toByteArray(interval, 2);
         byte[] bytesTime = MokoUtils.toByteArray(time, 2);
         response.responseValue = data = new byte[]{
@@ -379,7 +371,7 @@ public class ParamsTask extends OrderTask {
     public void setAxisParams(@IntRange(from = 0, to = 4) int rate,
                               @IntRange(from = 0, to = 3) int scale,
                               @IntRange(from = 1, to = 255) int sensitivity) {
-        response.responseValue =data = new byte[]{
+        response.responseValue = data = new byte[]{
                 (byte) 0xEA,
                 (byte) 0x01,
                 (byte) ParamsKeyEnum.KEY_AXIS_PARAMS.getParamsKey(),
@@ -387,6 +379,18 @@ public class ParamsTask extends OrderTask {
                 (byte) rate,
                 (byte) scale,
                 (byte) sensitivity
+        };
+    }
+
+    public void setBuzzerFrequency(int frequency) {
+        byte[] bytes = MokoUtils.toByteArray(frequency, 2);
+        response.responseValue = data = new byte[]{
+                (byte) 0xEA,
+                (byte) 0x01,
+                (byte) ParamsKeyEnum.KEY_BUZZER_FREQUENCY.getParamsKey(),
+                (byte) 0x02,
+                bytes[0],
+                bytes[1]
         };
     }
 }

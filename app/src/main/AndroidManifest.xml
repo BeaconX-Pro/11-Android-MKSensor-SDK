@@ -56,7 +56,18 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".activity.ExportTHDataActivity"
-            android:screenOrientation="portrait" />
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SENDTO" />
+                <data android:scheme="mailto" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".activity.TriggerStep2Activity"
@@ -74,8 +85,9 @@
             android:name=".activity.DeviceTypeSelectActivity"
             android:screenOrientation="portrait" />
 
-        <activity android:name=".activity.SlotDataActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.SlotDataActivity"
+            android:screenOrientation="portrait" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

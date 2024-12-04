@@ -102,19 +102,19 @@ public class TriggerStep2Activity extends BaseActivity {
     private void createFragments() {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         uidFragment = UidFragment.newInstance();
-        uidFragment.setTriggerAfter(true);
+        uidFragment.setTriggerAfter(true, step1Bean);
         fragmentTransaction.add(R.id.frame_slot_container, uidFragment);
         urlFragment = UrlFragment.newInstance();
-        urlFragment.setTriggerAfter(true);
+        urlFragment.setTriggerAfter(true, step1Bean);
         fragmentTransaction.add(R.id.frame_slot_container, urlFragment);
         tlmFragment = TlmFragment.newInstance();
-        tlmFragment.setTriggerAfter(true);
+        tlmFragment.setTriggerAfter(true, step1Bean);
         fragmentTransaction.add(R.id.frame_slot_container, tlmFragment);
         iBeaconFragment = IBeaconFragment.newInstance();
-        iBeaconFragment.setTriggerAfter(true);
+        iBeaconFragment.setTriggerAfter(true, step1Bean);
         fragmentTransaction.add(R.id.frame_slot_container, iBeaconFragment);
         sensorInfoFragment = SensorInfoFragment.newInstance();
-        sensorInfoFragment.setTriggerAfter(true);
+        sensorInfoFragment.setTriggerAfter(true, step1Bean);
         fragmentTransaction.add(R.id.frame_slot_container, sensorInfoFragment);
         fragmentTransaction.commit();
     }

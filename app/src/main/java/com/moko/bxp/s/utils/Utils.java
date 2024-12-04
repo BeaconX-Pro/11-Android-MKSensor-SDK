@@ -58,9 +58,9 @@ public class Utils {
                 uri = IOUtils.insertDownloadFile(context, files[0]);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 if (BuildConfig.IS_LIBRARY) {
-                    uri = FileProvider.getUriForFile(context, "com.moko.bxp.button.fileprovider", files[0]);
+                    uri = FileProvider.getUriForFile(context, "com.moko.bxp.fileprovider", files[0]);
                 } else {
-                    uri = FileProvider.getUriForFile(context, "com.moko.bxp.button.d.fileprovider", files[0]);
+                    uri = FileProvider.getUriForFile(context, "com.moko.bxp.s.fileprovider", files[0]);
                 }
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             } else {
@@ -70,25 +70,32 @@ public class Utils {
             intent.putExtra(Intent.EXTRA_TEXT, body);
         } else {
             ArrayList<Uri> uris = new ArrayList<>();
+            ArrayList<CharSequence> charSequences = new ArrayList<>();
             for (int i = 0; i < files.length; i++) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     Uri fileUri = IOUtils.insertDownloadFile(context, files[i]);
                     uris.add(fileUri);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    Uri uri;
+                    if (BuildConfig.IS_LIBRARY) {
+                        uri = FileProvider.getUriForFile(context, "com.moko.bxp.fileprovider", files[i]);
+                    } else {
+                        uri = FileProvider.getUriForFile(context, "com.moko.bxp.s.fileprovider", files[i]);
+                    }
+                    uris.add(uri);
                 } else {
                     uris.add(Uri.fromFile(files[i]));
                 }
+                charSequences.add(body);
             }
             intent = new Intent(Intent.ACTION_SEND_MULTIPLE);
             intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-            ArrayList<CharSequence> charSequences = new ArrayList<>();
-            charSequences.add(body);
             intent.putExtra(Intent.EXTRA_TEXT, charSequences);
         }
         String[] addresses = {address};
         intent.putExtra(Intent.EXTRA_EMAIL, addresses);
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
         intent.setType("message/rfc822");
-        Intent.createChooser(intent, tips);
         if (intent.resolveActivity(context.getPackageManager()) != null) {
             context.startActivity(intent);
         }
