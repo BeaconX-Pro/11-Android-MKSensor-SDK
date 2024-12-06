@@ -7,7 +7,6 @@ import static com.moko.support.s.entity.SlotAdvType.NO_DATA;
 
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +28,6 @@ import com.moko.support.s.entity.TxPowerEnum;
 import java.util.Objects;
 
 public class TlmFragment extends BaseFragment<FragmentTlmBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
-    private static final String TAG = "TlmFragment";
     private boolean isLowPowerMode;
     private SlotData slotData;
     private int mTxPower;
@@ -46,8 +44,7 @@ public class TlmFragment extends BaseFragment<FragmentTlmBinding> implements See
 
     @Override
     protected void onCreateView() {
-        Log.i(TAG, "onCreateView: ");
-        if (isTriggerAfter) {
+        if (isTriggerAfter && null != step1Bean) {
             mBind.layoutLowPower.setVisibility(View.GONE);
             mBind.layoutStandDuration.setVisibility(View.GONE);
             mBind.advDuration.setText("Total adv duration");
@@ -59,7 +56,7 @@ public class TlmFragment extends BaseFragment<FragmentTlmBinding> implements See
                 maxAdvDuration = 65535;
             }
         } else {
-            if (step1Bean.triggerType == MOTION_TRIGGER && step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY) {
+            if (null != step1Bean && step1Bean.triggerType == MOTION_TRIGGER && step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY) {
                 //不支持设置lowPowerMode功能
                 isLowPowerMode = false;
                 mBind.ivLowPowerMode.setEnabled(false);
@@ -202,9 +199,11 @@ public class TlmFragment extends BaseFragment<FragmentTlmBinding> implements See
     @Override
     public void setParams(@NonNull SlotData slotData) {
         this.slotData = slotData;
-        if (slotData.currentFrameType == NO_DATA) return;
+//        if (slotData.currentFrameType == NO_DATA) return;
+        if (slotData.step1TriggerType != MOTION_TRIGGER || slotData.realType != NO_DATA){
+            mBind.etAdvDuration.setText(String.valueOf(slotData.advDuration));
+        }
         mBind.etAdvInterval.setText(String.valueOf(slotData.advInterval / 100));
-        mBind.etAdvDuration.setText(String.valueOf(slotData.advDuration));
         if (!isTriggerAfter) {
             if (slotData.standbyDuration > 0) {
                 mBind.etStandbyDuration.setText(String.valueOf(slotData.standbyDuration));

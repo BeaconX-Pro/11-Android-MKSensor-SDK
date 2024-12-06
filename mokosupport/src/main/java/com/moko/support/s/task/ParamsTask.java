@@ -66,13 +66,13 @@ public class ParamsTask extends OrderTask {
         int length = 0;
         byte[] bytes = getAdvBytes(afterBean);
         if (null != bytes) length = bytes.length;
-        byte[] intervalBytes = MokoUtils.toByteArray(afterBean.advInterval, 2);
+        byte[] intervalBytes = MokoUtils.toByteArray(afterBean.advInterval * 100, 2);
         byte[] durationBytes = MokoUtils.toByteArray(afterBean.advDuration, 2);
-        data = new byte[4 + length];
+        data = new byte[12 + length];
         data[0] = (byte) 0xEA;
         data[1] = (byte) 0x01;
         data[2] = (byte) ParamsKeyEnum.KEY_SLOT_PARAMS_AFTER.getParamsKey();
-        data[3] = (byte) length;
+        data[3] = (byte) (length + 8);
         data[4] = (byte) afterBean.slot;
         data[5] = intervalBytes[0];
         data[6] = intervalBytes[1];
@@ -91,14 +91,14 @@ public class ParamsTask extends OrderTask {
         int length = 0;
         byte[] bytes = getAdvBytes(beforeBean);
         if (null != bytes) length = bytes.length;
-        byte[] intervalBytes = MokoUtils.toByteArray(beforeBean.advInterval, 2);
+        byte[] intervalBytes = MokoUtils.toByteArray(beforeBean.advInterval * 100, 2);
         byte[] durationBytes = MokoUtils.toByteArray(beforeBean.advDuration, 2);
         byte[] standbyDurationBytes = MokoUtils.toByteArray(beforeBean.standbyDuration, 2);
-        data = new byte[4 + length];
+        data = new byte[14 + length];
         data[0] = (byte) 0xEA;
         data[1] = (byte) 0x01;
         data[2] = (byte) ParamsKeyEnum.KEY_SLOT_PARAMS_BEFORE.getParamsKey();
-        data[3] = (byte) length;
+        data[3] = (byte) (length + 10);
         data[4] = (byte) beforeBean.slot;
         data[5] = intervalBytes[0];
         data[6] = intervalBytes[1];
@@ -253,21 +253,19 @@ public class ParamsTask extends OrderTask {
             triggerThreshold = 0;
         }
         byte[] triggerThresholdBytes = MokoUtils.toByteArray(triggerThreshold, 2);
-        byte[] lockedAdvDurationBytes = MokoUtils.toByteArray(triggerBean.lockedAdvDuration, 2);
         int staticDuration = triggerBean.triggerType == MOTION_TRIGGER ? triggerBean.axisStaticPeriod : 0;
         byte[] staticDurationBytes = MokoUtils.toByteArray(staticDuration, 2);
         response.responseValue = data = new byte[]{
                 (byte) 0xEA,
                 (byte) 0x01,
                 (byte) ParamsKeyEnum.KEY_SLOT_TRIGGER_TYPE.getParamsKey(),
-                (byte) 0x09,
+                (byte) 0x08,
                 (byte) triggerBean.slot,
                 (byte) triggerBean.triggerType,
                 (byte) triggerBean.triggerCondition,
                 triggerThresholdBytes[0],
                 triggerThresholdBytes[1],
-                lockedAdvDurationBytes[0],
-                lockedAdvDurationBytes[1],
+                (byte) (triggerBean.lockedAdv ? 1 : 0),
                 staticDurationBytes[0],
                 staticDurationBytes[1]
         };
@@ -307,14 +305,14 @@ public class ParamsTask extends OrderTask {
         int length = 0;
         byte[] bytes = getAdvBytes(slotData);
         if (null != bytes) length = bytes.length;
-        byte[] intervalBytes = MokoUtils.toByteArray(slotData.advInterval, 2);
+        byte[] intervalBytes = MokoUtils.toByteArray(slotData.advInterval * 100, 2);
         byte[] durationBytes = MokoUtils.toByteArray(slotData.advDuration, 2);
         byte[] standbyBytes = MokoUtils.toByteArray(slotData.standbyDuration, 2);
-        data = new byte[4 + length];
+        data = new byte[14 + length];
         data[0] = (byte) 0xEA;
         data[1] = (byte) 0x01;
         data[2] = (byte) ParamsKeyEnum.KEY_NORMAL_SLOT_ADV_PARAMS.getParamsKey();
-        data[3] = (byte) length;
+        data[3] = (byte) (length + 10);
         data[4] = (byte) slotData.slot;
         data[5] = intervalBytes[0];
         data[6] = intervalBytes[1];
@@ -326,7 +324,7 @@ public class ParamsTask extends OrderTask {
         data[12] = (byte) slotData.txPower;
         data[13] = (byte) slotData.currentFrameType;
         if (length > 0) {
-            System.arraycopy(bytes, 0, data, 14, bytes.length);
+            System.arraycopy(bytes, 0, data, 14, length);
         }
         response.responseValue = data;
     }

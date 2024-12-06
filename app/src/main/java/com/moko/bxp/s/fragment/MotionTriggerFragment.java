@@ -15,19 +15,36 @@ import com.moko.bxp.s.databinding.FragmentMotionTriggerBinding;
  * @des:
  */
 public class MotionTriggerFragment extends BaseFragment<FragmentMotionTriggerBinding> {
+    private int staticPeriod;
+    private boolean isStartMove;
 
     @Override
     protected FragmentMotionTriggerBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
         return FragmentMotionTriggerBinding.inflate(inflater, container, false);
     }
 
-    public void setValue(int staticPeriod) {
+    @Override
+    protected void onCreateView() {
         if (staticPeriod > 0) {
+            mBind.etStaticPeriod.setText(String.valueOf(staticPeriod));
+        }
+        if (isStartMove) {
+            mBind.tvStaticTip.setText("*Static verify period: the parameter that determines when a stationary event occurs on the device.\n\n* If Trigger event is \"Device start moving\", The duration for determining stillness dictates the broadcast duration after a motion-triggered event. The broadcast duration following a single motion trigger will always be shorter than the stillness determination duration.");
+        } else {
+            mBind.tvStaticTip.setText("*Static verify period: the parameter that determines when a stationary event occurs on the device");
+        }
+    }
+
+    public void setValue(int staticPeriod) {
+        this.staticPeriod = staticPeriod;
+        if (staticPeriod > 0 && null != mBind) {
             mBind.etStaticPeriod.setText(String.valueOf(staticPeriod));
         }
     }
 
     public void setIsStartMove(boolean isStartMove) {
+        this.isStartMove = isStartMove;
+        if (null == mBind) return;
         if (isStartMove) {
             mBind.tvStaticTip.setText("*Static verify period: the parameter that determines when a stationary event occurs on the device.\n\n* If Trigger event is \"Device start moving\", The duration for determining stillness dictates the broadcast duration after a motion-triggered event. The broadcast duration following a single motion trigger will always be shorter than the stillness determination duration.");
         } else {

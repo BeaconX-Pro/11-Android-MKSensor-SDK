@@ -100,25 +100,28 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
             // 蓝牙未打开，开启蓝牙
             MokoSupport.getInstance().enableBluetooth();
         }
+        getSlotData();
+    }
+
+    private void getSlotData(){
         showSyncingProgressDialog();
         List<OrderTask> orderTasks = new ArrayList<>(4);
-        orderTasks.add(OrderTaskAssembler.getAllSlotAdvType());
         orderTasks.add(OrderTaskAssembler.getSensorType());
         orderTasks.add(OrderTaskAssembler.getButtonTurnOffEnable());
         orderTasks.add(OrderTaskAssembler.getResetByButtonEnable());
+        orderTasks.add(OrderTaskAssembler.getAllSlotAdvType());
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+    }
+
+    public void getSlotType(){
+        showSyncingProgressDialog();
+        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getAllSlotAdvType());
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        showSyncingProgressDialog();
-        List<OrderTask> orderTasks = new ArrayList<>(4);
-        orderTasks.add(OrderTaskAssembler.getAllSlotAdvType());
-        orderTasks.add(OrderTaskAssembler.getSensorType());
-        orderTasks.add(OrderTaskAssembler.getButtonTurnOffEnable());
-        orderTasks.add(OrderTaskAssembler.getResetByButtonEnable());
-        MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+        getSlotData();
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 100)
@@ -486,6 +489,8 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         if (firmwareFile.exists()) {
             final DfuServiceInitiator starter = new DfuServiceInitiator(mDeviceMac)
                     .setKeepBond(false)
+                    .setForeground(false)
+                    .disableMtuRequest()
                     .setDisableNotification(true);
             starter.setZip(null, firmwareFilePath);
             starter.start(this, DfuService.class);

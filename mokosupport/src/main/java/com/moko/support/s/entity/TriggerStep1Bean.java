@@ -14,8 +14,8 @@ public class TriggerStep1Bean implements Parcelable {
     public int axisStaticPeriod;
     public int tempThreshold;
     public int humThreshold;
-    public int lockedAdvDuration;
     public int slot;
+    public boolean lockedAdv;
 
     @Override
     public int describeContents() {
@@ -29,8 +29,8 @@ public class TriggerStep1Bean implements Parcelable {
         dest.writeInt(this.axisStaticPeriod);
         dest.writeInt(this.tempThreshold);
         dest.writeInt(this.humThreshold);
-        dest.writeInt(this.lockedAdvDuration);
         dest.writeInt(this.slot);
+        dest.writeByte(this.lockedAdv ? (byte) 1 : (byte) 0);
     }
 
     public void readFromParcel(Parcel source) {
@@ -39,8 +39,8 @@ public class TriggerStep1Bean implements Parcelable {
         this.axisStaticPeriod = source.readInt();
         this.tempThreshold = source.readInt();
         this.humThreshold = source.readInt();
-        this.lockedAdvDuration = source.readInt();
         this.slot = source.readInt();
+        this.lockedAdv = source.readByte() != 0;
     }
 
     public TriggerStep1Bean() {
@@ -52,8 +52,8 @@ public class TriggerStep1Bean implements Parcelable {
         this.axisStaticPeriod = in.readInt();
         this.tempThreshold = in.readInt();
         this.humThreshold = in.readInt();
-        this.lockedAdvDuration = in.readInt();
         this.slot = in.readInt();
+        this.lockedAdv = in.readByte() != 0;
     }
 
     public static final Creator<TriggerStep1Bean> CREATOR = new Creator<TriggerStep1Bean>() {

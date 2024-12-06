@@ -15,8 +15,11 @@ import com.moko.bxp.s.databinding.FragmentHallTriggerBinding;
  * @des:
  */
 public class HallTriggerFragment extends BaseFragment<FragmentHallTriggerBinding> {
+    private int lockedAdvDuration = -1;
+
     @Override
     protected void onCreateView() {
+        if (lockedAdvDuration != -1) mBind.cbLockAdv.setChecked(lockedAdvDuration == 1);
         mBind.cbLockAdv.setOnCheckedChangeListener((buttonView, isChecked) -> mBind.tvTips.setVisibility(isChecked ? View.VISIBLE : View.GONE));
     }
 
@@ -26,6 +29,11 @@ public class HallTriggerFragment extends BaseFragment<FragmentHallTriggerBinding
     }
 
     public void setValue(int lockedAdvDuration) {
-        mBind.cbLockAdv.setChecked(lockedAdvDuration == 1);
+        this.lockedAdvDuration = lockedAdvDuration;
+        if (null != mBind) mBind.cbLockAdv.setChecked(lockedAdvDuration == 1);
+    }
+
+    public boolean lockedAdv(){
+        return mBind.cbLockAdv.isChecked();
     }
 }

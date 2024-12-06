@@ -16,8 +16,14 @@ import com.moko.bxp.s.databinding.FragmentTemperatureTriggerBinding;
  * @des:
  */
 public class TemperatureTriggerFragment extends BaseFragment<FragmentTemperatureTriggerBinding> implements SeekBar.OnSeekBarChangeListener {
+    private int threshold;
+    private int lockedAdvDuration;
+
     @Override
     protected void onCreateView() {
+        mBind.tvTempValue.setText(threshold + "℃");
+        mBind.sbTemp.setProgress(threshold + 64);
+        mBind.cbLockAdv.setChecked(lockedAdvDuration == 1);
         mBind.sbTemp.setOnSeekBarChangeListener(this);
         mBind.cbLockAdv.setOnCheckedChangeListener((buttonView, isChecked) -> mBind.tvTips.setVisibility(isChecked ? View.VISIBLE : View.GONE));
     }
@@ -28,6 +34,9 @@ public class TemperatureTriggerFragment extends BaseFragment<FragmentTemperature
     }
 
     public void setValues(int threshold, int lockedAdvDuration) {
+        this.threshold = threshold;
+        this.lockedAdvDuration = lockedAdvDuration;
+        if (null == mBind) return;
         mBind.tvTempValue.setText(threshold + "℃");
         mBind.sbTemp.setProgress(threshold + 64);
         mBind.cbLockAdv.setChecked(lockedAdvDuration == 1);
@@ -35,6 +44,10 @@ public class TemperatureTriggerFragment extends BaseFragment<FragmentTemperature
 
     public int getTempThreshold() {
         return mBind.sbTemp.getProgress() - 64;
+    }
+
+    public boolean lockedAdv(){
+        return mBind.cbLockAdv.isChecked();
     }
 
     @Override

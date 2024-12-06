@@ -5,14 +5,20 @@ import static com.moko.support.s.entity.SlotAdvType.SLOT1;
 import static com.moko.support.s.entity.SlotAdvType.SLOT2;
 import static com.moko.support.s.entity.SlotAdvType.SLOT3;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.AppConstants;
+import com.moko.bxp.s.activity.DeviceInfoActivity;
 import com.moko.bxp.s.activity.SlotDataActivity;
 import com.moko.bxp.s.activity.TriggerStep1Activity;
 import com.moko.bxp.s.databinding.FragmentSlotBinding;
@@ -24,8 +30,8 @@ public class SlotFragment extends BaseFragment<FragmentSlotBinding> {
     private TriggerEvent slot1TriggerEvent;
     private TriggerEvent slot2TriggerEvent;
     private TriggerEvent slot3TriggerEvent;
-    private boolean isHallPowerEnable;
     private boolean isButtonPowerEnable;
+    private boolean isButtonReset;
     private int accStatus;
     private int thStatus;
 
@@ -78,7 +84,7 @@ public class SlotFragment extends BaseFragment<FragmentSlotBinding> {
 
     private void toTriggerActivity(int slot, TriggerEvent triggerEvent) {
         //先判断是否有传感器
-        if (accStatus == 0 && thStatus == 0 && (isHallPowerEnable || isButtonPowerEnable)) {
+        if (accStatus == 0 && thStatus == 0 && (isButtonReset || isButtonPowerEnable)) {
             ToastUtils.showToast(requireContext(), "当前没有传感器");
             return;
         }
@@ -87,7 +93,7 @@ public class SlotFragment extends BaseFragment<FragmentSlotBinding> {
         intent.putExtra(AppConstants.EXTRA_KEY1, triggerEvent);
         intent.putExtra(AppConstants.EXTRA_KEY2, accStatus);
         intent.putExtra(AppConstants.EXTRA_KEY3, thStatus);
-        intent.putExtra(AppConstants.EXTRA_KEY4, isHallPowerEnable);
+        intent.putExtra(AppConstants.EXTRA_KEY4, isButtonReset);
         intent.putExtra(AppConstants.EXTRA_KEY5, isButtonPowerEnable);
         startActivity(intent);
     }
@@ -95,8 +101,22 @@ public class SlotFragment extends BaseFragment<FragmentSlotBinding> {
     private void toSlotDataActivity(int slot) {
         Intent intent = new Intent(getActivity(), SlotDataActivity.class);
         intent.putExtra(AppConstants.SLOT, slot);
-        startActivity(intent);
+        intent.putExtra(AppConstants.EXTRA_KEY2, accStatus);
+        intent.putExtra(AppConstants.EXTRA_KEY3, thStatus);
+        intent.putExtra(AppConstants.EXTRA_KEY4, isButtonReset);
+        intent.putExtra(AppConstants.EXTRA_KEY5, isButtonPowerEnable);
+        launcher.launch(intent);
     }
+
+    private final ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (null == result) return;
+        if (result.getResultCode() == Activity.RESULT_OK) {
+            DeviceInfoActivity activity = (DeviceInfoActivity) requireActivity();
+            if (!activity.isFinishing()) {
+                activity.getSlotType();
+            }
+        }
+    });
 
     public void setSlotType(byte[] bytes) {
         mBind.tvSlot1.setText(SlotAdvType.getSlotAdvType(bytes[0] & 0xff));
@@ -110,10 +130,10 @@ public class SlotFragment extends BaseFragment<FragmentSlotBinding> {
         else if (slot == SLOT3) slot3TriggerEvent = event;
     }
 
-    public void setDeviceTypeValue(int accStatus, int thStatus, boolean isHallPowerEnable, boolean isButtonPowerEnable) {
+    public void setDeviceTypeValue(int accStatus, int thStatus, boolean isButtonPowerEnable, boolean isButtonReset) {
         this.accStatus = accStatus;
         this.thStatus = thStatus;
-        this.isHallPowerEnable = isHallPowerEnable;
         this.isButtonPowerEnable = isButtonPowerEnable;
+        this.isButtonReset = isButtonReset;
     }
 }

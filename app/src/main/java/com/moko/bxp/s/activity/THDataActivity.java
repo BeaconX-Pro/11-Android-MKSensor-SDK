@@ -45,6 +45,7 @@ public class THDataActivity extends BaseActivity {
     private int samplingInterval;
     private int storageInterval;
     private String deviceMac;
+    private boolean hasSynTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +142,10 @@ public class THDataActivity extends BaseActivity {
                                         int time = MokoUtils.toInt(Arrays.copyOfRange(value, 4, 4 + length));
                                         mBind.tvUpdateDate.setText(sdf.format(time * 1000L));
                                     }
-                                    MokoSupport.getInstance().enableTHNotify();
+                                    if (!hasSynTime) {
+                                        hasSynTime = true;
+                                        MokoSupport.getInstance().enableTHNotify();
+                                    }
                                     break;
 
                                 case KEY_DEVICE_MAC:
@@ -294,9 +298,11 @@ public class THDataActivity extends BaseActivity {
         }
         showSyncingProgressDialog();
         isParamsError = false;
-        ArrayList<OrderTask> orderTasks = new ArrayList<>(2);
+        ArrayList<OrderTask> orderTasks = new ArrayList<>(4);
         orderTasks.add(OrderTaskAssembler.setTHSampleInterval(period));
         orderTasks.add(OrderTaskAssembler.setTHStore(isTHStoreEnable ? 1 : 0, interval));
+        orderTasks.add(OrderTaskAssembler.getTHSampleInterval());
+        orderTasks.add(OrderTaskAssembler.getTHStore());
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
     }
 }

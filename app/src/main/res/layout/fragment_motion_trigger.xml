@@ -30,7 +30,7 @@
             android:layout_height="45dp"
             android:background="@drawable/shape_radius_stroke_white_bg"
             android:layout_marginRight="10dp"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:paddingStart="5dp"
             android:hint="1~65535"
             android:inputType="number"

@@ -60,7 +60,7 @@ public class ExcelHelper {
         }
         wwb = Workbook.createWorkbook(file);//创建表
         WritableSheet ws1 = wwb.createSheet("Logger Data Records", 0);//表名 页数
-        WritableSheet ws2 = wwb.createSheet("Logger Summery", 1);//表名 页数
+        WritableSheet ws2 = wwb.createSheet("Logger Summary", 1);//表名 页数
         Label lbl0 = new Label(0, 0, TIME);
         Label lbl1 = new Label(1, 0, "℃/℉");
         Label lbl2 = new Label(2, 0, "%RH");

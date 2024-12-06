@@ -1,6 +1,7 @@
 package com.moko.bxp.s.activity;
 
 import static com.moko.support.s.entity.SlotAdvType.I_BEACON;
+import static com.moko.support.s.entity.SlotAdvType.NO_DATA;
 import static com.moko.support.s.entity.SlotAdvType.SENSOR_INFO;
 import static com.moko.support.s.entity.SlotAdvType.TLM;
 import static com.moko.support.s.entity.SlotAdvType.UID;
@@ -23,6 +24,7 @@ import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
+import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep2Binding;
@@ -60,7 +62,6 @@ public class TriggerStep2Activity extends BaseActivity {
     private int rawFrameType;
     private int currentIndex;
     private TriggerStep1Bean step1Bean;
-
     private FragmentManager fragmentManager;
     private UidFragment uidFragment;
     private UrlFragment urlFragment;
@@ -82,7 +83,7 @@ public class TriggerStep2Activity extends BaseActivity {
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mReceiver, filter);
         mReceiverTag = true;
-        slot = getIntent().getIntExtra("slot", 0);
+        slot = getIntent().getIntExtra(AppConstants.SLOT, 0);
         step1Bean = getIntent().getParcelableExtra("step1");
         fragmentManager = getSupportFragmentManager();
         createFragments();
@@ -139,6 +140,7 @@ public class TriggerStep2Activity extends BaseActivity {
                 slotDataActionImpl = iBeaconFragment;
                 break;
             case SENSOR_INFO:
+            case NO_DATA:
                 fragmentTransaction.hide(uidFragment).hide(urlFragment).hide(tlmFragment).hide(iBeaconFragment).show(sensorInfoFragment).commit();
                 slotDataActionImpl = sensorInfoFragment;
                 break;
@@ -160,6 +162,7 @@ public class TriggerStep2Activity extends BaseActivity {
                     } else {
                         SlotData slotData = new SlotData();
                         slotData.slot = this.slot;
+                        slotData.step1TriggerType = step1Bean.triggerType;
                         slotData.currentFrameType = currentFrameType;
                         slotDataActionImpl.setParams(slotData);
                     }
@@ -174,12 +177,13 @@ public class TriggerStep2Activity extends BaseActivity {
                 Intent intent = new Intent(this, TriggerStep3Activity.class);
                 intent.putExtra("step1", step1Bean);
                 intent.putExtra("step2", slotData);
-                intent.putExtra("slot", slot);
+                intent.putExtra(AppConstants.SLOT, slot);
                 startActivity(intent);
                 EventBus.getDefault().unregister(this);
                 finish();
             }
         });
+        mBind.tvBack.setOnClickListener(v -> finish());
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
@@ -272,6 +276,10 @@ public class TriggerStep2Activity extends BaseActivity {
 
     private void setSlotAdvParams(@NonNull byte[] value) {
         rawFrameType = currentFrameType = value[7] & 0xff;
+        int type = value[7] & 0xff;
+        if (currentFrameType == NO_DATA) {
+            rawFrameType = currentFrameType = SENSOR_INFO;
+        }
         int index = currentIndex = getSlotIndex(rawFrameType);
         mBind.tvFrameType.setText(frameTypeArray[index]);
         showFragment();
@@ -281,18 +289,20 @@ public class TriggerStep2Activity extends BaseActivity {
         slotData.rssi = value[5];
         slotData.txPower = value[6];
         slotData.currentFrameType = currentFrameType;
+        slotData.step1TriggerType = step1Bean.triggerType;
+        slotData.realType = type;
         slotData.slot = this.slot;
-        if (currentFrameType == UID) {
+        if (type == UID) {
             slotData.namespace = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 8, 18));
             slotData.instanceId = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 18, 24));
-        } else if (currentFrameType == URL) {
+        } else if (type == URL) {
             slotData.urlScheme = value[8] & 0xff;
             slotData.urlContent = new String(Arrays.copyOfRange(value, 9, value.length));
-        } else if (currentFrameType == I_BEACON) {
+        } else if (type == I_BEACON) {
             slotData.uuid = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 8, 24));
             slotData.major = MokoUtils.toInt(Arrays.copyOfRange(value, 24, 26));
             slotData.minor = MokoUtils.toInt(Arrays.copyOfRange(value, 26, 28));
-        } else if (currentFrameType == SENSOR_INFO) {
+        } else if (type == SENSOR_INFO) {
             int nameLength = value[8] & 0xff;
             slotData.deviceName = new String(Arrays.copyOfRange(value, 9, 9 + nameLength));
             slotData.tagId = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 10 + nameLength, value.length));

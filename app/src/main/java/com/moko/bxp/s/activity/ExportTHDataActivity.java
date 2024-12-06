@@ -294,7 +294,7 @@ public class ExportTHDataActivity extends BaseActivity {
                                 MokoSupport.getInstance().disableHistoryThNotify();
                                 mBind.tvExport.postDelayed(() -> {
                                     if (null != dialogFragment) dialogFragment.dismiss();
-                                }, 2500);
+                                }, 2000);
                             }
                             if (length > 0) {
                                 byte[] data = Arrays.copyOfRange(value, 8, length + 8);

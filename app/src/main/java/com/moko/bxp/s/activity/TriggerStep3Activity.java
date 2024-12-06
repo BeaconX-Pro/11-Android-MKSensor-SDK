@@ -38,6 +38,7 @@ import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
+import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep3Binding;
@@ -94,7 +95,7 @@ public class TriggerStep3Activity extends BaseActivity {
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mReceiver, filter);
         mReceiverTag = true;
-        slot = getIntent().getIntExtra("slot", 0);
+        slot = getIntent().getIntExtra(AppConstants.SLOT, 0);
         step1Bean = getIntent().getParcelableExtra("step1");
         step2Bean = getIntent().getParcelableExtra("step2");
         assert null != step1Bean && null != step2Bean;
@@ -153,6 +154,10 @@ public class TriggerStep3Activity extends BaseActivity {
             isAdvBeforeTrigger = !isAdvBeforeTrigger;
             mBind.ivAdv.setImageResource(isAdvBeforeTrigger ? R.drawable.ic_checked : R.drawable.ic_unchecked);
             mBind.layoutAdvTrigger.setVisibility(isAdvBeforeTrigger ? View.VISIBLE : View.GONE);
+            if (isAdvBeforeTrigger) {
+                //打开了触发前广播 这时候通道类型强制为触发后的通道保持一致
+                slotDataActionImpl.setParams(slotData);
+            }
         });
         mBind.btnDone.setOnClickListener(v -> {
             //先校验触发前的参数
@@ -165,6 +170,7 @@ public class TriggerStep3Activity extends BaseActivity {
                 sendParams();
             }
         });
+        mBind.tvBack.setOnClickListener(v -> finish());
     }
 
     private void sendParams() {
@@ -252,114 +258,210 @@ public class TriggerStep3Activity extends BaseActivity {
         String tips = "";
         switch (step1Bean.triggerType) {
             case TEMP_TRIGGER:
-                if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration > 0) {
+                if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and stop advertising immediately after device temperature is less than " + step1Bean.tempThreshold + "℃";
-                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration == 0) {
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = " *The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device temperature is more than or equal to " + step1Bean.tempThreshold + "℃.\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before stopping)";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and stop advertising immediately after device temperature is less than " + step1Bean.tempThreshold + "℃";
-                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device temperature is less than " + step1Bean.tempThreshold + "℃, and stop advertising immediately when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃.";
-                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device temperature is less than " + step1Bean.tempThreshold + "℃, and stop advertising immediately when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃.";
-                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0) {
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and stop advertising after device temperature is less than " + step1Bean.tempThreshold + "℃\n" +
+                            "（If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the 5s post-trigger broadcast before stopping）";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃";
-                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃";
-                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0) {
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = " *The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and  keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃";
-                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃";
-                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃";
-                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃";
-                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃";
-                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃\n" +
+                            "（If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state）";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and  keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device temperature is more than or equal to " + step1Bean.tempThreshold + "℃, and  keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is less than " + step1Bean.tempThreshold + "℃\n" +
+                            "（If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state）";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device temperature is less than or equal to " + step1Bean.tempThreshold + "℃, and stop advertising immediately after device temperature is more than " + step1Bean.tempThreshold + "℃";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device temperature is less than or equal to " + step1Bean.tempThreshold + "℃.\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before stopping)";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after device temperature is less than or equal to " + step1Bean.tempThreshold + "℃, and stop advertising immediately after device temperature is more than " + step1Bean.tempThreshold + "℃";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after device temperature is less than or equal to " + step1Bean.tempThreshold + "℃, and stop advertising after device temperature is more than " + step1Bean.tempThreshold + "℃\n" +
+                            "（If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the 5s post-trigger broadcast before stopping）";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device temperature is less than or equal to " + step1Bean.tempThreshold + "℃, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device temperature is more than " + step1Bean.tempThreshold + "℃";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device temperature is less than or equal to " + step1Bean.tempThreshold + "℃, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device temperature is more than " + step1Bean.tempThreshold + "℃\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device temperature is less than or equal to " + step1Bean.tempThreshold + "℃, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is more than " + step1Bean.tempThreshold + "℃";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = " *The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device temperature is less than or equal to " + step1Bean.tempThreshold + "℃, and  keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is more than " + step1Bean.tempThreshold + "℃\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device temperature is less than or equal to " + step1Bean.tempThreshold + "℃, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device temperature is more than " + step1Bean.tempThreshold + "℃";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device temperature is less than or equal to " + step1Bean.tempThreshold + "℃, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device temperature is more than " + step1Bean.tempThreshold + "℃\n" +
+                            "（If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state）";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device temperature is less than or equal to " + step1Bean.tempThreshold + "℃, and  keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is more than " + step1Bean.tempThreshold + "℃";
+                } else if (step1Bean.triggerCondition == TEMP_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device temperature is less than or equal to " + step1Bean.tempThreshold + "℃, and  keep advertising at the interval of " + step3Bean.advInterval + "ms when device temperature is more than " + step1Bean.tempThreshold + "℃\n" +
+                            "（If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state）";
                 }
                 break;
 
             case HUM_TRIGGER:
-                if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device humidity is more than or equal to " + step1Bean.humThreshold + "%, and stop advertising immediately after device humidity is less than " + step1Bean.humThreshold + "%";
-                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising after at the interval of " + step2Bean.advInterval + "ms device humidity is more than or equal to " + step1Bean.humThreshold + "%, and stop advertising immediately after device humidity is less than " + step1Bean.humThreshold + "%";
-                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device humidity is less than " + step1Bean.humThreshold + "%, and stop advertising immediately when device humidity is more than or equal to " + step1Bean.humThreshold + "%";
-                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device humidity is less than " + step1Bean.humThreshold + "%, and stop advertising immediately when device humidity is more than or equal to " + step1Bean.humThreshold + "%";
-                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device humidity is more than or equal to " + step1Bean.humThreshold + "%, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device humidity is less than " + step1Bean.humThreshold + "%";
-                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device humidity is more than or equal to " + step1Bean.humThreshold + "%, and  keep advertising at the interval of " + step3Bean.advInterval + "ms when device humidity is less than " + step1Bean.humThreshold + "%";
-                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device humidity is more than or equal to " + step1Bean.humThreshold + "%, and advertising for " + step2Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device humidity is less than " + step1Bean.humThreshold + "%";
-                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device humidity is more than or equal to " + step1Bean.humThreshold + "%, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device humidity is less than " + step1Bean.humThreshold + "%";
-                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device humidity is less than " + step1Bean.humThreshold + "%, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device humidity is more than or equal to " + step1Bean.humThreshold + "%";
-                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device humidity is less than " + step1Bean.humThreshold + "%, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device humidity is more than or equal to " + step1Bean.humThreshold + "%";
-                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device humidity is less than " + step1Bean.humThreshold + "%, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device humidity is more than or equal to " + step1Bean.humThreshold + "%";
-                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device humidity is less than " + step1Bean.humThreshold + "%, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device humidity more than or equal to " + step1Bean.humThreshold + "%";
+                if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device Humidity is more than or equal to " + step1Bean.humThreshold + "%, and stop advertising immediately after device Humidity is less than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device Humidity is more than or equal to " + step1Bean.humThreshold + "%.\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before stopping)";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device Humidity is more than or equal to " + step1Bean.humThreshold + "%, and stop advertising immediately after device Humidity is less than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device Humidity is more than or equal to " + step1Bean.humThreshold + "%, and stop advertising after device Humidity is less than " + step1Bean.humThreshold + "%\n" +
+                            "（If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the 5s post-trigger broadcast before stopping）";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device Humidity is more than or equal to " + step1Bean.humThreshold + "%, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device Humidity is less than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device Humidity is more than or equal to " + step1Bean.humThreshold + "%, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device Humidity is less than " + step1Bean.humThreshold + "%\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device Humidity is more than or equal to " + step1Bean.humThreshold + "%, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device Humidity is less than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device Humidity is more than or equal to " + step1Bean.humThreshold + "%, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device Humidity is less than " + step1Bean.humThreshold + "%\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device Humidity is more than or equal to " + step1Bean.humThreshold + "%, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device Humidity is less than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device Humidity is more than or equal to " + step1Bean.humThreshold + "%, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device Humidity is less than " + step1Bean.humThreshold + "%\n" +
+                            "（If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state）";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms when device Humidity is more than or equal to " + step1Bean.humThreshold + "%, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when device Humidity is less than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_ABOVE && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms when device Humidity is more than or equal to " + step1Bean.humThreshold + "%, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when device Humidity is less than " + step1Bean.humThreshold + "%\n" +
+                            "（If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state）";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device Humidity is less than or equal to " + step1Bean.humThreshold + "%, and stop advertising immediately after device Humidity is more than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device Humidity is less than or equal to " + step1Bean.humThreshold + "%.\n" +
+                            "    (If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before stopping)";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after device Humidity is less than or equal to " + step1Bean.humThreshold + "%, and stop advertising immediately after device Humidity is more than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after device Humidity is less than or equal to " + step1Bean.humThreshold + "%, and stop advertising after device Humidity is more than " + step1Bean.humThreshold + "%\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the 5s post-trigger broadcast before stopping）";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = " *The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device Humidity is less than or equal to " + step1Bean.humThreshold + "%, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device Humidity is more than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device Humidity is less than or equal to " + step1Bean.humThreshold + "%, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device Humidity is more than " + step1Bean.humThreshold + "%\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device Humidity is less than or equal to " + step1Bean.humThreshold + "%, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when device Humidity is more than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device Humidity is less than or equal to " + step1Bean.humThreshold + "%, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when device Humidity is more than " + step1Bean.humThreshold + "%\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = " *The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms when device Humidity is less than or equal to " + step1Bean.humThreshold + "%, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device Humidity is more than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms when device Humidity is less than or equal to " + step1Bean.humThreshold + "%, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device Humidity is more than " + step1Bean.humThreshold + "%\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state）";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms when device Humidity is less than or equal to " + step1Bean.humThreshold + "%, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when device Humidity is more than " + step1Bean.humThreshold + "%";
+                } else if (step1Bean.triggerCondition == HUM_TRIGGER_BELOW && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device Humidity is less than or equal to " + step1Bean.humThreshold + "%, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when device Humidity is more than " + step1Bean.humThreshold + "%\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state）";
                 }
                 break;
 
             case MOTION_TRIGGER:
-                if (step1Bean.triggerCondition == MOTION_TRIGGER_MOTION && !isAdvBeforeTrigger && step2Bean.advDuration > 0) {
+                if (step1Bean.triggerCondition == MOTION_TRIGGER_MOTION && !isAdvBeforeTrigger) {
                     tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device moves, and stop advertising immediately after device keep stationary for " + step1Bean.axisStaticPeriod + "s";
-                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_MOTION && !isAdvBeforeTrigger && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device moves, and stop advertising immediately after device keep stationary for " + step1Bean.axisStaticPeriod + "s";
-                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY && !isAdvBeforeTrigger && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device keep stationary for " + step1Bean.axisStaticPeriod + "s, and stop advertising immediately when device moves";
-                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY && !isAdvBeforeTrigger && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device keep stationary for " + step1Bean.axisStaticPeriod + "s, and stop advertising immediately when device moves";
-                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_MOTION && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0) {
+                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_MOTION && isAdvBeforeTrigger && step2Bean.standbyDuration > 0) {
                     tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device moves, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device keep stationary for " + step1Bean.axisStaticPeriod + "s";
-                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_MOTION && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device moves, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device keep stationary for " + step1Bean.axisStaticPeriod + "s";
-                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_MOTION && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device moves, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when device keep stationary for " + step1Bean.axisStaticPeriod + "s";
-                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_MOTION && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device moves, and keep advertising at the interval of " + step3Bean.advInterval + "ms when device keep stationary for " + step1Bean.axisStaticPeriod + "s";
-                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device keep stationary for " + step1Bean.axisStaticPeriod + "s, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms after device moves";
-                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when device keep stationary for " + step1Bean.axisStaticPeriod + "s, and keep advertising at the interval of " + step3Bean.advInterval + "ms after device moves";
-                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device keep stationary for " + step1Bean.axisStaticPeriod + "s, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms after device moves";
-                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms when device keep stationary for " + step1Bean.axisStaticPeriod + "s, and keep advertising at the interval of " + step3Bean.advInterval + "ms after device moves";
+                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_MOTION && isAdvBeforeTrigger && step2Bean.standbyDuration == 0) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device moves, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when device keep stationary for " + step1Bean.axisStaticPeriod + "s";
+                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY && !isAdvBeforeTrigger && step2Bean.advDuration > 0) {
+                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after device keep stationary for " + step1Bean.axisStaticPeriod + "s, and stop advertising immediately when device moves.";
+                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY && !isAdvBeforeTrigger && step2Bean.advDuration == 0) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device keep stationary for " + step1Bean.axisStaticPeriod + "s, and stop advertising immediately when device moves.";
+                } else if (step1Bean.triggerCondition == MOTION_TRIGGER_STATIONARY && isAdvBeforeTrigger) {
+                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device keep stationary for " + step1Bean.axisStaticPeriod + "s, and advertising for " + step1Bean.axisStaticPeriod + "s when device moves.";
                 }
                 break;
 
             case HALL_TRIGGER:
-                if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and stop advertising immediately when door is closed";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after device moves, and stop advertising immediately when door is closed";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms  after door is closed, and stop advertising immediately when door is opened";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after door is closed, and stop advertising immediately when door is opened";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door is closed";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and keep advertising at the interval of " + step3Bean.advInterval + "ms when door is closed";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after door open, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door is closed";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after door open, and keep advertising at the interval of " + step3Bean.advInterval + "ms when door is closed";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door is closed, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door is opened";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0) {
-                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door is closed, and keep advertising at the interval of " + step3Bean.advInterval + "ms when door is opened";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after door is closed, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door is opened";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0) {
-                    tips = "*The Beacon will keep advertising at the interval of " + step2Bean.advInterval + "ms after door is closed, and keep advertising at the interval of " + step3Bean.advInterval + "ms when door is opened";
+                if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and stop advertising immediately when door close";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when door open.\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before stopping)";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after door open, and stop advertising immediately when door close";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after door open, and stop advertising when door close\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the 5s post-trigger broadcast before stopping)";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door close";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door close\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door close";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door close\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door open, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door close";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms when door open, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door close\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state）";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door open, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door close";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door open, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door close\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close, and stop advertising immediately when door open";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close.\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before stopping)";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after door close, and stop advertising immediately when door open";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after door close, and stop advertising when door open\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the 5s post-trigger broadcast before stopping)";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door open";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door open\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door open";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door open\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door close, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door open";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door close, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door open\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state)";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door close, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door open";
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                    tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door close, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door open\n" +
+                            "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state)";
                 }
                 break;
         }
@@ -369,6 +471,7 @@ public class TriggerStep3Activity extends BaseActivity {
         dialog.setConfirm("OK");
         dialog.setOnAlertConfirmListener(() -> {
             //返回通道页面
+            EventBus.getDefault().unregister(this);
             Intent intent = new Intent(this, DeviceInfoActivity.class);
             startActivity(intent);
             finish();
@@ -380,9 +483,10 @@ public class TriggerStep3Activity extends BaseActivity {
         int frameType = value[9] & 0xff;
         isAdvBeforeTrigger = frameType != NO_DATA;
         mBind.layoutAdvTrigger.setVisibility(isAdvBeforeTrigger ? View.VISIBLE : View.GONE);
-        boolean clearRawData = frameType != step2Bean.currentFrameType;
-        if (clearRawData) frameType = step2Bean.currentFrameType;
-        mBind.tvFrameType.setText(SlotAdvType.getSlotAdvType(frameType));
+        mBind.ivAdv.setImageResource(isAdvBeforeTrigger ? R.drawable.ic_checked : R.drawable.ic_unchecked);
+//        boolean clearRawData = frameType != step2Bean.currentFrameType;
+//        if (clearRawData) frameType = step2Bean.currentFrameType;
+        mBind.tvFrameType.setText(SlotAdvType.getSlotAdvType(step2Bean.currentFrameType));
         SlotData slotData = new SlotData();
         slotData.advInterval = MokoUtils.toInt(Arrays.copyOfRange(value, 1, 3));
         slotData.advDuration = MokoUtils.toInt(Arrays.copyOfRange(value, 3, 5));
@@ -391,25 +495,28 @@ public class TriggerStep3Activity extends BaseActivity {
         slotData.txPower = value[8];
         slotData.currentFrameType = frameType;
         slotData.slot = this.slot;
-        if (slotData.currentFrameType == UID) {
+        if (frameType == UID) {
             slotData.namespace = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 10, 20));
             slotData.instanceId = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 20, 26));
-        } else if (slotData.currentFrameType == URL) {
+        } else if (frameType == URL) {
             slotData.urlScheme = value[10] & 0xff;
             slotData.urlContent = new String(Arrays.copyOfRange(value, 11, value.length));
-        } else if (slotData.currentFrameType == I_BEACON) {
+        } else if (frameType == I_BEACON) {
             slotData.uuid = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 10, 26));
             slotData.major = MokoUtils.toInt(Arrays.copyOfRange(value, 26, 28));
             slotData.minor = MokoUtils.toInt(Arrays.copyOfRange(value, 28, 30));
-        } else if (slotData.currentFrameType == SENSOR_INFO) {
+        } else if (frameType == SENSOR_INFO) {
             int nameLength = value[10] & 0xff;
             slotData.deviceName = new String(Arrays.copyOfRange(value, 11, 11 + nameLength));
             slotData.tagId = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 12 + nameLength, value.length));
         }
+        this.slotData = slotData;
         if (null != slotDataActionImpl) {
             slotDataActionImpl.setParams(slotData);
         }
     }
+
+    private SlotData slotData;
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -448,6 +555,7 @@ public class TriggerStep3Activity extends BaseActivity {
             // 注销广播
             unregisterReceiver(mReceiver);
         }
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
     }
 }

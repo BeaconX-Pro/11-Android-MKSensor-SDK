@@ -15,10 +15,6 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.elvishew.xlog.XLog;
 import com.moko.ble.lib.MokoConstants;
@@ -59,14 +55,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MainActivity extends BaseActivity implements MokoScanDeviceCallback, BaseQuickAdapter.OnItemChildClickListener {
     private ActivityMainBinding mBind;
     private boolean mReceiverTag = false;
-    private ConcurrentHashMap<String, AdvInfo> advInfoHashMap;
-    private ArrayList<AdvInfo> advInfoList;
+    private final ConcurrentHashMap<String, AdvInfo> advInfoHashMap = new ConcurrentHashMap<>();
+    private final ArrayList<AdvInfo> advInfoList = new ArrayList<>();
     private DeviceListAdapter adapter;
     private MokoBleScanner mokoBleScanner;
     private Handler mHandler;
     private boolean isPasswordError;
     private AdvInfoAnalysisImpl advInfoAnalysisImpl;
     public static String PATH_LOGCAT;
+    private Animation animation = null;
+    public String filterMac;
+    public String filterName;
+    public String filterTagId;
+    public int filterRssi = -100;
+    private int disconnectType;
+    private String mPassword;
+    private String mSavedPassword;
     private boolean enablePwd;
     private int flag;
 
@@ -89,16 +93,9 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
         }
         MokoSupport.getInstance().init(getApplicationContext());
         flag = getIntent().getIntExtra("flag", 1);
-        advInfoHashMap = new ConcurrentHashMap<>();
-        advInfoList = new ArrayList<>();
         adapter = new DeviceListAdapter();
-        adapter.replaceData(advInfoList);
         adapter.setOnItemChildClickListener(this);
         adapter.openLoadAnimation();
-        mBind.rvDevices.setLayoutManager(new LinearLayoutManager(this));
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-        itemDecoration.setDrawable(ContextCompat.getDrawable(this, R.drawable.shape_recycleview_divider));
-        mBind.rvDevices.addItemDecoration(itemDecoration);
         mBind.rvDevices.setAdapter(adapter);
 
         mHandler = new Handler(Looper.getMainLooper());
@@ -245,8 +242,6 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
         }
     }
 
-    private int disconnectType;
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onRefresh(String flag) {
         if ("refresh".equals(flag)) {
@@ -348,12 +343,6 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
         });
     }
 
-    private Animation animation = null;
-    public String filterMac;
-    public String filterName;
-    public String filterTagId;
-    public int filterRssi = -100;
-
     private void startScan() {
         if (!MokoSupport.getInstance().isBluetoothOpen()) {
             // 蓝牙未打开，开启蓝牙
@@ -364,6 +353,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
         mBind.ivRefresh.startAnimation(animation);
         advInfoAnalysisImpl = new AdvInfoAnalysisImpl(flag);
         mokoBleScanner.startScanDevice(this);
+        mHandler.postDelayed(() -> mokoBleScanner.stopScanDevice(), 1000 * 60);
     }
 
     private LoadingDialog mLoadingDialog;
@@ -396,10 +386,6 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
         back();
     }
 
-    private String mPassword;
-    private String mSavedPassword;
-    private String mSelectedDeviceMac;
-
     @Override
     public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
         //防止重复点击
@@ -415,9 +401,8 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
                 mHandler.removeMessages(0);
                 mokoBleScanner.stopScanDevice();
             }
-            mSelectedDeviceMac = advInfo.mac;
             showLoadingProgressDialog();
-            MokoSupport.getInstance().connDevice(mSelectedDeviceMac);
+            MokoSupport.getInstance().connDevice(advInfo.mac);
         }
     }
 

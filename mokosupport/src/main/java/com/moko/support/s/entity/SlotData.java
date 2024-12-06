@@ -22,12 +22,14 @@ public class SlotData implements Parcelable {
 
     // BaseParam
     public int rssi;
-    public int txPower = 5;
+    public int txPower;
     public int advInterval = 1000;
     public int advDuration = 10;
     public int standbyDuration;
     public int slot;
     public int currentFrameType;
+    public int step1TriggerType;
+    public int realType;
 
     @Override
     public int describeContents() {
@@ -52,6 +54,8 @@ public class SlotData implements Parcelable {
         dest.writeInt(this.standbyDuration);
         dest.writeInt(this.slot);
         dest.writeInt(this.currentFrameType);
+        dest.writeInt(this.step1TriggerType);
+        dest.writeInt(this.realType);
     }
 
     public void readFromParcel(Parcel source) {
@@ -71,6 +75,8 @@ public class SlotData implements Parcelable {
         this.standbyDuration = source.readInt();
         this.slot = source.readInt();
         this.currentFrameType = source.readInt();
+        this.step1TriggerType = source.readInt();
+        this.realType = source.readInt();
     }
 
     public SlotData() {
@@ -93,6 +99,8 @@ public class SlotData implements Parcelable {
         this.standbyDuration = in.readInt();
         this.slot = in.readInt();
         this.currentFrameType = in.readInt();
+        this.step1TriggerType = in.readInt();
+        this.realType = in.readInt();
     }
 
     public static final Parcelable.Creator<SlotData> CREATOR = new Parcelable.Creator<SlotData>() {

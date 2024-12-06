@@ -60,6 +60,10 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
     private int currentFrameType;
     private int originFrameType;
     private SlotData originSlotData;
+    private int accStatus;
+    private int thStatus;
+    private boolean isButtonPowerOff;
+    private boolean isButtonReset;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +72,10 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
         setContentView(mBind.getRoot());
         fragmentManager = getSupportFragmentManager();
         slot = getIntent().getIntExtra(AppConstants.SLOT, 0);
+        accStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY2, 0);
+        thStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY3, 0);
+        isButtonReset = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY4, false);
+        isButtonPowerOff = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY5, false);
         createFragments();
         mBind.npvSlotType.setDisplayedValues(SLOT_TYPE_ARRAY);
         mBind.npvSlotType.setMinValue(0);
@@ -77,7 +85,11 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
         EventBus.getDefault().register(this);
         mBind.rlTriggerSwitch.setOnClickListener(v -> {
             Intent intent = new Intent(this, TriggerStep1Activity.class);
-            intent.putExtra("slot", slot);
+            intent.putExtra(AppConstants.SLOT, slot);
+            intent.putExtra(AppConstants.EXTRA_KEY2, accStatus);
+            intent.putExtra(AppConstants.EXTRA_KEY3, thStatus);
+            intent.putExtra(AppConstants.EXTRA_KEY4, isButtonReset);
+            intent.putExtra(AppConstants.EXTRA_KEY5, isButtonPowerOff);
             startActivity(intent);
         });
         showSyncingProgressDialog();
@@ -138,8 +150,7 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
                             if (configKeyEnum == ParamsKeyEnum.KEY_NORMAL_SLOT_ADV_PARAMS) {
                                 dismissSyncProgressDialog();
                                 ToastUtils.showToast(this, (value[4] & 0xff) != 0xAA ? "Error" : "Successfully configure");
-                                setResult(RESULT_OK);
-                                finish();
+                                onBackPressed();
                             }
                         }
                     }
@@ -186,7 +197,8 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
     }
 
     private LoadingMessageDialog mLoadingMessageDialog;
@@ -252,6 +264,13 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
     }
 
     public void onBack(View view) {
+        onBackPressed();
+    }
+
+    @Override
+    public void onBackPressed() {
+        EventBus.getDefault().unregister(this);
+        setResult(RESULT_OK);
         finish();
     }
 

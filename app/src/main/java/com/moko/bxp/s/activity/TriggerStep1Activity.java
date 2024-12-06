@@ -9,6 +9,7 @@ import static com.moko.support.s.entity.SlotAdvType.HUM_TRIGGER_BELOW;
 import static com.moko.support.s.entity.SlotAdvType.MOTION_TRIGGER;
 import static com.moko.support.s.entity.SlotAdvType.MOTION_TRIGGER_MOTION;
 import static com.moko.support.s.entity.SlotAdvType.MOTION_TRIGGER_STATIONARY;
+import static com.moko.support.s.entity.SlotAdvType.NO_TRIGGER;
 import static com.moko.support.s.entity.SlotAdvType.TEMP_TRIGGER;
 import static com.moko.support.s.entity.SlotAdvType.TEMP_TRIGGER_ABOVE;
 import static com.moko.support.s.entity.SlotAdvType.TEMP_TRIGGER_BELOW;
@@ -21,6 +22,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -79,8 +81,6 @@ public class TriggerStep1Activity extends BaseActivity {
     private int rawTriggerType;
     private int accStatus;
     private int thStatus;
-    private boolean isHallPowerEnable;
-    private boolean isButtonPowerEnable;
     private final List<String> triggerList = new ArrayList<>();
     private final String MOTION_DETECTION = "Motion detection";
     private final String TEMPERATURE_DETECTION = "Temperature detection";
@@ -102,14 +102,12 @@ public class TriggerStep1Activity extends BaseActivity {
         triggerEvent = getIntent().getParcelableExtra(AppConstants.EXTRA_KEY1);
         accStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY2, 0);
         thStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY3, 0);
-        isHallPowerEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY4, false);
-        isButtonPowerEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY5, false);
+        boolean isButtonReset = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY4, false);
+        boolean isButtonPowerEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY5, false);
         mBind.tvTitle.setText("SLOT" + (slot + 1));
-        rawTriggerType = triggerType = null == triggerEvent ? getNoTriggerType() : triggerEvent.triggerType;
+        //这里可能是无触发
+        rawTriggerType = triggerType = null == triggerEvent ? getNoTriggerType() : (triggerEvent.triggerType == NO_TRIGGER ? getNoTriggerType() : triggerEvent.triggerType);
         fragmentManager = getSupportFragmentManager();
-        initFragment();
-        initListener();
-        showFragment();
         if (accStatus > 0) {
             triggerList.add(MOTION_DETECTION);
         }
@@ -119,9 +117,13 @@ public class TriggerStep1Activity extends BaseActivity {
         } else if (thStatus == 3) {
             triggerList.add(TEMPERATURE_DETECTION);
         }
-        if (!isHallPowerEnable && !isButtonPowerEnable) {
+        if (!isButtonReset && !isButtonPowerEnable) {
             triggerList.add(MAGNETIC_DETECTION);
         }
+        initFragment();
+        showFragment();
+        initListener();
+        mBind.tvBack.setOnClickListener(v -> finish());
     }
 
     private int getNoTriggerType() {
@@ -260,13 +262,21 @@ public class TriggerStep1Activity extends BaseActivity {
         });
     }
 
+    private int getTriggerTypeBySelect(@NonNull String str) {
+        if (MOTION_DETECTION.equals(str)) return MOTION_TRIGGER;
+        if (TEMPERATURE_DETECTION.equals(str)) return TEMP_TRIGGER;
+        if (HUMIDITY_DETECTION.equals(str)) return HUM_TRIGGER;
+        if (MAGNETIC_DETECTION.equals(str)) return HALL_TRIGGER;
+        return 0;
+    }
+
     private void initListener() {
         setStatus();
         mBind.tvTriggerType.setOnClickListener(v -> {
             BottomDialog dialog = new BottomDialog();
             dialog.setDatas((ArrayList<String>) triggerList, getIndexByTriggerType());
             dialog.setListener(value -> {
-                triggerType = value + 1;
+                triggerType = getTriggerTypeBySelect(triggerList.get(value));
                 showFragment();
                 setStatus();
             });
@@ -315,9 +325,11 @@ public class TriggerStep1Activity extends BaseActivity {
         if (triggerType == TEMP_TRIGGER) {
             //温度
             bean.tempThreshold = temperatureTriggerFragment.getTempThreshold();
+            bean.lockedAdv = temperatureTriggerFragment.lockedAdv();
         } else if (triggerType == HUM_TRIGGER) {
             //湿度
             bean.humThreshold = humidityTriggerFragment.getHumThreshold();
+            bean.lockedAdv = humidityTriggerFragment.lockedAdv();
         } else if (triggerType == MOTION_TRIGGER) {
             //三轴
             if (motionTriggerFragment.isValid()) {
@@ -328,10 +340,11 @@ public class TriggerStep1Activity extends BaseActivity {
             }
         } else if (triggerType == HALL_TRIGGER) {
             //霍尔
+            bean.lockedAdv = hallTriggerFragment.lockedAdv();
         }
         Intent intent = new Intent(this, TriggerStep2Activity.class);
         intent.putExtra("step1", bean);
-        intent.putExtra("slot", slot);
+        intent.putExtra(AppConstants.SLOT, slot);
         startActivity(intent);
         EventBus.getDefault().unregister(this);
         finish();
