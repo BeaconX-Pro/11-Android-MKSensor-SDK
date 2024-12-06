@@ -73,6 +73,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
     private String mSavedPassword;
     private boolean enablePwd;
     private int flag;
+    private String mSelectedMac;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,9 +197,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
                                 mSavedPassword = mPassword;
                                 SPUtiles.setStringValue(this, AppConstants.SP_KEY_SAVED_PASSWORD, mSavedPassword);
                                 XLog.i("Success");
-                                Intent intent = new Intent(this, DeviceInfoActivity.class);
-                                intent.putExtra("pwdEnable", enablePwd);
-                                startActivity(intent);
+                                startDeviceInfoActivity();
                             } else {
                                 isPasswordError = true;
                                 ToastUtils.showToast(this, "Password incorrect！");
@@ -215,9 +214,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
                                 showPasswordDialog();
                             } else {
                                 enablePwd = false;
-                                Intent intent = new Intent(this, DeviceInfoActivity.class);
-                                intent.putExtra("pwdEnable", enablePwd);
-                                startActivity(intent);
+                                startDeviceInfoActivity();
                             }
                         }
                     }
@@ -240,6 +237,13 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
                 }
             }
         }
+    }
+
+    private void startDeviceInfoActivity() {
+        Intent intent = new Intent(this, DeviceInfoActivity.class);
+        intent.putExtra("pwdEnable", enablePwd);
+        intent.putExtra("mac", mSelectedMac);
+        startActivity(intent);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -402,6 +406,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
                 mokoBleScanner.stopScanDevice();
             }
             showLoadingProgressDialog();
+            mSelectedMac = advInfo.mac;
             MokoSupport.getInstance().connDevice(advInfo.mac);
         }
     }

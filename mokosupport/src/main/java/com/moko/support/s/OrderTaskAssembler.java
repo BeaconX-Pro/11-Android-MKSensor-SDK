@@ -7,6 +7,7 @@ import com.moko.ble.lib.task.OrderTask;
 import com.moko.support.s.entity.ParamsKeyEnum;
 import com.moko.support.s.entity.SlotData;
 import com.moko.support.s.entity.TriggerStep1Bean;
+import com.moko.support.s.task.OTAControlTask;
 import com.moko.support.s.task.ParamsTask;
 import com.moko.support.s.task.PasswordTask;
 
@@ -397,6 +398,18 @@ public class OrderTaskAssembler {
     public static OrderTask setSlotTriggerType(@NonNull TriggerStep1Bean triggerBean) {
         ParamsTask task = new ParamsTask();
         task.setSlotTriggerType(triggerBean);
+        return task;
+    }
+
+    public static OrderTask startDFU() {
+        OTAControlTask task = new OTAControlTask();
+        task.startDFU();
+        return task;
+    }
+
+    public static OrderTask endDFU() {
+        OTAControlTask task = new OTAControlTask();
+        task.endDFU();
         return task;
     }
 }

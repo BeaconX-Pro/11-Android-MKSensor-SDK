@@ -125,29 +125,6 @@ public class IOUtils {
         }
     }
 
-
-    /**
-     * 获取文件内容
-     *
-     * @return
-     */
-//    public static String getCrashLog() {
-//        try {
-//            File file = new File(getDefaultFilePath(null));
-//            if (!file.exists()) {
-//                file.createNewFile();
-//            }
-//            FileInputStream is = new FileInputStream(file);
-//            byte[] b = new byte[is.available()];
-//            is.read(b);
-//            String result = new String(b);
-//            return result;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return "";
-//    }
-
     /**
      * 写文件内容
      *
@@ -224,7 +201,7 @@ public class IOUtils {
         values.put(MediaStore.DownloadColumns.DISPLAY_NAME, file.getName());
         values.put(MediaStore.DownloadColumns.TITLE, file.getName());
         values.put(MediaStore.DownloadColumns.MIME_TYPE, "*/*");
-        values.put(MediaStore.DownloadColumns.RELATIVE_PATH, BuildConfig.IS_LIBRARY ? "Download/MKButton" : "Download/MKButtonD");
+        values.put(MediaStore.DownloadColumns.RELATIVE_PATH, BuildConfig.IS_LIBRARY ? "Download/BXP" : "Download/BXP-S");
         Uri external = MediaStore.Downloads.EXTERNAL_CONTENT_URI;
         Uri uri = null;
         ContentResolver cr = context.getContentResolver();

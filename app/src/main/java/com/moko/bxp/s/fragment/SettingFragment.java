@@ -149,7 +149,7 @@ public class SettingFragment extends BaseFragment<FragmentSettingBinding> {
         dialog.setDatas(new ArrayList<>(Arrays.asList(advChannelArray)), advChannelSelect);
         dialog.setListener(value -> {
             advChannelSelect = value;
-            mBind.tvAdvChannel.setText(getIndexByChannel(value));
+            mBind.tvAdvChannel.setText(advChannelArray[getIndexByChannel(value)]);
             if (null != getActivity()) {
                 ((DeviceInfoActivity) getActivity()).showSyncingProgressDialog();
                 List<OrderTask> orderTasks = new ArrayList<>(2);

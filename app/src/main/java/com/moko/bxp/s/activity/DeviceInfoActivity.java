@@ -6,8 +6,10 @@ import static com.moko.support.s.entity.SlotAdvType.SLOT1;
 import static com.moko.support.s.entity.SlotAdvType.SLOT2;
 import static com.moko.support.s.entity.SlotAdvType.SLOT3;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,9 +24,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.elvishew.xlog.XLog;
 import com.moko.ble.lib.MokoConstants;
@@ -42,27 +42,25 @@ import com.moko.bxp.s.entity.TriggerEvent;
 import com.moko.bxp.s.fragment.DeviceFragment;
 import com.moko.bxp.s.fragment.SettingFragment;
 import com.moko.bxp.s.fragment.SlotFragment;
-import com.moko.bxp.s.service.DfuService;
 import com.moko.bxp.s.utils.FileUtils;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
 import com.moko.support.s.entity.OrderCHAR;
 import com.moko.support.s.entity.ParamsKeyEnum;
+import com.moko.support.s.task.OTADataTask;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import no.nordicsemi.android.dfu.DfuProgressListener;
-import no.nordicsemi.android.dfu.DfuProgressListenerAdapter;
-import no.nordicsemi.android.dfu.DfuServiceInitiator;
-import no.nordicsemi.android.dfu.DfuServiceListenerHelper;
 
 public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnCheckedChangeListener {
     private ActivityDeviceInfoBinding mBind;
@@ -80,6 +78,16 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
     private boolean enablePwd;
     private int accStatus = -1;
     private int thStatus;
+    private boolean hasGetInfo;
+    //ota
+    private int mIndex = 0;
+    private boolean mLastPackage = false;
+    private int mPackageCount = 0;
+    private final int MTU = 233;
+    private boolean isUpgrading;
+    private boolean isUpgradeCompleted;
+    private boolean isOTAMode;
+    private byte[] mFirmwareFileBytes;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +96,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         setContentView(mBind.getRoot());
         fragmentManager = getSupportFragmentManager();
         enablePwd = getIntent().getBooleanExtra("pwdEnable", false);
+        mDeviceMac = getIntent().getStringExtra("mac");
         initFragment();
         mBind.rgOptions.setOnCheckedChangeListener(this);
         EventBus.getDefault().register(this);
@@ -103,7 +112,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         getSlotData();
     }
 
-    private void getSlotData(){
+    private void getSlotData() {
         showSyncingProgressDialog();
         List<OrderTask> orderTasks = new ArrayList<>(4);
         orderTasks.add(OrderTaskAssembler.getSensorType());
@@ -113,7 +122,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
     }
 
-    public void getSlotType(){
+    public void getSlotType() {
         showSyncingProgressDialog();
         MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getAllSlotAdvType());
     }
@@ -135,7 +144,11 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                 if (mDisconnectType > 0) return;
                 if (MokoSupport.getInstance().isBluetoothOpen()) {
                     if (isUpgrading) {
-                        mBind.tvTitle.postDelayed(this::dismissDFUProgressDialog, 2000);
+                        if (!isOTAMode) {
+                            reconnectOTADevice();
+                        } else {
+                            dismissDFUProgressDialog();
+                        }
                     } else {
                         AlertMessageDialog dialog = new AlertMessageDialog();
                         dialog.setTitle("Dismiss");
@@ -148,6 +161,12 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                         });
                         dialog.show(getSupportFragmentManager());
                     }
+                }
+            } else if (MokoConstants.ACTION_DISCOVER_SUCCESS.equals(action)) {
+                if (isUpgrading) {
+                    if (mDFUDialog != null && mDFUDialog.isShowing())
+                        mDFUDialog.setMessage("EnablingDfuMode...");
+                    otaBegin();
                 }
             }
         });
@@ -313,7 +332,9 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                                             stringBuffer.insert(11, ":");
                                             stringBuffer.insert(14, ":");
                                             mDeviceMac = stringBuffer.toString().toUpperCase();
-                                            deviceFragment.setMacAddress(mDeviceMac);
+                                            if (null != deviceFragment) {
+                                                deviceFragment.setMacAddress(mDeviceMac);
+                                            }
                                         }
                                         break;
 
@@ -414,6 +435,47 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                             }
                         }
                         break;
+
+                    case CHAR_OTA_CONTROL:
+                        if (value.length == 1) {
+                            if (value[0] == 0x00) {
+                                // 判断是否包含Data特征
+                                BluetoothGattCharacteristic characteristic = MokoSupport.getInstance().getCharacteristic(OrderCHAR.CHAR_OTA_DATA);
+                                if (null != characteristic) {
+                                    isOTAMode = true;
+                                    // 直接发送升级包
+                                    if (mDFUDialog != null && mDFUDialog.isShowing())
+                                        mDFUDialog.setMessage("DfuProcessStarting...");
+                                    mIndex = 0;
+                                    mLastPackage = false;
+                                    mPackageCount = 0;
+                                    mBind.tvTitle.postDelayed(this::writeDataToDevice, 500);
+                                }
+                            }
+                            if (value[0] == 0x03) {
+                                // 完成升级
+                                XLog.w("onDfuCompleted...");
+                                isUpgradeCompleted = true;
+                                mBind.tvTitle.postDelayed(() -> MokoSupport.getInstance().disConnectBle(), 1000);
+                            }
+                        } else {
+                            XLog.i(MokoUtils.bytesToHexString(value));
+                            int code = MokoUtils.toInt(value);
+                            if (code != 0) {
+                                ToastUtils.showToast(this, "Error:DFU Failed!");
+                            }
+                        }
+                        break;
+                    case CHAR_OTA_DATA:
+                        if (mLastPackage) {
+                            if (mDFUDialog != null && mDFUDialog.isShowing())
+                                mDFUDialog.setMessage("Progress:100%");
+                            XLog.i("OTA UPLOAD SEND DONE");
+                            otaEnd();
+                            return;
+                        }
+                        writeDataToDevice();
+                        break;
                 }
             }
         });
@@ -487,18 +549,70 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         if (TextUtils.isEmpty(firmwareFilePath)) return;
         final File firmwareFile = new File(firmwareFilePath);
         if (firmwareFile.exists()) {
-            final DfuServiceInitiator starter = new DfuServiceInitiator(mDeviceMac)
-                    .setKeepBond(false)
-                    .setForeground(false)
-                    .disableMtuRequest()
-                    .setDisableNotification(true);
-            starter.setZip(null, firmwareFilePath);
-            starter.start(this, DfuService.class);
+            try {
+                FileInputStream in = new FileInputStream(firmwareFile);
+                mFirmwareFileBytes = new byte[in.available()];
+                int read = in.read(mFirmwareFileBytes, 0, in.available());
+                XLog.i("选择文件：" + read);
+                in.close();
+            } catch (IOException e) {
+                XLog.e(e);
+                ToastUtils.showToast(this, "file error");
+                return;
+            }
+            isUpgrading = true;
             showDFUProgressDialog("Waiting...");
+            otaBegin();
         } else {
             Toast.makeText(this, "file is not exists!", Toast.LENGTH_SHORT).show();
         }
     });
+
+    private void reconnectOTADevice() {
+        mBind.tvTitle.postDelayed(() -> {
+            if (mDFUDialog != null && mDFUDialog.isShowing())
+                mDFUDialog.setMessage("DeviceConnecting...");
+            MokoSupport.getInstance().connDevice(mDeviceMac);
+        }, 4000);
+    }
+
+    // 1.
+    private void otaBegin() {
+        //Writing 0x00 to control characteristic to DFU mode  target device begins OTA process
+        mBind.tvTitle.postDelayed(() -> {
+            XLog.i("OTA BEGIN");
+            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.startDFU());
+        }, 500);
+    }
+
+    // 2.
+    @SuppressLint("DefaultLocale")
+    private void writeDataToDevice() {
+        byte[] payload = new byte[MTU];
+        if (mIndex + MTU >= mFirmwareFileBytes.length) {
+            int restSize = mFirmwareFileBytes.length - mIndex;
+            System.arraycopy(mFirmwareFileBytes, mIndex, payload, 0, restSize); //copy rest bytes
+            mLastPackage = true;
+        } else {
+            payload = Arrays.copyOfRange(mFirmwareFileBytes, mIndex, mIndex + MTU);
+        }
+        OTADataTask task = new OTADataTask();
+        task.setData(payload);
+        MokoSupport.getInstance().sendOrder(task);
+        final int progress = (int) (100.0f * mIndex / mFirmwareFileBytes.length);
+        if (mDFUDialog != null && mDFUDialog.isShowing())
+            mDFUDialog.setMessage(String.format("Progress:%d%%", progress));
+        mPackageCount = mPackageCount + 1;
+        mIndex = mIndex + MTU;
+    }
+
+    // 3.
+    private void otaEnd() {
+        mBind.tvTitle.postDelayed(() -> {
+            XLog.i("OTA END");
+            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.endDFU());
+        }, 500);
+    }
 
     @Override
     protected void onDestroy() {
@@ -583,8 +697,6 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         mBind.tvTitle.setText("DEVICE");
     }
 
-    private boolean hasGetInfo;
-
     @Override
     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
         if (checkedId == R.id.radioBtn_alarm) {
@@ -640,7 +752,6 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
     }
 
     private void dismissDFUProgressDialog() {
-        mDeviceConnectCount = 0;
         if (!isFinishing() && mDFUDialog != null && mDFUDialog.isShowing()) {
             mDFUDialog.dismiss();
         }
@@ -661,85 +772,13 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         dialog.show(getSupportFragmentManager());
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        DfuServiceListenerHelper.registerProgressListener(this, mDfuProgressListener);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        DfuServiceListenerHelper.unregisterProgressListener(this, mDfuProgressListener);
-    }
-
-    private int mDeviceConnectCount;
-    private boolean isUpgrading;
-    private boolean isUpgradeCompleted;
-
-    private final DfuProgressListener mDfuProgressListener = new DfuProgressListenerAdapter() {
-        @Override
-        public void onDeviceConnecting(String deviceAddress) {
-            XLog.w("onDeviceConnecting...");
-            mDeviceConnectCount++;
-            if (mDeviceConnectCount > 3) {
-                ToastUtils.showToast(DeviceInfoActivity.this, "Error:DFU Failed");
-                MokoSupport.getInstance().disConnectBle();
-                final LocalBroadcastManager manager = LocalBroadcastManager.getInstance(DeviceInfoActivity.this);
-                final Intent abortAction = new Intent(DfuService.BROADCAST_ACTION);
-                abortAction.putExtra(DfuService.EXTRA_ACTION, DfuService.ACTION_ABORT);
-                manager.sendBroadcast(abortAction);
-            }
-        }
-
-        @Override
-        public void onDeviceDisconnecting(String deviceAddress) {
-            XLog.w("onDeviceDisconnecting...");
-        }
-
-        @Override
-        public void onDfuProcessStarting(@NonNull String deviceAddress) {
-            isUpgrading = true;
-            mDFUDialog.setMessage("DfuProcessStarting...");
-        }
-
-        @Override
-        public void onEnablingDfuMode(@NonNull String deviceAddress) {
-            mDFUDialog.setMessage("EnablingDfuMode...");
-        }
-
-        @Override
-        public void onFirmwareValidating(@NonNull String deviceAddress) {
-            mDFUDialog.setMessage("FirmwareValidating...");
-        }
-
-        @Override
-        public void onDfuCompleted(@NonNull String deviceAddress) {
-            XLog.w("onDfuCompleted...");
-            isUpgradeCompleted = true;
-        }
-
-        @Override
-        public void onDfuAborted(@NonNull String deviceAddress) {
-            mDFUDialog.setMessage("DfuAborted...");
-        }
-
-        @Override
-        public void onProgressChanged(@NonNull String deviceAddress, int percent, float speed, float avgSpeed, int currentPart, int partsTotal) {
-            String progress = String.format("Progress:%d%%", percent);
-            XLog.i(progress);
-            mDFUDialog.setMessage(progress);
-        }
-
-        @Override
-        public void onError(@NonNull String deviceAddress, int error, int errorType, String message) {
-            XLog.i("DFU Error:" + message + error);
-            dismissDFUProgressDialog();
-        }
-    };
-
     public void onDFU(View view) {
         if (isWindowLocked()) return;
+        BluetoothGattCharacteristic characteristic = MokoSupport.getInstance().getCharacteristic(OrderCHAR.CHAR_OTA_CONTROL);
+        if (characteristic == null) {
+            ToastUtils.showToast(DeviceInfoActivity.this, "Error:Characteristic of OTA is null!");
+            return;
+        }
         chooseLauncher.launch("*/*");
     }
 }

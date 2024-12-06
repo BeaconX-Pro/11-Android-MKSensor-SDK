@@ -100,9 +100,6 @@
         <activity
             android:name="com.moko.bxp.s.activity.SlotDataActivity"
             android:screenOrientation="portrait" />
-
-        <service android:name="com.moko.bxp.s.service.DfuService" />
-
     </application>
 
 </manifest>

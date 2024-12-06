@@ -34,7 +34,6 @@ final class MokoBleConfig extends MokoBleManager {
     private BluetoothGattCharacteristic hallCharacteristic;
     private BluetoothGattCharacteristic thCharacteristic;
     private BluetoothGattCharacteristic historyTHCharacteristic;
-    private BluetoothGatt gatt;
 
     public MokoBleConfig(@NonNull Context context, MokoResponseCallback callback) {
         super(context);
@@ -44,8 +43,8 @@ final class MokoBleConfig extends MokoBleManager {
     @Override
     public boolean init(BluetoothGatt gatt) {
         final BluetoothGattService service = gatt.getService(OrderServices.SERVICE_CUSTOM.getUuid());
+        final BluetoothGattService serviceOTA = gatt.getService(OrderServices.SERVICE_OTA.getUuid());
         if (service != null) {
-            this.gatt = gatt;
             paramsCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_PARAMS.getUuid());
             disconnectCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_DISCONNECT.getUuid());
             accCharacteristic = service.getCharacteristic(OrderCHAR.CHAR_ACC.getUuid());
@@ -58,12 +57,18 @@ final class MokoBleConfig extends MokoBleManager {
             enableDisconnectNotify();
             requestMtu(247).done(bluetoothDevice -> mMokoResponseCallback.onServicesDiscovered(gatt)).enqueue();
             return true;
+        }else if (serviceOTA != null){
+            paramsCharacteristic = null;
+            BluetoothGattCharacteristic otaDataCharacteristic = serviceOTA.getCharacteristic(OrderCHAR.CHAR_OTA_DATA.getUuid());
+            requestMtu(247).done(bluetoothDevice -> mMokoResponseCallback.onServicesDiscovered(gatt)).enqueue();
+            return otaDataCharacteristic != null;
         }
         return false;
     }
 
     @Override
     public void write(BluetoothGattCharacteristic characteristic, byte[] value) {
+        mMokoResponseCallback.onCharacteristicWrite(characteristic, value);
     }
 
     @Override
@@ -73,9 +78,6 @@ final class MokoBleConfig extends MokoBleManager {
 
     @Override
     public void discovered(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-//        UUID lastCharacteristicUUID = characteristic.getUuid();
-//        if (passwordCharacteristic.getUuid().equals(lastCharacteristicUUID))
-//            mMokoResponseCallback.onServicesDiscovered(gatt);
     }
 
     @Override

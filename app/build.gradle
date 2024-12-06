@@ -5,14 +5,15 @@ if (!isLibrary.toBoolean()) {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdk 34
 
     defaultConfig {
         if (!isLibrary.toBoolean()) {
             applicationId "com.moko.bxp.s"
         }
+        namespace = "com.moko.bxp.s"
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 34
         versionCode 100
         versionName "1.0.0"
 
@@ -113,9 +114,8 @@ dependencies {
         implementation files('libs/mokoSupport.jar')
         provided files('libs/mokoBleLib.jar')
         implementation 'no.nordicsemi.android.support.v18:scanner:1.6.0'
-        implementation 'no.nordicsemi.android:dfu:0.6.2'
         implementation 'org.greenrobot:eventbus:3.2.0'
         implementation 'com.elvishew:xlog:1.6.1'
-        implementation 'no.nordicsemi.android:ble:2.5.1'
+        implementation 'no.nordicsemi.android:ble:2.7.2'
     }
 }

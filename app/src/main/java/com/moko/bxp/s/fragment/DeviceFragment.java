@@ -30,6 +30,7 @@ public class DeviceFragment extends BaseFragment<FragmentDeviceBinding> {
     }
 
     public void setMacAddress(String macAddress) {
+        if (null == mBind) return;
         mBind.tvMacAddress.setText(macAddress);
     }
 
