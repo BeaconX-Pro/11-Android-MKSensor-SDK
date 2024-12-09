@@ -142,25 +142,23 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                 // 设备断开，通知页面更新
                 if (mIsClose) return;
                 if (mDisconnectType > 0) return;
-                if (MokoSupport.getInstance().isBluetoothOpen()) {
-                    if (isUpgrading) {
-                        if (!isOTAMode) {
-                            reconnectOTADevice();
-                        } else {
-                            dismissDFUProgressDialog();
-                        }
+                if (isUpgrading) {
+                    if (!isOTAMode) {
+                        reconnectOTADevice();
                     } else {
-                        AlertMessageDialog dialog = new AlertMessageDialog();
-                        dialog.setTitle("Dismiss");
-                        dialog.setMessage("The device disconnected!");
-                        dialog.setConfirm("Exit");
-                        dialog.setCancelGone();
-                        dialog.setOnAlertConfirmListener(() -> {
-                            EventBus.getDefault().post("refresh");
-                            finish();
-                        });
-                        dialog.show(getSupportFragmentManager());
+                        dismissDFUProgressDialog();
                     }
+                } else {
+                    AlertMessageDialog dialog = new AlertMessageDialog();
+                    dialog.setTitle("Dismiss");
+                    dialog.setMessage("The device disconnected!");
+                    dialog.setConfirm("Exit");
+                    dialog.setCancelGone();
+                    dialog.setOnAlertConfirmListener(() -> {
+                        EventBus.getDefault().post("refresh");
+                        finish();
+                    });
+                    dialog.show(getSupportFragmentManager());
                 }
             } else if (MokoConstants.ACTION_DISCOVER_SUCCESS.equals(action)) {
                 if (isUpgrading) {

@@ -58,7 +58,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
     private final ConcurrentHashMap<String, AdvInfo> advInfoHashMap = new ConcurrentHashMap<>();
     private final ArrayList<AdvInfo> advInfoList = new ArrayList<>();
     private DeviceListAdapter adapter;
-    private MokoBleScanner mokoBleScanner;
+    private final MokoBleScanner mokoBleScanner = new MokoBleScanner();
     private Handler mHandler;
     private boolean isPasswordError;
     private AdvInfoAnalysisImpl advInfoAnalysisImpl;
@@ -100,7 +100,6 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
         mBind.rvDevices.setAdapter(adapter);
 
         mHandler = new Handler(Looper.getMainLooper());
-        mokoBleScanner = new MokoBleScanner(this);
         EventBus.getDefault().register(this);
         mSavedPassword = SPUtiles.getStringValue(this, AppConstants.SP_KEY_SAVED_PASSWORD, "");
         // 注册广播接收器

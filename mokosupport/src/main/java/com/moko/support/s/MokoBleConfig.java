@@ -26,7 +26,7 @@ import no.nordicsemi.android.ble.data.Data;
 
 final class MokoBleConfig extends MokoBleManager {
 
-    private MokoResponseCallback mMokoResponseCallback;
+    private final MokoResponseCallback mMokoResponseCallback;
     private BluetoothGattCharacteristic paramsCharacteristic;
     private BluetoothGattCharacteristic disconnectCharacteristic;
     private BluetoothGattCharacteristic accCharacteristic;
