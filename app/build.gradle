@@ -112,7 +112,7 @@ dependencies {
         implementation project(path: ':mokosupport')
     } else {
         implementation files('libs/mokoSupport.jar')
-        provided files('libs/mokoBleLib.jar')
+        compileOnly files('libs/mokoBleLib.jar')
         implementation 'no.nordicsemi.android.support.v18:scanner:1.6.0'
         implementation 'org.greenrobot:eventbus:3.2.0'
         implementation 'com.elvishew:xlog:1.6.1'
