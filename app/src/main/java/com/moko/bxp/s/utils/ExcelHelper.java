@@ -127,9 +127,9 @@ public class ExcelHelper {
         }
         //total records
         WritableSheet ws2 = wwb.getSheet(1);
-        WritableCellFormat format = new WritableCellFormat();
-        format.setAlignment(Alignment.CENTRE);
-        format.setWrap(true);
+//        WritableCellFormat format = new WritableCellFormat();
+//        format.setAlignment(Alignment.LEFT);
+//        format.setWrap(true);
         Label label3 = new Label(1, 0, lsTotal.get(MAC));
         Label label4 = new Label(1, 1, lsTotal.get(SAMPLING_INTERVAL));
         Label label5 = new Label(1, 2, lsTotal.get(STORAGE_INTERVAL));
@@ -137,11 +137,11 @@ public class ExcelHelper {
         Label label7 = new Label(1, 4, lsTotal.get(END_TIME));
         Label label8 = new Label(1, 5, lsTotal.get(TOTAL_DURATION_RECORDED));
         Label label9 = new Label(1, 6, lsTotal.get(TOTAL_DATA_RECORDED));
-        Label label10 = new Label(1, 7, lsTotal.get(MAX_TEMPERATURE), format);
-        Label label11 = new Label(1, 8, lsTotal.get(MIN_TEMPERATURE), format);
+        Label label10 = new Label(1, 7, lsTotal.get(MAX_TEMPERATURE));
+        Label label11 = new Label(1, 8, lsTotal.get(MIN_TEMPERATURE));
         Label label12 = new Label(1, 9, lsTotal.get(AVERAGE_TEMPERATURE));
-        Label label13 = new Label(1, 10, lsTotal.get(MAX_HUMIDITY), format);
-        Label label14 = new Label(1, 11, lsTotal.get(MIN_HUMIDITY), format);
+        Label label13 = new Label(1, 10, lsTotal.get(MAX_HUMIDITY));
+        Label label14 = new Label(1, 11, lsTotal.get(MIN_HUMIDITY));
         Label label15 = new Label(1, 12, lsTotal.get(AVERAGE_HUMIDITY));
 
         ws2.addCell(label3);
@@ -207,9 +207,9 @@ public class ExcelHelper {
         //升序排列
         Collections.sort(data, (data1, data2) -> data1.intHumidity - data2.intHumidity);
         //最大值
-        array[0] = MokoUtils.getDecimalFormat("0.0").format(data.get(data.size() - 1).intHumidity * 0.1) + "\n" + data.get(data.size() - 1).time;
+        array[0] = MokoUtils.getDecimalFormat("0.0").format(data.get(data.size() - 1).intHumidity * 0.1) + "【" + data.get(data.size() - 1).time+"】";
         //最小值
-        array[1] = MokoUtils.getDecimalFormat("0.0").format(data.get(0).intHumidity * 0.1) + "\n" + data.get(0).time;
+        array[1] = MokoUtils.getDecimalFormat("0.0").format(data.get(0).intHumidity * 0.1) + "【" + data.get(0).time+"】";
         int total = 0;
         for (THStoreData thStoreData : data) {
             total += thStoreData.intHumidity;
@@ -225,9 +225,9 @@ public class ExcelHelper {
         //升序排列
         Collections.sort(sortData, (data1, data2) -> data1.intTemp - data2.intTemp);
         //最大值
-        array[0] = getFormatTemp(sortData.get(sortData.size() - 1).intTemp) + "\n" + sortData.get(sortData.size() - 1).time;
+        array[0] = getFormatTemp(sortData.get(sortData.size() - 1).intTemp) + "【" + sortData.get(sortData.size() - 1).time+"】";
         //最小值
-        array[1] = getFormatTemp(sortData.get(0).intTemp) + "\n" + sortData.get(0).time;
+        array[1] = getFormatTemp(sortData.get(0).intTemp) + "【" + sortData.get(0).time+"】";
         int total = 0;
         for (THStoreData thStoreData : sortData) {
             total += thStoreData.intTemp;

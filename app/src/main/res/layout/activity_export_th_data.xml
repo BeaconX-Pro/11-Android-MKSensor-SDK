@@ -37,15 +37,19 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"
         android:background="@drawable/shape_radius_white_bg"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
 
             <LinearLayout
                 android:id="@+id/ll_sync"
@@ -117,7 +121,10 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp">
+            android:layout_marginTop="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:paddingBottom="10dp">
 
             <TextView
                 android:id="@+id/tvStartDateText"
@@ -128,7 +135,7 @@
                 android:paddingBottom="2dp"
                 android:text="Start Date:"
                 android:textColor="@color/black_333333"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -168,7 +175,7 @@
                 android:paddingBottom="2dp"
                 android:text="End Date:"
                 android:textColor="@color/black_333333"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 app:layout_constraintLeft_toLeftOf="@+id/tvStartDateText"
                 app:layout_constraintTop_toBottomOf="@+id/tvStartDateText" />
 
@@ -207,7 +214,7 @@
                 android:gravity="center"
                 android:text="Cancel"
                 android:textColor="@color/white_ffffff"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 app:layout_constraintLeft_toLeftOf="@+id/tvEndDateText"
                 app:layout_constraintRight_toLeftOf="@+id/tvStart"
                 app:layout_constraintTop_toBottomOf="@+id/tvEndDate" />
@@ -224,7 +231,7 @@
                 android:gravity="center"
                 android:text="Start"
                 android:textColor="@color/white_ffffff"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 app:layout_constraintLeft_toRightOf="@+id/tvCancel"
                 app:layout_constraintRight_toRightOf="@+id/imgDate"
                 app:layout_constraintTop_toBottomOf="@+id/tvEndDate" />
@@ -235,7 +242,7 @@
                 android:layout_height="wrap_content"
                 android:text="Sum records:N/A"
                 android:textColor="@color/black_333333"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toTopOf="@+id/tvFilterRecord"
                 app:layout_constraintRight_toRightOf="parent"
@@ -245,9 +252,9 @@
                 android:id="@+id/tvFilterRecord"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Filtered records:N/A"
+                android:text="Filter records:N/A"
                 android:textColor="@color/black_333333"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -273,6 +280,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
+                    android:paddingEnd="5dp"
                     android:layout_height="wrap_content">
 
                     <TextView
@@ -323,6 +331,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
+                    android:paddingEnd="5dp"
                     android:text="@string/th_chart_total"
                     android:textColor="@color/blue_2f84d0"
                     android:textSize="13sp" />
@@ -332,6 +341,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
+                    android:paddingEnd="5dp"
                     android:text="@string/th_chart_display"
                     android:textColor="@color/blue_2f84d0"
                     android:textSize="13sp" />

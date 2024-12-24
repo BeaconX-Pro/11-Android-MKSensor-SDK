@@ -97,6 +97,12 @@ public class OrderTaskAssembler {
         return task;
     }
 
+    public static OrderTask getCounter() {
+        ParamsTask task = new ParamsTask();
+        task.getData(ParamsKeyEnum.KEY_COUNTER);
+        return task;
+    }
+
     public static OrderTask getMotionTriggerCount() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_MOTION_TRIGGER_COUNT);
@@ -273,7 +279,7 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask getTHHistoryCount(){
+    public static OrderTask getTHHistoryCount() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_TH_HISTORY_COUNT);
         return task;

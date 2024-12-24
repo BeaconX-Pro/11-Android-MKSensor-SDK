@@ -104,25 +104,26 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
                             }
                             type = AdvInfo.VALID_DATA_FRAME_TYPE_SENSOR_INFO;
                             battery = MokoUtils.toInt(Arrays.copyOfRange(bytes, 16, 18));
-                            tagId = MokoUtils.bytesToHexString(Arrays.copyOfRange(bytes,18,bytes.length));
+                            tagId = MokoUtils.bytesToHexString(Arrays.copyOfRange(bytes, 18, bytes.length));
                         }
                     }
                     values = bytes;
                     break;
                 } else if (parcelUuid.toString().startsWith("0000eb01")) {
-                    if (flag == 2 || flag == 3) return null;
+//                    if (flag == 2 || flag == 3) return null;
                     isProductTest = true;
+                    //产测广播帧
                     byte[] bytes = map.get(parcelUuid);
                     if (bytes != null) {
                         if ((bytes[0] & 0xff) == AdvInfo.VALID_DATA_FRAME_TYPE_PRODUCTION_TEST) {
-                            if (bytes.length != 13) return null;
+                            if (bytes.length != 9) return null;
                             battery = MokoUtils.toInt(Arrays.copyOfRange(bytes, 1, 3));
                             type = AdvInfo.VALID_DATA_FRAME_TYPE_PRODUCTION_TEST;
                             values = bytes;
                         }
                     }
                     break;
-                }else return null;
+                } else return null;
             }
         }
         if ((!isEddystone && !isSensorInfo && !isProductTest && !isBeacon) || values == null || type == -1) {

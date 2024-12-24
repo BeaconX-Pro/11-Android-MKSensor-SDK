@@ -58,7 +58,7 @@ public class Utils {
                 uri = IOUtils.insertDownloadFile(context, files[0]);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 if (BuildConfig.IS_LIBRARY) {
-                    uri = FileProvider.getUriForFile(context, "com.moko.bxp.fileprovider", files[0]);
+                    uri = FileProvider.getUriForFile(context, "com.moko.beaconxpro.fileprovider", files[0]);
                 } else {
                     uri = FileProvider.getUriForFile(context, "com.moko.bxp.s.fileprovider", files[0]);
                 }
@@ -78,7 +78,7 @@ public class Utils {
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Uri uri;
                     if (BuildConfig.IS_LIBRARY) {
-                        uri = FileProvider.getUriForFile(context, "com.moko.bxp.fileprovider", files[i]);
+                        uri = FileProvider.getUriForFile(context, "com.moko.beaconxpro.fileprovider", files[i]);
                     } else {
                         uri = FileProvider.getUriForFile(context, "com.moko.bxp.s.fileprovider", files[i]);
                     }

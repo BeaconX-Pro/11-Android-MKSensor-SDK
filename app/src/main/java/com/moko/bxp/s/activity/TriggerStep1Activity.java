@@ -9,6 +9,7 @@ import static com.moko.support.s.entity.SlotAdvType.HUM_TRIGGER_BELOW;
 import static com.moko.support.s.entity.SlotAdvType.MOTION_TRIGGER;
 import static com.moko.support.s.entity.SlotAdvType.MOTION_TRIGGER_MOTION;
 import static com.moko.support.s.entity.SlotAdvType.MOTION_TRIGGER_STATIONARY;
+import static com.moko.support.s.entity.SlotAdvType.NO_DATA;
 import static com.moko.support.s.entity.SlotAdvType.NO_TRIGGER;
 import static com.moko.support.s.entity.SlotAdvType.TEMP_TRIGGER;
 import static com.moko.support.s.entity.SlotAdvType.TEMP_TRIGGER_ABOVE;
@@ -29,6 +30,9 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
+import com.moko.ble.lib.event.OrderTaskResponseEvent;
+import com.moko.ble.lib.task.OrderTask;
+import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep1Binding;
@@ -40,6 +44,11 @@ import com.moko.bxp.s.fragment.HumidityTriggerFragment;
 import com.moko.bxp.s.fragment.MotionTriggerFragment;
 import com.moko.bxp.s.fragment.TemperatureTriggerFragment;
 import com.moko.bxp.s.utils.ToastUtils;
+import com.moko.support.s.MokoSupport;
+import com.moko.support.s.OrderTaskAssembler;
+import com.moko.support.s.entity.OrderCHAR;
+import com.moko.support.s.entity.ParamsKeyEnum;
+import com.moko.support.s.entity.SlotData;
 import com.moko.support.s.entity.TriggerStep1Bean;
 
 import org.greenrobot.eventbus.EventBus;
@@ -72,7 +81,7 @@ public class TriggerStep1Activity extends BaseActivity {
     public int tempTriggerSelect;
     public int humTriggerSelect;
     private TriggerEvent triggerEvent;
-    private boolean isTriggerOpen = true;
+    private boolean isTriggerOpen;
     private FragmentManager fragmentManager;
     private TemperatureTriggerFragment temperatureTriggerFragment;
     private HumidityTriggerFragment humidityTriggerFragment;
@@ -86,6 +95,7 @@ public class TriggerStep1Activity extends BaseActivity {
     private final String TEMPERATURE_DETECTION = "Temperature detection";
     private final String HUMIDITY_DETECTION = "Humidity detection";
     private final String MAGNETIC_DETECTION = "Magnetic detection";
+    private boolean isParamsError;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,6 +134,8 @@ public class TriggerStep1Activity extends BaseActivity {
         showFragment();
         initListener();
         mBind.tvBack.setOnClickListener(v -> finish());
+        isTriggerOpen = null == triggerEvent || triggerEvent.triggerType == NO_TRIGGER;
+        mBind.ivTrigger.callOnClick();
     }
 
     private int getNoTriggerType() {
@@ -262,6 +274,45 @@ public class TriggerStep1Activity extends BaseActivity {
         });
     }
 
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
+    public void onOrderTaskResponseEvent(OrderTaskResponseEvent event) {
+        EventBus.getDefault().cancelEventDelivery(event);
+        final String action = event.getAction();
+        runOnUiThread(() -> {
+            if (MokoConstants.ACTION_ORDER_FINISH.equals(action)) {
+                dismissSyncProgressDialog();
+            }
+            if (MokoConstants.ACTION_ORDER_RESULT.equals(action)) {
+                OrderTaskResponse response = event.getResponse();
+                OrderCHAR orderCHAR = (OrderCHAR) response.orderCHAR;
+                byte[] value = response.responseValue;
+                if (orderCHAR == OrderCHAR.CHAR_PARAMS) {
+                    if (value.length > 4) {
+                        int header = value[0] & 0xFF;// 0xEB
+                        int flag = value[1] & 0xFF;// read or write
+                        int cmd = value[2] & 0xFF;
+                        if (header != 0xEB) return;
+                        ParamsKeyEnum configKeyEnum = ParamsKeyEnum.fromParamKey(cmd);
+                        if (configKeyEnum == null) return;
+                        int length = value[3] & 0xFF;
+                        if (flag == 1) {
+                            switch (configKeyEnum) {
+                                case KEY_SLOT_TRIGGER_TYPE:
+                                case KEY_SLOT_PARAMS_BEFORE:
+                                    if ((value[4] & 0xff) != 0xAA) isParamsError = true;
+                                    break;
+                                case KEY_SLOT_PARAMS_AFTER:
+                                    if ((value[4] & 0xff) != 0xAA) isParamsError = true;
+                                    ToastUtils.showToast(this, isParamsError ? "set fail" : "set success");
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     private int getTriggerTypeBySelect(@NonNull String str) {
         if (MOTION_DETECTION.equals(str)) return MOTION_TRIGGER;
         if (TEMPERATURE_DETECTION.equals(str)) return TEMP_TRIGGER;
@@ -316,7 +367,32 @@ public class TriggerStep1Activity extends BaseActivity {
     }
 
     private void onNext() {
-        if (!isTriggerOpen) return;
+        if (!isTriggerOpen) {
+            showSyncingProgressDialog();
+            isParamsError = false;
+            //1、配置通道触发 协议0x31
+            List<OrderTask> orderTasks = new ArrayList<>(4);
+            TriggerStep1Bean step1Bean = new TriggerStep1Bean();
+            step1Bean.triggerType = NO_TRIGGER;
+            step1Bean.slot = this.slot;
+            step1Bean.triggerCondition = 0;
+            step1Bean.lockedAdv = false;
+            orderTasks.add(OrderTaskAssembler.setSlotTriggerType(step1Bean));
+            //2、配置触发前参数 协议0x32
+            SlotData beforeBean = new SlotData();
+            beforeBean.slot = this.slot;
+            beforeBean.currentFrameType = NO_DATA;
+            beforeBean.advInterval = 10;
+            orderTasks.add(OrderTaskAssembler.setSlotAdvParamsBefore(beforeBean));
+            //配置触发后参数 协议0x33
+            SlotData afterBean = new SlotData();
+            afterBean.slot = this.slot;
+            afterBean.currentFrameType = NO_DATA;
+            afterBean.advInterval = 10;
+            orderTasks.add(OrderTaskAssembler.setSlotAdvParamsAfter(afterBean));
+            MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
+            return;
+        }
         //下一步
         TriggerStep1Bean bean = new TriggerStep1Bean();
         bean.triggerType = triggerType;
@@ -346,8 +422,6 @@ public class TriggerStep1Activity extends BaseActivity {
         intent.putExtra("step1", bean);
         intent.putExtra(AppConstants.SLOT, slot);
         startActivity(intent);
-        EventBus.getDefault().unregister(this);
-        finish();
     }
 
     private String[] getTriggerEvent() {

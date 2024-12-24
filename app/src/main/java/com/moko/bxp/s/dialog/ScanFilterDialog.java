@@ -27,7 +27,7 @@ public class ScanFilterDialog extends BaseDialog<DialogScanFilterACBinding> {
         mBind.sbRssi.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int rssi = progress - 100;
+                int rssi = (progress * -1);
                 mBind.tvRssi.setText(String.format("%sdBm", rssi + ""));
                 filterRssi = rssi;
             }
@@ -42,7 +42,7 @@ public class ScanFilterDialog extends BaseDialog<DialogScanFilterACBinding> {
 
             }
         });
-        mBind.sbRssi.setProgress(filterRssi + 100);
+        mBind.sbRssi.setProgress(Math.abs(filterRssi));
         if (!TextUtils.isEmpty(filterName)) {
             mBind.etFilterName.setText(filterName);
             mBind.etFilterName.setSelection(filterName.length());

@@ -127,9 +127,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_marginRight="12dp"
-                    android:minWidth="110dp"
                     android:background="@drawable/shape_radius_blue_btn_bg"
                     android:gravity="center"
+                    android:minWidth="110dp"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"
                     android:text="Sensor info"
@@ -146,17 +146,39 @@
                     app:layout_constraintTop_toBottomOf="@+id/tvFrameType" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <Button
-                android:id="@+id/btnNext"
-                android:layout_width="200dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_gravity="center_horizontal"
                 android:layout_marginTop="50dp"
                 android:layout_marginBottom="50dp"
-                android:background="@drawable/shape_radius_blue_btn_bg"
-                android:text="Next"
-                android:textColor="@color/white_ffffff"
-                android:textSize="15sp" />
+                android:orientation="horizontal"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp">
+
+                <Button
+                    android:id="@+id/btnBack"
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginEnd="20dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_radius_blue_btn_bg"
+                    android:text="Back"
+                    android:textColor="@color/white_ffffff"
+                    android:textSize="15sp" />
+
+                <Button
+                    android:id="@+id/btnNext"
+                    android:layout_width="0px"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginStart="20dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_radius_blue_btn_bg"
+                    android:text="Next"
+                    android:textColor="@color/white_ffffff"
+                    android:textSize="15sp" />
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

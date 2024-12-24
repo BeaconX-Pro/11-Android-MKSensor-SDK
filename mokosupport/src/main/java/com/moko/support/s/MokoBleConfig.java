@@ -57,7 +57,7 @@ final class MokoBleConfig extends MokoBleManager {
             enableDisconnectNotify();
             requestMtu(247).done(bluetoothDevice -> mMokoResponseCallback.onServicesDiscovered(gatt)).enqueue();
             return true;
-        }else if (serviceOTA != null){
+        } else if (serviceOTA != null) {
             paramsCharacteristic = null;
             BluetoothGattCharacteristic otaDataCharacteristic = serviceOTA.getCharacteristic(OrderCHAR.CHAR_OTA_DATA.getUuid());
             requestMtu(247).done(bluetoothDevice -> mMokoResponseCallback.onServicesDiscovered(gatt)).enqueue();

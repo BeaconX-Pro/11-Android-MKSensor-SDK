@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
+import com.moko.bxp.s.BaseApplication;
 import com.moko.bxp.s.BuildConfig;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityAboutBinding;
@@ -23,6 +24,7 @@ public class AboutActivity extends BaseActivity {
         setContentView(mBind.getRoot());
         if (!BuildConfig.IS_LIBRARY) {
             mBind.appVersion.setText(String.format("Version:V%s", Utils.getVersionInfo(this)));
+            mBind.tvFeedbackLog.setVisibility(View.VISIBLE);
         }
         mBind.tvCompanyWebsite.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
     }
@@ -41,9 +43,9 @@ public class AboutActivity extends BaseActivity {
 
     public void onFeedback(View view) {
         if (isWindowLocked()) return;
-        File trackerLog = new File(MainActivity.PATH_LOGCAT + File.separator + (BuildConfig.IS_LIBRARY ? "mokoBeaconXPro.txt" : "BXP_S.txt"));
-        File trackerLogBak = new File(MainActivity.PATH_LOGCAT + File.separator + (BuildConfig.IS_LIBRARY ? "mokoBeaconXPro.txt.bak" : "BXP_S.txt.bak"));
-        File trackerCrashLog = new File(MainActivity.PATH_LOGCAT + File.separator + (BuildConfig.IS_LIBRARY ? "crash_log.txt" : "d_crash_log.txt"));
+        File trackerLog = new File(BaseApplication.PATH_LOGCAT + File.separator + "BXP_S.txt");
+        File trackerLogBak = new File(BaseApplication.PATH_LOGCAT + File.separator + "BXP_S.txt.bak");
+        File trackerCrashLog = new File(BaseApplication.PATH_LOGCAT + File.separator + "d_crash_log.txt");
         if (!trackerLog.exists() || !trackerLog.canRead()) {
             ToastUtils.showToast(this, "File is not exists!");
             return;

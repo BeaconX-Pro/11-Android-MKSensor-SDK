@@ -41,7 +41,6 @@ public class QuickSwitchActivity extends BaseActivity {
     private boolean enableTagIdAutoFill;
     private boolean resetBeaconByButton;
     private boolean turnOffByButton;
-    private boolean aoaCte;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +65,6 @@ public class QuickSwitchActivity extends BaseActivity {
             orderTasks.add(OrderTaskAssembler.getTagIdAutoFillStatus());
             orderTasks.add(OrderTaskAssembler.getResetByButtonEnable());
             orderTasks.add(OrderTaskAssembler.getButtonTurnOffEnable());
-            orderTasks.add(OrderTaskAssembler.getAoaCteStatus());
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         }
         setListener();
@@ -114,7 +112,6 @@ public class QuickSwitchActivity extends BaseActivity {
                                     case KEY_TAG_ID_AUTO_FILL_ENABLE:
                                     case KEY_BUTTON_RESET_ENABLE:
                                     case KEY_BUTTON_TURN_OFF_ENABLE:
-                                    case KEY_AOA_CTE_ENABLE:
                                         if (result != 0xAA) {
                                             ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
                                         } else {
@@ -149,11 +146,6 @@ public class QuickSwitchActivity extends BaseActivity {
                                     case KEY_BUTTON_TURN_OFF_ENABLE:
                                         this.turnOffByButton = result == 1;
                                         setStatus(turnOffByButton, mBind.ivEnableTurnOff, mBind.tvTurnOffEnableStatus);
-                                        break;
-
-                                    case KEY_AOA_CTE_ENABLE:
-                                        this.aoaCte = result == 1;
-                                        setStatus(aoaCte, mBind.ivEnableDirection, mBind.tvDirectionEnableStatus);
                                         break;
                                 }
                             }
@@ -253,13 +245,6 @@ public class QuickSwitchActivity extends BaseActivity {
             } else {
                 setTurnOffByButton(false);
             }
-        });
-        mBind.ivEnableDirection.setOnClickListener(v -> {
-            showSyncingProgressDialog();
-            List<OrderTask> orderTasks = new ArrayList<>(2);
-            orderTasks.add(OrderTaskAssembler.setAoaCteStatus(aoaCte ? 0 : 1));
-            orderTasks.add(OrderTaskAssembler.getAoaCteStatus());
-            MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
         });
     }
 

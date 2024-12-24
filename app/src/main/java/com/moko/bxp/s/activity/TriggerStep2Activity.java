@@ -179,14 +179,13 @@ public class TriggerStep2Activity extends BaseActivity {
                 intent.putExtra("step2", slotData);
                 intent.putExtra(AppConstants.SLOT, slot);
                 startActivity(intent);
-                EventBus.getDefault().unregister(this);
-                finish();
             }
         });
         mBind.tvBack.setOnClickListener(v -> finish());
+        mBind.btnBack.setOnClickListener(v -> finish());
     }
 
-    @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 400)
     public void onConnectStatusEvent(ConnectStatusEvent event) {
         final String action = event.getAction();
         runOnUiThread(() -> {
@@ -197,7 +196,7 @@ public class TriggerStep2Activity extends BaseActivity {
         });
     }
 
-    @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
+    @Subscribe(threadMode = ThreadMode.POSTING, priority = 400)
     public void onOrderTaskResponseEvent(OrderTaskResponseEvent event) {
         EventBus.getDefault().cancelEventDelivery(event);
         final String action = event.getAction();

@@ -24,6 +24,7 @@ public enum ParamsKeyEnum implements Serializable {
     KEY_CONNECT_ENABLE(0x37),
     KEY_ADV_MODE(0x3A),
     KEY_TAG_ID_AUTO_FILL_ENABLE(0x3C),
+    KEY_COUNTER(0x3E),
     KEY_SYNC_CURRENT_TIME(0x3F),
     KEY_TH_STORE(0x40),
     KEY_TH_SAMPLE_RATE(0x41),

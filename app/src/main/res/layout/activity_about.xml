@@ -59,7 +59,7 @@
         android:layout_below="@id/app_name"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
-        android:text="Version:1.0.1"
+        android:text="Version:1.0.0"
         android:textColor="@color/grey_b3b3b3"
         android:textSize="20sp" />
 
@@ -94,7 +94,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="60dp"
         android:background="@drawable/shape_radius_blue_btn_bg"
-        android:clickable="true"
         android:gravity="center"
         android:onClick="onFeedback"
         android:paddingTop="10dp"
@@ -102,5 +101,5 @@
         android:text="Feedback log"
         android:textColor="@color/white_ffffff"
         android:textSize="20dp"
-        android:visibility="visible" />
+        android:visibility="gone" />
 </RelativeLayout>
