@@ -81,6 +81,8 @@ public class ExportTHDataActivity extends BaseActivity {
     private String deviceMac;
     private final SimpleDateFormat sdfExcel = new SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault());
     private String filePath;
+    private int mCount;
+    private long initTimestamp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,35 +101,7 @@ public class ExportTHDataActivity extends BaseActivity {
         mBind.cbDataShow.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 // 绘制折线图并展示
-                mBind.llThData.setVisibility(View.GONE);
-                mBind.llThChartView.setVisibility(View.VISIBLE);
-                if (null != startDate && null != endDate && !TextUtils.isEmpty(mBind.tvStartDate.getText()) && !TextUtils.isEmpty(mBind.tvEndDate.getText())) {
-                    List<Float> tempList = new LinkedList<>();
-                    List<Float> humList = new LinkedList<>();
-                    for (THStoreData bean : filterThStoreData) {
-                        if (bean.timeStamp >= startDate.getTime() && bean.timeStamp <= endDate.getTime()) {
-                            tempList.add(0, Float.valueOf(bean.temp));
-                            if (!isOnlyTemp) humList.add(0, Float.valueOf(bean.humidity));
-                        }
-                    }
-                    mBind.tempChartView.setxValue(tempList);
-                    if (!isOnlyTemp) mBind.humiChartView.setxValue(humList);
-                    int length = tempList.size();
-                    mBind.thChartTotal.setText(getString(R.string.th_chart_total, length));
-                    mBind.thChartDisplay.setText(getString(R.string.th_chart_display, Math.min(length, 1000)));
-                } else {
-                    List<Float> tempList = new LinkedList<>();
-                    List<Float> humList = new LinkedList<>();
-                    for (THStoreData bean : thStoreData) {
-                        tempList.add(0, Float.valueOf(bean.temp));
-                        if (!isOnlyTemp) humList.add(0, Float.valueOf(bean.humidity));
-                    }
-                    mBind.tempChartView.setxValue(tempList);
-                    if (!isOnlyTemp) mBind.humiChartView.setxValue(humList);
-                    int length = tempList.size();
-                    mBind.thChartTotal.setText(getString(R.string.th_chart_total, length));
-                    mBind.thChartDisplay.setText(getString(R.string.th_chart_display, Math.min(length, 1000)));
-                }
+                updateDisplay();
             } else {
                 // 隐藏折线图
                 mBind.llThData.setVisibility(View.VISIBLE);
@@ -157,7 +131,7 @@ public class ExportTHDataActivity extends BaseActivity {
             endDate = null;
             mAdapter.replaceData(thStoreData);
             mBind.tvSumRecord.setText("Sum records:" + thStoreData.size());
-            mBind.tvFilterRecord.setText("Filtered records:" + thStoreData.size());
+            mBind.tvFilterRecord.setText("Filter records:" + thStoreData.size());
             Drawable top;
             if (!thStoreData.isEmpty()) {
                 top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
@@ -168,6 +142,40 @@ public class ExportTHDataActivity extends BaseActivity {
         });
         mBind.tvStart.setOnClickListener(v -> onStartClick());
         filePath = getExternalFilesDir("excel").getAbsolutePath();
+        showSyncingProgressDialog();
+        MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getCounter());
+    }
+
+    private void updateDisplay() {
+        mBind.llThData.setVisibility(View.GONE);
+        mBind.llThChartView.setVisibility(View.VISIBLE);
+        if (null != startDate && null != endDate && !TextUtils.isEmpty(mBind.tvStartDate.getText()) && !TextUtils.isEmpty(mBind.tvEndDate.getText())) {
+            List<Float> tempList = new LinkedList<>();
+            List<Float> humList = new LinkedList<>();
+            for (THStoreData bean : filterThStoreData) {
+                if (bean.timeStamp >= startDate.getTime() && bean.timeStamp <= endDate.getTime()) {
+                    tempList.add(0, Float.valueOf(bean.temp));
+                    if (!isOnlyTemp) humList.add(0, Float.valueOf(bean.humidity));
+                }
+            }
+            mBind.tempChartView.setxValue(tempList);
+            if (!isOnlyTemp) mBind.humiChartView.setxValue(humList);
+            int length = tempList.size();
+            mBind.thChartTotal.setText(getString(R.string.th_chart_total, length));
+            mBind.thChartDisplay.setText(getString(R.string.th_chart_display, Math.min(length, 1000)));
+        } else {
+            List<Float> tempList = new LinkedList<>();
+            List<Float> humList = new LinkedList<>();
+            for (THStoreData bean : thStoreData) {
+                tempList.add(0, Float.valueOf(bean.temp));
+                if (!isOnlyTemp) humList.add(0, Float.valueOf(bean.humidity));
+            }
+            mBind.tempChartView.setxValue(tempList);
+            if (!isOnlyTemp) mBind.humiChartView.setxValue(humList);
+            int length = tempList.size();
+            mBind.thChartTotal.setText(getString(R.string.th_chart_total, length));
+            mBind.thChartDisplay.setText(getString(R.string.th_chart_display, Math.min(length, 1000)));
+        }
     }
 
     private void onStartClick() {
@@ -181,7 +189,10 @@ public class ExportTHDataActivity extends BaseActivity {
         }
         mAdapter.replaceData(filterThStoreData);
         mBind.tvSumRecord.setText("Sum records:" + totalHistoryCount);
-        mBind.tvFilterRecord.setText("Filtered records:" + filterThStoreData.size());
+        mBind.tvFilterRecord.setText("Filter records:" + filterThStoreData.size());
+        if (mBind.cbDataShow.isChecked()) {
+            updateDisplay();
+        }
         Drawable top;
         if (!filterThStoreData.isEmpty()) {
             top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
@@ -304,8 +315,14 @@ public class ExportTHDataActivity extends BaseActivity {
                                     //i=0  0-8 8-16
                                     byte[] bytes = Arrays.copyOfRange(data, i, i + 8);
                                     int year = MokoUtils.toInt(Arrays.copyOfRange(bytes, 0, 4));
-                                    storeData.time = sdf.format(new Date(year * 1000L));
-                                    storeData.timeStamp = year * 1000L;
+                                    if (year < 1577808000) {
+                                        //使用counter值计算时间
+                                        storeData.timeStamp = initTimestamp + year * 1000L;
+                                        storeData.time = sdf.format(new Date(storeData.timeStamp));
+                                    } else {
+                                        storeData.time = sdf.format(new Date(year * 1000L));
+                                        storeData.timeStamp = year * 1000L;
+                                    }
                                     float temp = MokoUtils.byte2short(Arrays.copyOfRange(bytes, 4, 6)) * 0.1f;
                                     storeData.intTemp = MokoUtils.byte2short(Arrays.copyOfRange(bytes, 4, 6));
                                     storeData.temp = MokoUtils.getDecimalFormat("0.0").format(temp);
@@ -319,7 +336,7 @@ public class ExportTHDataActivity extends BaseActivity {
                                 } else {
                                     mAdapter.replaceData(thStoreData);
                                     mBind.tvSumRecord.setText("Sum records:" + totalHistoryCount);
-                                    mBind.tvFilterRecord.setText("Filtered records:" + thStoreData.size());
+                                    mBind.tvFilterRecord.setText("Filter records:" + thStoreData.size());
                                     if (!thStoreData.isEmpty()) {
                                         Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
                                         mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
@@ -334,7 +351,7 @@ public class ExportTHDataActivity extends BaseActivity {
                                 }
                             } else {
                                 mBind.tvSumRecord.setText("Sum records:" + totalHistoryCount);
-                                mBind.tvFilterRecord.setText("Filtered records:0");
+                                mBind.tvFilterRecord.setText("Filter records:0");
                             }
                         }
                     }
@@ -368,7 +385,22 @@ public class ExportTHDataActivity extends BaseActivity {
                             //获取历史数据的总条数
                             totalHistoryCount = MokoUtils.toInt(Arrays.copyOfRange(value, 4, value.length));
                             mBind.tvSumRecord.setText("Sum records:" + totalHistoryCount);
-                            syncHistoryThData();
+                            if (totalHistoryCount > 0) {
+                                syncHistoryThData();
+                            } else {
+                                isSync = false;
+                                mBind.cbDataShow.setEnabled(true);
+                                mBind.ivSync.clearAnimation();
+                                mBind.tvSync.setText("Sync");
+                                showTips("Total history records: " + totalHistoryCount + "\nReading data ...... ,update " + thStoreData.size() + " records", "total");
+                                mBind.tvExport.postDelayed(() -> {
+                                    if (null != dialogFragment) dialogFragment.dismiss();
+                                }, 2000);
+                            }
+                        } else if (configKeyEnum == ParamsKeyEnum.KEY_COUNTER) {
+                            //获取counter值
+                            mCount = MokoUtils.toInt(Arrays.copyOfRange(value, 4, value.length));
+                            initTimestamp = Calendar.getInstance().getTimeInMillis() - mCount * 1000L;
                         }
                     }
                 }
@@ -499,7 +531,7 @@ public class ExportTHDataActivity extends BaseActivity {
     }
 
     private void sendMail(File excelFile) {
-        String address = "develop@mokotechnology.com";
+        String address = "wangxin@mokotechnology.com";
         StringBuilder mailContent = new StringBuilder();
         Calendar calendar = Calendar.getInstance();
         String date = Utils.calendar2strDate(calendar, "yyyy-MM-dd");
