@@ -8,14 +8,14 @@ import android.widget.SeekBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.moko.bxp.s.databinding.FragmentTemperatureTriggerBinding;
+import com.moko.bxp.s.databinding.FragmentTemperatureTriggerSBinding;
 
 /**
  * @author: jun.liu
  * @date: 2024/9/27 11:47
  * @des:
  */
-public class TemperatureTriggerFragment extends BaseFragment<FragmentTemperatureTriggerBinding> implements SeekBar.OnSeekBarChangeListener {
+public class TemperatureTriggerFragment extends BaseFragment<FragmentTemperatureTriggerSBinding> implements SeekBar.OnSeekBarChangeListener {
     private int threshold;
     private int lockedAdvDuration;
 
@@ -29,8 +29,8 @@ public class TemperatureTriggerFragment extends BaseFragment<FragmentTemperature
     }
 
     @Override
-    protected FragmentTemperatureTriggerBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentTemperatureTriggerBinding.inflate(inflater, container, false);
+    protected FragmentTemperatureTriggerSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentTemperatureTriggerSBinding.inflate(inflater, container, false);
     }
 
     public void setValues(int threshold, int lockedAdvDuration) {

@@ -17,7 +17,7 @@ import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.ActivityThBinding;
+import com.moko.bxp.s.databinding.ActivityThSBinding;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class THDataActivity extends BaseActivity {
-    private ActivityThBinding mBind;
+    private ActivityThSBinding mBind;
     private boolean mReceiverTag = false;
     private boolean isTHStoreEnable;
     private final SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.PATTERN_YYYY_MM_DD_HH_MM_SS, Locale.getDefault());
@@ -50,7 +50,7 @@ public class THDataActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ActivityThBinding.inflate(getLayoutInflater());
+        mBind = ActivityThSBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         EventBus.getDefault().register(this);
 

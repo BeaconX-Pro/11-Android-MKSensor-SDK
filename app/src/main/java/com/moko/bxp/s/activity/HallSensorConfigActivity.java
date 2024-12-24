@@ -14,7 +14,7 @@ import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
-import com.moko.bxp.s.databinding.ActivityHallConfigBinding;
+import com.moko.bxp.s.databinding.ActivityHallConfigSBinding;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
@@ -34,12 +34,12 @@ import java.util.Arrays;
  */
 public class HallSensorConfigActivity extends BaseActivity {
     private boolean mReceiverTag = false;
-    private ActivityHallConfigBinding mBind;
+    private ActivityHallConfigSBinding mBind;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ActivityHallConfigBinding.inflate(getLayoutInflater());
+        mBind = ActivityHallConfigSBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         EventBus.getDefault().register(this);
         // 注册广播接收器

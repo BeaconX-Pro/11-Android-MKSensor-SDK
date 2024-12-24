@@ -17,7 +17,7 @@ import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.FragmentTlmBinding;
+import com.moko.bxp.s.databinding.FragmentTlmSBinding;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
@@ -27,7 +27,7 @@ import com.moko.support.s.entity.TxPowerEnum;
 
 import java.util.Objects;
 
-public class TlmFragment extends BaseFragment<FragmentTlmBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
+public class TlmFragment extends BaseFragment<FragmentTlmSBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
     private boolean isLowPowerMode;
     private SlotData slotData;
     private int mTxPower;
@@ -72,8 +72,8 @@ public class TlmFragment extends BaseFragment<FragmentTlmBinding> implements See
     }
 
     @Override
-    protected FragmentTlmBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentTlmBinding.inflate(inflater, container, false);
+    protected FragmentTlmSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentTlmSBinding.inflate(inflater, container, false);
     }
 
     public void setTriggerAfter(boolean isTriggerAfter, TriggerStep1Bean step1Bean) {

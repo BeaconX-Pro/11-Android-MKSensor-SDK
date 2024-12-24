@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.FragmentSensorInfoBinding;
+import com.moko.bxp.s.databinding.FragmentSensorInfoSBinding;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
@@ -29,7 +29,7 @@ import com.moko.support.s.entity.TxPowerEnum;
 
 import java.util.Objects;
 
-public class SensorInfoFragment extends BaseFragment<FragmentSensorInfoBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
+public class SensorInfoFragment extends BaseFragment<FragmentSensorInfoSBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
     private final String FILTER_ASCII = "[ -~]*";
     private boolean isLowPowerMode;
     private SlotData slotData;
@@ -84,8 +84,8 @@ public class SensorInfoFragment extends BaseFragment<FragmentSensorInfoBinding> 
     }
 
     @Override
-    protected FragmentSensorInfoBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentSensorInfoBinding.inflate(inflater, container, false);
+    protected FragmentSensorInfoSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentSensorInfoSBinding.inflate(inflater, container, false);
     }
 
     private void changeView() {

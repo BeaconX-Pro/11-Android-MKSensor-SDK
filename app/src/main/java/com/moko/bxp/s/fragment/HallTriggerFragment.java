@@ -7,14 +7,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.moko.bxp.s.databinding.FragmentHallTriggerBinding;
+import com.moko.bxp.s.databinding.FragmentHallTriggerSBinding;
 
 /**
  * @author: jun.liu
  * @date: 2024/9/27 15:49
  * @des:
  */
-public class HallTriggerFragment extends BaseFragment<FragmentHallTriggerBinding> {
+public class HallTriggerFragment extends BaseFragment<FragmentHallTriggerSBinding> {
     private int lockedAdvDuration = -1;
 
     @Override
@@ -24,8 +24,8 @@ public class HallTriggerFragment extends BaseFragment<FragmentHallTriggerBinding
     }
 
     @Override
-    protected FragmentHallTriggerBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentHallTriggerBinding.inflate(inflater, container, false);
+    protected FragmentHallTriggerSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentHallTriggerSBinding.inflate(inflater, container, false);
     }
 
     public void setValue(int lockedAdvDuration) {

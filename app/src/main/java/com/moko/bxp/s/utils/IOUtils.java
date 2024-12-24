@@ -14,7 +14,7 @@ import android.provider.MediaStore;
 
 import com.elvishew.xlog.XLog;
 import com.moko.bxp.s.BuildConfig;
-import com.moko.bxp.s.activity.MainActivity;
+import com.moko.bxp.s.activity.BXPSMainActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +48,7 @@ public class IOUtils {
         boolean exist = isSdCardExist();
         String sdpath = "";
         if (exist) {
-            sdpath = MainActivity.PATH_LOGCAT;
+            sdpath = BXPSMainActivity.PATH_LOGCAT;
         }
         return sdpath;
 
@@ -62,7 +62,7 @@ public class IOUtils {
      */
     public static String getDefaultFilePath(Context context) {
         String filepath = "";
-        File file = new File(MainActivity.PATH_LOGCAT, CRASH_FILE);
+        File file = new File(BXPSMainActivity.PATH_LOGCAT, CRASH_FILE);
         try {
             if (file.exists()) {
                 filepath = file.getAbsolutePath();
@@ -83,7 +83,7 @@ public class IOUtils {
      */
     public static String getFilePath(String fileName) {
         String filepath = "";
-        File file = new File(MainActivity.PATH_LOGCAT, fileName);
+        File file = new File(BXPSMainActivity.PATH_LOGCAT, fileName);
         try {
             if (file.exists()) {
                 filepath = file.getAbsolutePath();

@@ -6,9 +6,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.moko.bxp.s.databinding.FragmentDeviceBinding;
+import com.moko.bxp.s.databinding.FragmentDeviceSBinding;
 
-public class DeviceFragment extends BaseFragment<FragmentDeviceBinding> {
+public class DeviceFragment extends BaseFragment<FragmentDeviceSBinding> {
     public DeviceFragment() {
     }
 
@@ -17,8 +17,8 @@ public class DeviceFragment extends BaseFragment<FragmentDeviceBinding> {
     }
 
     @Override
-    protected FragmentDeviceBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentDeviceBinding.inflate(inflater, container, false);
+    protected FragmentDeviceSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentDeviceSBinding.inflate(inflater, container, false);
     }
 
     public void setBattery(int battery) {

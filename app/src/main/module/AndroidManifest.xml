@@ -30,7 +30,7 @@
 
     <application android:allowBackup="true">
         <activity
-            android:name="com.moko.bxp.s.activity.MainActivity"
+            android:name="com.moko.bxp.s.activity.BXPSMainActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
 

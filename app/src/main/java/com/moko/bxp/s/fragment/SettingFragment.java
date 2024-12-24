@@ -13,7 +13,7 @@ import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.activity.DeviceInfoActivity;
 import com.moko.bxp.s.activity.RemoteReminderActivity;
 import com.moko.bxp.s.activity.SensorConfigActivity;
-import com.moko.bxp.s.databinding.FragmentSettingBinding;
+import com.moko.bxp.s.databinding.FragmentSettingSBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.BottomDialog;
 import com.moko.bxp.s.dialog.ModifyPasswordDialog;
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SettingFragment extends BaseFragment<FragmentSettingBinding> {
+public class SettingFragment extends BaseFragment<FragmentSettingSBinding> {
     private final String[] advModeArray = {"Legacy", "Long Range"};
     private int mSelected;
     private boolean isButtonPowerEnable;
@@ -50,8 +50,8 @@ public class SettingFragment extends BaseFragment<FragmentSettingBinding> {
     }
 
     @Override
-    protected FragmentSettingBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentSettingBinding.inflate(inflater, container, false);
+    protected FragmentSettingSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentSettingSBinding.inflate(inflater, container, false);
     }
 
     private int getIndexByChannel(int channel) {

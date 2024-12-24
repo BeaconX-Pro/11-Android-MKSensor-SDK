@@ -12,7 +12,7 @@ public class THDataListAdapter extends BaseQuickAdapter<THStoreData, BaseViewHol
     private final boolean isOnlyTemp;
 
     public THDataListAdapter(boolean isOnlyTemp) {
-        super(R.layout.item_export_th_data);
+        super(R.layout.item_export_th_data_s);
         this.isOnlyTemp = isOnlyTemp;
     }
 

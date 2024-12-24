@@ -3,10 +3,10 @@ package com.moko.bxp.s.dialog;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import com.moko.bxp.s.databinding.DialogUrlSchemeBinding;
+import com.moko.bxp.s.databinding.DialogUrlSchemeSBinding;
 import com.moko.support.s.entity.UrlSchemeEnum;
 
-public class UrlSchemeDialog extends MokoBaseDialog<DialogUrlSchemeBinding> {
+public class UrlSchemeDialog extends MokoBaseDialog<DialogUrlSchemeSBinding> {
     private String urlScheme;
     private UrlSchemeClickListener urlSchemeClickListener;
     public UrlSchemeDialog(){}
@@ -53,8 +53,8 @@ public class UrlSchemeDialog extends MokoBaseDialog<DialogUrlSchemeBinding> {
     }
 
     @Override
-    protected DialogUrlSchemeBinding getViewBind(LayoutInflater inflater, ViewGroup container) {
-        return DialogUrlSchemeBinding.inflate(inflater,container,false);
+    protected DialogUrlSchemeSBinding getViewBind(LayoutInflater inflater, ViewGroup container) {
+        return DialogUrlSchemeSBinding.inflate(inflater,container,false);
     }
 
     public interface UrlSchemeClickListener {

@@ -8,14 +8,14 @@ import android.widget.SeekBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.moko.bxp.s.databinding.FragmentHumidityTriggerBinding;
+import com.moko.bxp.s.databinding.FragmentHumidityTriggerSBinding;
 
 /**
  * @author: jun.liu
  * @date: 2024/9/27 16:00
  * @des:
  */
-public class HumidityTriggerFragment extends BaseFragment<FragmentHumidityTriggerBinding> implements SeekBar.OnSeekBarChangeListener {
+public class HumidityTriggerFragment extends BaseFragment<FragmentHumidityTriggerSBinding> implements SeekBar.OnSeekBarChangeListener {
     private int threshold;
     private int lockedAdvDuration;
 
@@ -28,8 +28,8 @@ public class HumidityTriggerFragment extends BaseFragment<FragmentHumidityTrigge
     }
 
     @Override
-    protected FragmentHumidityTriggerBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentHumidityTriggerBinding.inflate(inflater, container, false);
+    protected FragmentHumidityTriggerSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentHumidityTriggerSBinding.inflate(inflater, container, false);
     }
 
     public void setValue(int threshold, int lockedAdvDuration) {

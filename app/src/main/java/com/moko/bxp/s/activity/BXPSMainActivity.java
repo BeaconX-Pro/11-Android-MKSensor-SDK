@@ -25,7 +25,7 @@ import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.BuildConfig;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.adapter.DeviceListAdapter;
-import com.moko.bxp.s.databinding.ActivityMainBinding;
+import com.moko.bxp.s.databinding.ActivityMainSBinding;
 import com.moko.bxp.s.dialog.LoadingDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.dialog.PasswordDialog;
@@ -52,8 +52,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MainActivity extends BaseActivity implements MokoScanDeviceCallback, BaseQuickAdapter.OnItemChildClickListener {
-    private ActivityMainBinding mBind;
+public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCallback, BaseQuickAdapter.OnItemChildClickListener {
+    private ActivityMainSBinding mBind;
     private boolean mReceiverTag = false;
     private final ConcurrentHashMap<String, AdvInfo> advInfoHashMap = new ConcurrentHashMap<>();
     private final ArrayList<AdvInfo> advInfoList = new ArrayList<>();
@@ -78,7 +78,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ActivityMainBinding.inflate(getLayoutInflater());
+        mBind = ActivityMainSBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         // 初始化Xlog
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -460,7 +460,7 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
         scanFilterDialog.setFilterName(filterName);
         scanFilterDialog.setFilterTagId(filterTagId);
         scanFilterDialog.setOnScanFilterListener((filterName, filterMac, filterRssi, filterTagId) -> {
-            MainActivity.this.filterMac = filterMac;
+            BXPSMainActivity.this.filterMac = filterMac;
             String showFilterMac;
             if (filterMac.length() == 12) {
                 StringBuilder stringBuffer = new StringBuilder(filterMac);
@@ -473,9 +473,9 @@ public class MainActivity extends BaseActivity implements MokoScanDeviceCallback
             } else {
                 showFilterMac = filterMac;
             }
-            MainActivity.this.filterRssi = filterRssi;
-            MainActivity.this.filterName = filterName;
-            MainActivity.this.filterTagId = filterTagId;
+            BXPSMainActivity.this.filterRssi = filterRssi;
+            BXPSMainActivity.this.filterName = filterName;
+            BXPSMainActivity.this.filterTagId = filterTagId;
             if (!TextUtils.isEmpty(showFilterMac) || filterRssi != -100 || !TextUtils.isEmpty(filterName) || !TextUtils.isEmpty(filterTagId)) {
                 mBind.rlFilter.setVisibility(View.VISIBLE);
                 mBind.rlEditFilter.setVisibility(View.GONE);

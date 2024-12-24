@@ -10,8 +10,6 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -21,12 +19,12 @@ import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.activity.DeviceInfoActivity;
 import com.moko.bxp.s.activity.SlotDataActivity;
 import com.moko.bxp.s.activity.TriggerStep1Activity;
-import com.moko.bxp.s.databinding.FragmentSlotBinding;
+import com.moko.bxp.s.databinding.FragmentSlotSBinding;
 import com.moko.bxp.s.entity.TriggerEvent;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.entity.SlotAdvType;
 
-public class SlotFragment extends BaseFragment<FragmentSlotBinding> {
+public class SlotFragment extends BaseFragment<FragmentSlotSBinding> {
     private TriggerEvent slot1TriggerEvent;
     private TriggerEvent slot2TriggerEvent;
     private TriggerEvent slot3TriggerEvent;
@@ -48,8 +46,8 @@ public class SlotFragment extends BaseFragment<FragmentSlotBinding> {
     }
 
     @Override
-    protected FragmentSlotBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentSlotBinding.inflate(inflater, container, false);
+    protected FragmentSlotSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentSlotSBinding.inflate(inflater, container, false);
     }
 
     private void setListener() {

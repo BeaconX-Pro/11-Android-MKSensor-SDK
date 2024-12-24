@@ -315,7 +315,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_weight="1.0"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_export_th_data" />
+                    tools:listitem="@layout/item_export_th_data_s" />
             </LinearLayout>
 
             <LinearLayout

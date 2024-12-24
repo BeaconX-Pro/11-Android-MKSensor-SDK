@@ -9,7 +9,7 @@ import android.view.View;
 import com.moko.bxp.s.BaseApplication;
 import com.moko.bxp.s.BuildConfig;
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.ActivityAboutBinding;
+import com.moko.bxp.s.databinding.ActivityAboutSBinding;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.bxp.s.utils.Utils;
 
@@ -20,7 +20,7 @@ public class AboutActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        com.moko.bxp.s.databinding.ActivityAboutBinding mBind = ActivityAboutBinding.inflate(getLayoutInflater());
+        ActivityAboutSBinding mBind = ActivityAboutSBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         if (!BuildConfig.IS_LIBRARY) {
             mBind.appVersion.setText(String.format("Version:V%s", Utils.getVersionInfo(this)));

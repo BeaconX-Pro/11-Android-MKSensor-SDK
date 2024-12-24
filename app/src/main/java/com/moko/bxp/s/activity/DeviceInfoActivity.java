@@ -35,7 +35,7 @@ import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.ActivityDeviceInfoBinding;
+import com.moko.bxp.s.databinding.ActivityDeviceInfoSBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.entity.TriggerEvent;
@@ -57,13 +57,12 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnCheckedChangeListener {
-    private ActivityDeviceInfoBinding mBind;
+    private ActivityDeviceInfoSBinding mBind;
     private FragmentManager fragmentManager;
     private SlotFragment slotFragment;
     private SettingFragment settingFragment;
@@ -92,7 +91,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ActivityDeviceInfoBinding.inflate(getLayoutInflater());
+        mBind = ActivityDeviceInfoSBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         fragmentManager = getSupportFragmentManager();
         enablePwd = getIntent().getBooleanExtra("pwdEnable", false);

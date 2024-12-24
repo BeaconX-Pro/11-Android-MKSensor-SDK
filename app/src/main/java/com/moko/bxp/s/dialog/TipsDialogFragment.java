@@ -34,7 +34,7 @@ public class TipsDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         if (null != getDialog() && null != getDialog().getWindow())
             getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        View layoutView = inflater.inflate(R.layout.dialog_tips, container, false);
+        View layoutView = inflater.inflate(R.layout.dialog_tips_s, container, false);
         initViews(layoutView);
         return layoutView;
     }

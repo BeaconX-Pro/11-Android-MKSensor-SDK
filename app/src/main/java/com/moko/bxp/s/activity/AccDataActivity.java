@@ -19,7 +19,7 @@ import com.moko.ble.lib.task.OrderTask;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.ActivityAccDataBinding;
+import com.moko.bxp.s.databinding.ActivityAccDataSBinding;
 import com.moko.bxp.s.dialog.BottomDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
@@ -42,12 +42,12 @@ public class AccDataActivity extends BaseActivity {
     private boolean isSync;
     private int mSelectedRate;
     private int mSelectedScale;
-    private ActivityAccDataBinding mBind;
+    private ActivityAccDataSBinding mBind;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ActivityAccDataBinding.inflate(getLayoutInflater());
+        mBind = ActivityAccDataSBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         EventBus.getDefault().register(this);
 

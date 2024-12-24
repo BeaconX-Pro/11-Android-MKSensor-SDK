@@ -7,20 +7,20 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.moko.bxp.s.databinding.FragmentMotionTriggerBinding;
+import com.moko.bxp.s.databinding.FragmentMotionTriggerSBinding;
 
 /**
  * @author: jun.liu
  * @date: 2024/9/27 12:26
  * @des:
  */
-public class MotionTriggerFragment extends BaseFragment<FragmentMotionTriggerBinding> {
+public class MotionTriggerFragment extends BaseFragment<FragmentMotionTriggerSBinding> {
     private int staticPeriod;
     private boolean isStartMove;
 
     @Override
-    protected FragmentMotionTriggerBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentMotionTriggerBinding.inflate(inflater, container, false);
+    protected FragmentMotionTriggerSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentMotionTriggerSBinding.inflate(inflater, container, false);
     }
 
     @Override

@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.FragmentUidBinding;
+import com.moko.bxp.s.databinding.FragmentUidSBinding;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
@@ -28,7 +28,7 @@ import com.moko.support.s.entity.TxPowerEnum;
 
 import java.util.Objects;
 
-public class UidFragment extends BaseFragment<FragmentUidBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
+public class UidFragment extends BaseFragment<FragmentUidSBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
     private boolean isLowPowerMode;
     private SlotData slotData;
     private boolean isTriggerAfter;
@@ -75,8 +75,8 @@ public class UidFragment extends BaseFragment<FragmentUidBinding> implements See
     }
 
     @Override
-    protected FragmentUidBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentUidBinding.inflate(inflater, container, false);
+    protected FragmentUidSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentUidSBinding.inflate(inflater, container, false);
     }
 
     public void setTriggerAfter(boolean isTriggerAfter, TriggerStep1Bean step1Bean) {

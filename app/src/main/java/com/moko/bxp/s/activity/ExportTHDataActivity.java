@@ -31,7 +31,7 @@ import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.adapter.THDataListAdapter;
-import com.moko.bxp.s.databinding.ActivityExportThDataBinding;
+import com.moko.bxp.s.databinding.ActivityExportThDataSBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.dialog.TipsDialogFragment;
@@ -64,7 +64,7 @@ import java.util.Map;
  * @des:
  */
 public class ExportTHDataActivity extends BaseActivity {
-    private ActivityExportThDataBinding mBind;
+    private ActivityExportThDataSBinding mBind;
     private boolean mReceiverTag = false;
     private boolean isSync;
     private final LinkedList<THStoreData> thStoreData = new LinkedList<>();
@@ -87,7 +87,7 @@ public class ExportTHDataActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ActivityExportThDataBinding.inflate(getLayoutInflater());
+        mBind = ActivityExportThDataSBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         isOnlyTemp = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY1, false);
         samplingInterval = getIntent().getIntExtra(AppConstants.EXTRA_KEY2, 0);

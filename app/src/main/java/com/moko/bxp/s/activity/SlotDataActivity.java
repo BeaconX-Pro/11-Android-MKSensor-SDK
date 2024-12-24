@@ -24,7 +24,7 @@ import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.ActivitySlotDataBinding;
+import com.moko.bxp.s.databinding.ActivitySlotDataSBinding;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.fragment.IBeaconFragment;
 import com.moko.bxp.s.fragment.SensorInfoFragment;
@@ -48,7 +48,7 @@ import java.util.Arrays;
 import cn.carbswang.android.numberpickerview.library.NumberPickerView;
 
 public class SlotDataActivity extends BaseActivity implements NumberPickerView.OnValueChangeListener {
-    private ActivitySlotDataBinding mBind;
+    private ActivitySlotDataSBinding mBind;
     private FragmentManager fragmentManager;
     private SensorInfoFragment sensorInfoFragment;
     private UidFragment uidFragment;
@@ -68,7 +68,7 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ActivitySlotDataBinding.inflate(getLayoutInflater());
+        mBind = ActivitySlotDataSBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         fragmentManager = getSupportFragmentManager();
         slot = getIntent().getIntExtra(AppConstants.SLOT, 0);

@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.FragmentUrlBinding;
+import com.moko.bxp.s.databinding.FragmentUrlSBinding;
 import com.moko.bxp.s.dialog.UrlSchemeDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
@@ -31,7 +31,7 @@ import com.moko.support.s.entity.UrlSchemeEnum;
 
 import java.util.Objects;
 
-public class UrlFragment extends BaseFragment<FragmentUrlBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
+public class UrlFragment extends BaseFragment<FragmentUrlSBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
     private final String FILTER_ASCII = "[!-~]*";
     private boolean isLowPowerMode;
     private SlotData slotData;
@@ -85,8 +85,8 @@ public class UrlFragment extends BaseFragment<FragmentUrlBinding> implements See
     }
 
     @Override
-    protected FragmentUrlBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentUrlBinding.inflate(inflater, container, false);
+    protected FragmentUrlSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentUrlSBinding.inflate(inflater, container, false);
     }
 
     public void setTriggerAfter(boolean isTriggerAfter, TriggerStep1Bean step1Bean) {

@@ -7,18 +7,17 @@ import android.view.View;
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.bxp.s.AppConstants;
-import com.moko.bxp.s.databinding.ActivitySensorConfigBinding;
+import com.moko.bxp.s.databinding.ActivitySensorConfigSBinding;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 public class SensorConfigActivity extends BaseActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivitySensorConfigBinding mBind = ActivitySensorConfigBinding.inflate(getLayoutInflater());
+        ActivitySensorConfigSBinding mBind = ActivitySensorConfigSBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         EventBus.getDefault().register(this);
         int accStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY1, 0);

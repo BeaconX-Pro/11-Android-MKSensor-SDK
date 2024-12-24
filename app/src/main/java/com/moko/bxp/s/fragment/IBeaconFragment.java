@@ -18,7 +18,7 @@ import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.FragmentIbeaconBinding;
+import com.moko.bxp.s.databinding.FragmentIbeaconSBinding;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
@@ -28,7 +28,7 @@ import com.moko.support.s.entity.TxPowerEnum;
 
 import java.util.Objects;
 
-public class IBeaconFragment extends BaseFragment<FragmentIbeaconBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
+public class IBeaconFragment extends BaseFragment<FragmentIbeaconSBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
     private boolean isLowPowerMode;
     private SlotData slotData;
     private int mRssi;
@@ -77,8 +77,8 @@ public class IBeaconFragment extends BaseFragment<FragmentIbeaconBinding> implem
     }
 
     @Override
-    protected FragmentIbeaconBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
-        return FragmentIbeaconBinding.inflate(inflater, container, false);
+    protected FragmentIbeaconSBinding getViewBind(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
+        return FragmentIbeaconSBinding.inflate(inflater, container, false);
     }
 
     public void setTriggerAfter(boolean isTriggerAfter, TriggerStep1Bean step1Bean) {

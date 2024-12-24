@@ -9,7 +9,7 @@ import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
 import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
-import com.moko.bxp.s.databinding.ActivityRemoteReminderBinding;
+import com.moko.bxp.s.databinding.ActivityRemoteReminderSBinding;
 import com.moko.bxp.s.dialog.BottomDialog;
 import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
@@ -31,14 +31,14 @@ import java.util.Arrays;
  * @des: 远程提醒
  */
 public class RemoteReminderActivity extends BaseActivity {
-    private ActivityRemoteReminderBinding mBind;
+    private ActivityRemoteReminderSBinding mBind;
     private final String[] array = {"4000", "4500"};
     private int mSelect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mBind = ActivityRemoteReminderBinding.inflate(getLayoutInflater());
+        mBind = ActivityRemoteReminderSBinding.inflate(getLayoutInflater());
         setContentView(mBind.getRoot());
         EventBus.getDefault().register(this);
         mBind.btnRemind.setOnClickListener(v -> onLedRemindClick());
