@@ -10,18 +10,18 @@ import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.DialogLoadingMessageDBinding;
+import com.moko.bxp.s.databinding.DialogLoadingMessageSBinding;
 import com.moko.bxp.s.view.ProgressDrawable;
 
-public class LoadingMessageDialog extends MokoBaseDialog<DialogLoadingMessageDBinding> {
+public class LoadingMessageDialog extends MokoBaseDialog<DialogLoadingMessageSBinding> {
     //    private static final int DIALOG_DISMISS_DELAY_TIME = 15000;
     public static final String TAG = LoadingMessageDialog.class.getSimpleName();
     private String message;
     private int messageId = -1;
 
     @Override
-    protected DialogLoadingMessageDBinding getViewBind(LayoutInflater inflater, ViewGroup container) {
-        return DialogLoadingMessageDBinding.inflate(inflater, container, false);
+    protected DialogLoadingMessageSBinding getViewBind(LayoutInflater inflater, ViewGroup container) {
+        return DialogLoadingMessageSBinding.inflate(inflater, container, false);
     }
 
     @Override
@@ -37,14 +37,6 @@ public class LoadingMessageDialog extends MokoBaseDialog<DialogLoadingMessageDBi
             message = getString(R.string.setting_syncing);
         }
         mBind.tvLoadingMessage.setText(message);
-//        mBind.tvLoadingMessage.postDelayed(() -> {
-//            if (isVisible()) {
-//                dismissAllowingStateLoss();
-//                if (callback != null) {
-//                    callback.onOvertimeDismiss();
-//                }
-//            }
-//        }, DIALOG_DISMISS_DELAY_TIME);
     }
 
     @Override

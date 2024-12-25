@@ -9,17 +9,17 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
 import com.moko.bxp.s.R;
-import com.moko.bxp.s.databinding.DialogPasswordDBinding;
+import com.moko.bxp.s.databinding.DialogPasswordSBinding;
 import com.moko.bxp.s.utils.ToastUtils;
 
-public class PasswordDialog extends MokoBaseDialog<DialogPasswordDBinding> {
+public class PasswordDialog extends MokoBaseDialog<DialogPasswordSBinding> {
     public static final String TAG = PasswordDialog.class.getSimpleName();
     private final String FILTER_ASCII = "[ -~]*";
     private String password;
 
     @Override
-    protected DialogPasswordDBinding getViewBind(LayoutInflater inflater, ViewGroup container) {
-        return DialogPasswordDBinding.inflate(inflater, container, false);
+    protected DialogPasswordSBinding getViewBind(LayoutInflater inflater, ViewGroup container) {
+        return DialogPasswordSBinding.inflate(inflater, container, false);
     }
 
     @Override

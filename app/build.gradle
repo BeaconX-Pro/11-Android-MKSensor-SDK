@@ -105,14 +105,16 @@ dependencies {
     implementation 'com.github.GrenderG:Toasty:1.4.1'
     implementation 'cn.carbswang.android:NumberPickerView:1.1.1'
     implementation 'com.guolindev.permissionx:permissionx:1.7.1'
-    implementation(name: 'pickerview', ext: 'aar')
-    implementation(name: 'wheelview', ext: 'aar')
     implementation files('libs\\jxl.jar')
     if (!isLibrary.toBoolean()) {
         implementation project(path: ':mokosupport')
+        implementation(name: 'pickerview', ext: 'aar')
+        implementation(name: 'wheelview', ext: 'aar')
     } else {
         implementation files('libs/mokoSupport.jar')
         compileOnly files('libs/mokoBleLib.jar')
+        compileOnly(name: 'pickerview', ext: 'aar')
+        compileOnly(name: 'wheelview', ext: 'aar')
         implementation 'no.nordicsemi.android.support.v18:scanner:1.6.0'
         implementation 'org.greenrobot:eventbus:3.2.0'
         implementation 'com.elvishew:xlog:1.6.1'

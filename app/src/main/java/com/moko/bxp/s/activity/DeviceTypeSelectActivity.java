@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import com.moko.bxp.s.BuildConfig;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityDeviceTypeSelectSBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
@@ -33,9 +34,13 @@ public class DeviceTypeSelectActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        AlertMessageDialog dialog = new AlertMessageDialog();
-        dialog.setMessage(R.string.main_exit_tips);
-        dialog.setOnAlertConfirmListener(this::finish);
-        dialog.show(getSupportFragmentManager());
+        if (!BuildConfig.IS_LIBRARY) {
+            AlertMessageDialog dialog = new AlertMessageDialog();
+            dialog.setMessage(R.string.main_exit_tips);
+            dialog.setOnAlertConfirmListener(this::finish);
+            dialog.show(getSupportFragmentManager());
+        } else {
+            finish();
+        }
     }
 }

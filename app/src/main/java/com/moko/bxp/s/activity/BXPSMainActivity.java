@@ -432,7 +432,6 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
             @Override
             public void onDismiss() {
                 MokoSupport.getInstance().disConnectBle();
-                startScan();
             }
         });
         dialog.show(getSupportFragmentManager());
