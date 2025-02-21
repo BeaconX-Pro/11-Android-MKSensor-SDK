@@ -53,7 +53,7 @@ public class AdvInfoParser {
     public static AdvTLM getTLM(String data) {
         // 20000d18158000017eb20002e754
         AdvTLM tlm = new AdvTLM();
-        tlm.vbatt = Integer.parseInt(data.substring(4, 8), 16) + "";
+        tlm.vbatt = Integer.parseInt(data.substring(4, 8), 16);
         int temp1 = Integer.parseInt(data.substring(8, 10), 16);
         int temp2 = Integer.parseInt(data.substring(10, 12), 16);
         int tempInt = temp1 > 128 ? temp1 - 256 : temp1;

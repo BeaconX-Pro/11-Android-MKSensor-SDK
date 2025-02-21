@@ -267,7 +267,6 @@
                 android:inputType="number"
                 android:maxLength="5"
                 android:singleLine="true"
-                android:text=""
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
         </RelativeLayout>
@@ -301,8 +300,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/adv_tx_power"
                 android:layout_marginTop="10dp"
-                android:layout_toLeftOf="@+id/tvRssi"
+                android:layout_toStartOf="@+id/tvRssi"
                 android:max="100"
+                android:progressDrawable="@drawable/seekbar_progress_drawable"
                 android:progress="0" />
 
             <TextView
@@ -310,9 +310,9 @@
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/adv_tx_power"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:layout_marginTop="15dp"
-                android:gravity="right"
+                android:gravity="end"
                 android:text="0dbm"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />
@@ -348,8 +348,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tx_power"
                 android:layout_marginTop="10dp"
-                android:layout_toLeftOf="@+id/tv_tx_power"
+                android:layout_toStartOf="@+id/tv_tx_power"
                 android:max="8"
+                android:progressDrawable="@drawable/seekbar_progress_drawable"
                 android:progress="0" />
 
             <TextView
@@ -357,9 +358,9 @@
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tx_power"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:layout_marginTop="15dp"
-                android:gravity="right"
+                android:gravity="end"
                 android:text="0dBm"
                 android:textColor="@color/black_333333"
                 android:textSize="15sp" />

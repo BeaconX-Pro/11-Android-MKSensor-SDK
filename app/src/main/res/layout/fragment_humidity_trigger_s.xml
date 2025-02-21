@@ -37,6 +37,7 @@
         android:layout_marginRight="10dp"
         android:max="95"
         android:progress="0"
+        android:progressDrawable="@drawable/seekbar_progress_drawable"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/tvHumValue"
         app:layout_constraintTop_toBottomOf="@+id/tvHumidity" />

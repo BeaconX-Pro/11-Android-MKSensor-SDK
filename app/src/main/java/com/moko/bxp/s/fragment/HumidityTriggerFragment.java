@@ -22,6 +22,7 @@ public class HumidityTriggerFragment extends BaseFragment<FragmentHumidityTrigge
     @Override
     protected void onCreateView() {
         mBind.sbHum.setProgress(threshold);
+        mBind.tvHumValue.setText(threshold + "%");
         mBind.cbLockAdv.setChecked(lockedAdvDuration == 1);
         mBind.sbHum.setOnSeekBarChangeListener(this);
         mBind.cbLockAdv.setOnCheckedChangeListener((buttonView, isChecked) -> mBind.tvTips.setVisibility(isChecked ? View.VISIBLE : View.GONE));
@@ -37,10 +38,11 @@ public class HumidityTriggerFragment extends BaseFragment<FragmentHumidityTrigge
         this.lockedAdvDuration = lockedAdvDuration;
         if (null == mBind) return;
         mBind.sbHum.setProgress(threshold);
+        mBind.tvHumValue.setText(threshold + "%");
         mBind.cbLockAdv.setChecked(lockedAdvDuration == 1);
     }
 
-    public boolean lockedAdv(){
+    public boolean lockedAdv() {
         return mBind.cbLockAdv.isChecked();
     }
 

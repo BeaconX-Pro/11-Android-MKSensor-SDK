@@ -74,7 +74,7 @@ public class TriggerStep1Activity extends BaseActivity {
     private final String[] tempTriggerEventArray = {"Temperature above threshold", "Temperature below threshold"};
     private final String[] humTriggerEventArray = {"Humidity above threshold", "Humidity below threshold"};
     private final String[] motionTriggerEventArray = {"Device start moving", "Device keep static"};
-    private final String[] hallTriggerEventArray = {"Door close", "Door open"};
+    private final String[] hallTriggerEventArray = {"Door open", "Door close"};
     public int hallTriggerSelect;
     public int triggerCondition;
     public int motionTriggerSelect;
@@ -90,7 +90,7 @@ public class TriggerStep1Activity extends BaseActivity {
     private int rawTriggerType;
     private int accStatus;
     private int thStatus;
-    private final List<String> triggerList = new ArrayList<>();
+    private final List<String> triggerList = new ArrayList<>(4);
     private final String MOTION_DETECTION = "Motion detection";
     private final String TEMPERATURE_DETECTION = "Temperature detection";
     private final String HUMIDITY_DETECTION = "Humidity detection";
@@ -133,9 +133,20 @@ public class TriggerStep1Activity extends BaseActivity {
         initFragment();
         showFragment();
         initListener();
-        mBind.tvBack.setOnClickListener(v -> finish());
+        mBind.tvBack.setOnClickListener(v -> back());
         isTriggerOpen = null == triggerEvent || triggerEvent.triggerType == NO_TRIGGER;
         mBind.ivTrigger.callOnClick();
+    }
+
+    private void back(){
+        EventBus.getDefault().unregister(this);
+        setResult(RESULT_OK);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        back();
     }
 
     private int getNoTriggerType() {
@@ -294,7 +305,6 @@ public class TriggerStep1Activity extends BaseActivity {
                         if (header != 0xEB) return;
                         ParamsKeyEnum configKeyEnum = ParamsKeyEnum.fromParamKey(cmd);
                         if (configKeyEnum == null) return;
-                        int length = value[3] & 0xFF;
                         if (flag == 1) {
                             switch (configKeyEnum) {
                                 case KEY_SLOT_TRIGGER_TYPE:

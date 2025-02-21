@@ -311,6 +311,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_toLeftOf="@+id/tvRssi"
                 android:max="100"
+                android:progressDrawable="@drawable/seekbar_progress_drawable"
                 android:progress="0" />
 
             <TextView
@@ -356,6 +357,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tx_power"
                 android:layout_marginTop="10dp"
+                android:progressDrawable="@drawable/seekbar_progress_drawable"
                 android:layout_toLeftOf="@+id/tv_tx_power"
                 android:max="8"
                 android:progress="0" />

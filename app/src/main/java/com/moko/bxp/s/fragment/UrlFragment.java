@@ -35,9 +35,6 @@ public class UrlFragment extends BaseFragment<FragmentUrlSBinding> implements Se
     private final String FILTER_ASCII = "[!-~]*";
     private boolean isLowPowerMode;
     private SlotData slotData;
-    private int mRssi;
-    private int mTxPower;
-    private int mUrlScheme;
     private boolean isTriggerAfter;
     private TriggerStep1Bean step1Bean;
     private int maxAdvDuration;
@@ -130,17 +127,17 @@ public class UrlFragment extends BaseFragment<FragmentUrlSBinding> implements Se
     }
 
     @SuppressLint("DefaultLocale")
-    public void updateData(int viewId, int progress) {
+    private void updateData(int viewId, int progress) {
         if (viewId == R.id.sb_rssi) {
             int rssi = progress - 100;
             mBind.tvRssi.setText(String.format("%ddBm", rssi));
-            mRssi = rssi;
+            slotData.rssi = rssi;
         } else if (viewId == R.id.sb_tx_power) {
             TxPowerEnum txPowerEnum = TxPowerEnum.fromOrdinal(progress);
             if (null == txPowerEnum) return;
             int txPower = txPowerEnum.getTxPower();
             mBind.tvTxPower.setText(String.format("%ddBm", txPower));
-            mTxPower = txPower;
+            slotData.txPower = txPower;
         }
     }
 
@@ -231,12 +228,9 @@ public class UrlFragment extends BaseFragment<FragmentUrlSBinding> implements Se
             }
         }
         slotData.urlContent = urlContent;
-        slotData.advInterval = advIntervalInt;
-        slotData.urlScheme = mUrlScheme;
+        slotData.advInterval = advIntervalInt * 100;
         slotData.advDuration = mAdvDuration;
         slotData.standbyDuration = mStandbyDuration;
-        slotData.rssi = mRssi;
-        slotData.txPower = mTxPower;
         return true;
     }
 
@@ -248,8 +242,7 @@ public class UrlFragment extends BaseFragment<FragmentUrlSBinding> implements Se
     @Override
     public void setParams(@NonNull SlotData slotData) {
         this.slotData = slotData;
-//        if (slotData.currentFrameType == NO_DATA) return;
-        if (slotData.step1TriggerType != MOTION_TRIGGER || slotData.realType != NO_DATA){
+        if (slotData.step1TriggerType != MOTION_TRIGGER || slotData.realType != NO_DATA) {
             mBind.etAdvDuration.setText(String.valueOf(slotData.advDuration));
         }
         mBind.etAdvInterval.setText(String.valueOf(slotData.advInterval / 100));
@@ -262,8 +255,10 @@ public class UrlFragment extends BaseFragment<FragmentUrlSBinding> implements Se
         }
         int rssiProgress = slotData.rssi + 100;
         mBind.sbRssi.setProgress(rssiProgress);
+        mBind.tvRssi.setText(slotData.rssi + "dBm");
         int txPowerProgress = Objects.requireNonNull(TxPowerEnum.fromTxPower(slotData.txPower)).ordinal();
         mBind.sbTxPower.setProgress(txPowerProgress);
+        mBind.tvTxPower.setText(TxPowerEnum.fromTxPower(slotData.txPower).getTxPower() + "dBm");
 
         mBind.tvUrlScheme.setText(Objects.requireNonNull(UrlSchemeEnum.fromUrlType(slotData.urlScheme)).getUrlDesc());
         mBind.etUrl.setText(slotData.urlContent);
@@ -280,7 +275,7 @@ public class UrlFragment extends BaseFragment<FragmentUrlSBinding> implements Se
             UrlSchemeEnum urlSchemeEnum = UrlSchemeEnum.fromUrlType(Integer.parseInt(urlType));
             if (null == urlSchemeEnum) return;
             mBind.tvUrlScheme.setText(urlSchemeEnum.getUrlDesc());
-            mUrlScheme = Integer.parseInt(urlType);
+            slotData.urlScheme = Integer.parseInt(urlType);
         });
         dialog.show(getChildFragmentManager());
     }

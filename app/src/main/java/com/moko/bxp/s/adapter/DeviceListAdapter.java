@@ -63,7 +63,7 @@ public class DeviceListAdapter extends BaseQuickAdapter<AdvInfo, BaseViewHolder>
                 parent.addView(createSensorView(AdvInfoParser.getSensorInfo(validData.data), parent));
                 helper.setVisible(R.id.tv_tag_id, true);
                 helper.setText(R.id.tv_tag_id, String.format("Tag ID:0x%s", validData.data.substring(36)));
-            }else {
+            } else {
                 helper.setVisible(R.id.tv_tag_id, false);
             }
         }
@@ -102,7 +102,8 @@ public class DeviceListAdapter extends BaseQuickAdapter<AdvInfo, BaseViewHolder>
         TextView tv_temp = view.findViewById(R.id.tv_temp);
         TextView tv_adv_cnt = view.findViewById(R.id.tv_adv_cnt);
         TextView tv_sec_cnt = view.findViewById(R.id.tv_sec_cnt);
-        tv_vbatt.setText(String.format("%smV", tlm.vbatt));
+        String unit = tlm.vbatt <= 100 ? "%" : "mV";
+        tv_vbatt.setText(tlm.vbatt + unit);
         tv_temp.setText(tlm.temp);
         tv_adv_cnt.setText(tlm.adv_cnt);
         tv_sec_cnt.setText(tlm.sec_cnt);

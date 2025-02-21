@@ -66,7 +66,7 @@ public class ParamsTask extends OrderTask {
         int length = 0;
         byte[] bytes = getAdvBytes(afterBean);
         if (null != bytes) length = bytes.length;
-        byte[] intervalBytes = MokoUtils.toByteArray(afterBean.advInterval * 100, 2);
+        byte[] intervalBytes = MokoUtils.toByteArray(afterBean.advInterval, 2);
         byte[] durationBytes = MokoUtils.toByteArray(afterBean.advDuration, 2);
         data = new byte[12 + length];
         data[0] = (byte) 0xEA;
@@ -91,7 +91,7 @@ public class ParamsTask extends OrderTask {
         int length = 0;
         byte[] bytes = getAdvBytes(beforeBean);
         if (null != bytes) length = bytes.length;
-        byte[] intervalBytes = MokoUtils.toByteArray(beforeBean.advInterval * 100, 2);
+        byte[] intervalBytes = MokoUtils.toByteArray(beforeBean.advInterval, 2);
         byte[] durationBytes = MokoUtils.toByteArray(beforeBean.advDuration, 2);
         byte[] standbyDurationBytes = MokoUtils.toByteArray(beforeBean.standbyDuration, 2);
         data = new byte[14 + length];
@@ -305,7 +305,7 @@ public class ParamsTask extends OrderTask {
         int length = 0;
         byte[] bytes = getAdvBytes(slotData);
         if (null != bytes) length = bytes.length;
-        byte[] intervalBytes = MokoUtils.toByteArray(slotData.advInterval * 100, 2);
+        byte[] intervalBytes = MokoUtils.toByteArray(slotData.advInterval, 2);
         byte[] durationBytes = MokoUtils.toByteArray(slotData.advDuration, 2);
         byte[] standbyBytes = MokoUtils.toByteArray(slotData.standbyDuration, 2);
         data = new byte[14 + length];

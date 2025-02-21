@@ -36,6 +36,7 @@
         android:layout_marginTop="12dp"
         android:max="214"
         android:progress="0"
+        android:progressDrawable="@drawable/seekbar_progress_drawable"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/tvTempValue"
         app:layout_constraintTop_toBottomOf="@+id/tvTemperature" />

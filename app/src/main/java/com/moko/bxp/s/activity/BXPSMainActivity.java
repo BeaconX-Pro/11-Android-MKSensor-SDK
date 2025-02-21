@@ -1,5 +1,6 @@
 package com.moko.bxp.s.activity;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -57,7 +58,7 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
     private boolean mReceiverTag = false;
     private final ConcurrentHashMap<String, AdvInfo> advInfoHashMap = new ConcurrentHashMap<>();
     private final ArrayList<AdvInfo> advInfoList = new ArrayList<>();
-    private DeviceListAdapter adapter;
+    private final DeviceListAdapter adapter = new DeviceListAdapter();
     private final MokoBleScanner mokoBleScanner = new MokoBleScanner();
     private Handler mHandler;
     private boolean isPasswordError;
@@ -74,6 +75,7 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
     private boolean enablePwd;
     private int flag;
     private String mSelectedMac;
+    private boolean isOTA;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +96,6 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
         }
         MokoSupport.getInstance().init(getApplicationContext());
         flag = getIntent().getIntExtra("flag", 1);
-        adapter = new DeviceListAdapter();
         adapter.setOnItemChildClickListener(this);
         adapter.openLoadAnimation();
         mBind.rvDevices.setAdapter(adapter);
@@ -162,8 +163,16 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
             }
         }
         if (MokoConstants.ACTION_DISCOVER_SUCCESS.equals(action)) {
-            // 设备连接成功，通知页面更新
-            MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getVerifyPasswordEnable());
+            if (isOTA) {
+                //连接成功不需要密码
+                dismissLoadingProgressDialog();
+                Intent intent = new Intent(this, DfuActivity.class);
+                intent.putExtra("mac", mSelectedMac);
+                startActivity(intent);
+            } else {
+                // 设备连接成功，通知页面更新
+                MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getVerifyPasswordEnable());
+            }
         }
     }
 
@@ -264,6 +273,7 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
         EventBus.getDefault().unregister(this);
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void onStartScan() {
         advInfoHashMap.clear();
@@ -356,7 +366,6 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
         mBind.ivRefresh.startAnimation(animation);
         advInfoAnalysisImpl = new AdvInfoAnalysisImpl(flag);
         mokoBleScanner.startScanDevice(this);
-        mHandler.postDelayed(() -> mokoBleScanner.stopScanDevice(), 1000 * 60);
     }
 
     private LoadingDialog mLoadingDialog;
@@ -406,6 +415,7 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
             }
             showLoadingProgressDialog();
             mSelectedMac = advInfo.mac;
+            isOTA = advInfo.isOTA;
             MokoSupport.getInstance().connDevice(advInfo.mac);
         }
     }

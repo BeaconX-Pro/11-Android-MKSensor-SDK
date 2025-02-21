@@ -12,7 +12,7 @@
         android:layout_marginRight="10dp"
         android:background="@drawable/shape_radius_white_bg"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="10dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -72,7 +72,7 @@
             android:id="@+id/ll_filter_mac_addr"
             android:layout_width="0dp"
             android:layout_height="45dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="6dp"
             android:background="@drawable/shape_radius_blue_frame"
             android:gravity="center_vertical"
             app:layout_constraintHorizontal_bias="1"
@@ -87,9 +87,9 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1.0"
                 android:background="@color/transparent"
+                android:digits="0123456789abcdefABCDEF"
                 android:gravity="center_vertical"
                 android:hint="1-6bytes HEX"
-                android:digits="0123456789abcdefABCDEF"
                 android:maxLength="12"
                 android:paddingLeft="10dp"
                 android:singleLine="true"
@@ -118,7 +118,7 @@
             android:id="@+id/ll_filter_tag_id"
             android:layout_width="0dp"
             android:layout_height="45dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="6dp"
             android:background="@drawable/shape_radius_blue_frame"
             android:gravity="center_vertical"
             app:layout_constraintHorizontal_bias="1"
@@ -133,9 +133,9 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1.0"
                 android:background="@color/transparent"
+                android:digits="0123456789abcdefABCDEF"
                 android:gravity="center_vertical"
                 android:hint="1-3bytes HEX"
-                android:digits="0123456789abcdefABCDEF"
                 android:maxLength="12"
                 android:paddingLeft="10dp"
                 android:singleLine="true"
@@ -150,7 +150,6 @@
                 android:src="@drawable/filter_delete" />
         </LinearLayout>
 
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -164,7 +163,7 @@
             android:id="@+id/tv_rssi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="6dp"
             android:text="0dBm"
             android:textColor="@color/text_black_4d4d4d"
             android:textSize="15sp"
@@ -175,7 +174,7 @@
             android:id="@+id/ll_filter_rssi"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="6dp"
             android:gravity="center_vertical"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -213,6 +212,7 @@
             app:layout_constraintTop_toBottomOf="@id/ll_filter_rssi" />
 
         <TextView
+            android:id="@+id/tvMinRssi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="20dp"
@@ -223,20 +223,27 @@
             app:layout_constraintTop_toBottomOf="@id/ll_filter_rssi" />
 
         <TextView
-            android:id="@+id/tv_done"
-            android:layout_width="0dp"
+            android:id="@+id/tvTips"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="6dp"
+            android:lineSpacingMultiplier="1.1"
+            android:text="* RSSI filtering is the highest priority filtering condition. BLE Name and MAC Address filtering must first meet the RSSI filtering condition.* There is an 'OR' relationship between the BLE Name filtering, the MAC Address filtering and the Tag ID filtering."
+            android:textColor="#ff561f"
+            android:textSize="12sp"
+            app:layout_constraintTop_toBottomOf="@+id/tvMinRssi" />
+
+        <TextView
+            android:id="@+id/tv_done"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_marginTop="15dp"
             android:background="@drawable/shape_radius_blue_btn_bg"
             android:gravity="center"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
             android:text="Apply"
             android:textColor="@color/white_ffffff"
-            android:textSize="20dp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ll_filter_rssi" />
+            android:textSize="18sp"
+            app:layout_constraintTop_toBottomOf="@id/tvTips" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -11,6 +11,7 @@ public class AdvInfo {
     public static final int VALID_DATA_FRAME_TYPE_SENSOR_INFO = 0x80;
     public static final int VALID_DATA_FRAME_TYPE_TH_INFO = 0x70;
     public static final int VALID_DATA_FRAME_TYPE_PRODUCTION_TEST = 0x90;
+    public static final int VALID_DATA_FRAME_TYPE_OTA = 0x100;
 
 
     public String name;
@@ -24,6 +25,7 @@ public class AdvInfo {
     public int rangingData;
     public int connectState;
     public String tagId;
+    public boolean isOTA;
     public HashMap<String, ValidData> validDataHashMap;
     public static class ValidData {
         public int type;

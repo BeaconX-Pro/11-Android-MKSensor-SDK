@@ -94,6 +94,10 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
         });
         showSyncingProgressDialog();
         MokoSupport.getInstance().sendOrder(OrderTaskAssembler.getNormalSlotAdvParams(slot));
+        //不满足条件的不显示触发入口
+        if (accStatus == 0 && thStatus == 0 && (isButtonReset || isButtonPowerOff)) {
+            mBind.rlTriggerSwitch.setVisibility(View.GONE);
+        }
     }
 
     private void createFragments() {
@@ -260,7 +264,6 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
                 slotDataActionImpl = null;
                 break;
         }
-        mBind.rlTriggerSwitch.setVisibility(currentFrameType == NO_DATA ? View.GONE : View.VISIBLE);
     }
 
     public void onBack(View view) {

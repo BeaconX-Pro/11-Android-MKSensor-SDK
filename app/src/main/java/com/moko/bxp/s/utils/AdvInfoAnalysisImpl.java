@@ -4,6 +4,7 @@ import android.os.ParcelUuid;
 import android.os.SystemClock;
 import android.text.TextUtils;
 
+import com.elvishew.xlog.XLog;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.entity.AdvInfo;
 import com.moko.support.s.entity.DeviceInfo;
@@ -11,6 +12,7 @@ import com.moko.support.s.service.DeviceInfoAnalysis;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import no.nordicsemi.android.support.v18.scanner.ScanRecord;
@@ -32,6 +34,7 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
         boolean isEddystone = false;
         boolean isSensorInfo = false;
         boolean isProductTest = false;
+        boolean isOta = false;
         boolean isBeacon = false;
         byte[] values = null;
         String tagId = null;
@@ -47,6 +50,18 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
             type = AdvInfo.VALID_DATA_TYPE_IBEACON_APPLE;
             values = manufacturerBytes;
         }
+        List<ParcelUuid> uuids = record.getServiceUuids();
+        if (null != uuids && !uuids.isEmpty()) {
+            for (ParcelUuid uuid : uuids) {
+                if (uuid.toString().startsWith("0000eaff") && "MK_OTA".equals(deviceInfo.name)){
+                    isOta = true;
+                    type = AdvInfo.VALID_DATA_FRAME_TYPE_OTA;
+                    values = new byte[1];
+                    break;
+                }
+            }
+        }
+
         if (map != null && !map.isEmpty()) {
             for (ParcelUuid parcelUuid : map.keySet()) {
                 if (parcelUuid.toString().startsWith("0000feaa")) {
@@ -123,10 +138,10 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
                         }
                     }
                     break;
-                } else return null;
+                }  else return null;
             }
         }
-        if ((!isEddystone && !isSensorInfo && !isProductTest && !isBeacon) || values == null || type == -1) {
+        if ((!isEddystone && !isSensorInfo && !isProductTest && !isBeacon && !isOta) || values == null || type == -1) {
             return null;
         }
         AdvInfo advInfo;
@@ -142,6 +157,7 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
             long currentTime = SystemClock.elapsedRealtime();
             advInfo.intervalTime = currentTime - advInfo.scanTime;
             advInfo.scanTime = currentTime;
+            advInfo.isOTA = isOta;
         } else {
             advInfo = new AdvInfo();
             advInfo.name = deviceInfo.name;
@@ -154,6 +170,7 @@ public class AdvInfoAnalysisImpl implements DeviceInfoAnalysis<AdvInfo> {
             } else {
                 advInfo.connectState = 0;
             }
+            advInfo.isOTA = isOta;
             advInfo.scanRecord = deviceInfo.scanRecord;
             advInfo.scanTime = SystemClock.elapsedRealtime();
             advInfo.validDataHashMap = new HashMap<>();

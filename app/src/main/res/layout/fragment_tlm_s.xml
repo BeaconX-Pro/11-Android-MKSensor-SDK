@@ -218,6 +218,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_toLeftOf="@+id/tv_tx_power"
                 android:max="8"
+                android:progressDrawable="@drawable/seekbar_progress_drawable"
                 android:progress="0" />
 
             <TextView

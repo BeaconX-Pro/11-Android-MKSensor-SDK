@@ -114,9 +114,6 @@ public class UidFragment extends BaseFragment<FragmentUidSBinding> implements Se
         }
     }
 
-    private int mRssi;
-    private int mTxPower;
-
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         updateData(seekBar.getId(), progress);
@@ -127,13 +124,13 @@ public class UidFragment extends BaseFragment<FragmentUidSBinding> implements Se
         if (viewId == R.id.sb_rssi) {
             int rssi = progress - 100;
             mBind.tvRssi.setText(String.format("%ddBm", rssi));
-            mRssi = rssi;
+            slotData.rssi = rssi;
         } else if (viewId == R.id.sb_tx_power) {
             TxPowerEnum txPowerEnum = TxPowerEnum.fromOrdinal(progress);
             if (null == txPowerEnum) return;
             int txPower = txPowerEnum.getTxPower();
             mBind.tvTxPower.setText(String.format("%ddBm", txPower));
-            mTxPower = txPower;
+            slotData.txPower = txPower;
         }
     }
 
@@ -202,11 +199,9 @@ public class UidFragment extends BaseFragment<FragmentUidSBinding> implements Se
         } else {
             mAdvDuration = 10;
         }
-        slotData.advInterval = advIntervalInt;
+        slotData.advInterval = advIntervalInt *100;
         slotData.advDuration = mAdvDuration;
         slotData.standbyDuration = mStandbyDuration;
-        slotData.rssi = mRssi;
-        slotData.txPower = mTxPower;
         slotData.namespace = namespace;
         slotData.instanceId = instanceId;
         return true;
@@ -237,7 +232,6 @@ public class UidFragment extends BaseFragment<FragmentUidSBinding> implements Se
     @Override
     public void setParams(@NonNull SlotData slotData) {
         this.slotData = slotData;
-//        if (slotData.currentFrameType == NO_DATA) return;
         if (slotData.step1TriggerType != MOTION_TRIGGER || slotData.realType != NO_DATA) {
             mBind.etAdvDuration.setText(String.valueOf(slotData.advDuration));
         }
@@ -251,9 +245,11 @@ public class UidFragment extends BaseFragment<FragmentUidSBinding> implements Se
         }
         int rssiProgress = slotData.rssi + 100;
         mBind.sbRssi.setProgress(rssiProgress);
+        mBind.tvRssi.setText(slotData.rssi + "dBm");
 
         int txPowerProgress = Objects.requireNonNull(TxPowerEnum.fromTxPower(slotData.txPower)).ordinal();
         mBind.sbTxPower.setProgress(txPowerProgress);
+        mBind.tvTxPower.setText(TxPowerEnum.fromTxPower(slotData.txPower).getTxPower() + "dBm");
         mBind.etNamespace.setText(slotData.namespace);
         mBind.etInstanceId.setText(slotData.instanceId);
     }

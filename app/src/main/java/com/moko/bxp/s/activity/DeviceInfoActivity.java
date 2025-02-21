@@ -311,7 +311,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                                             TriggerEvent bean = new TriggerEvent();
                                             bean.triggerType = value[5] & 0xff;
                                             bean.triggerCondition = value[6] & 0xff;
-                                            bean.triggerThreshold = MokoUtils.toInt(Arrays.copyOfRange(value, 7, 9));
+                                            bean.triggerThreshold = MokoUtils.toIntSigned(Arrays.copyOfRange(value, 7, 9));
                                             bean.lockAdvDuration = value[9] & 0xff;
                                             bean.staticPeriod = MokoUtils.toInt(Arrays.copyOfRange(value, 10, 12));
                                             slotFragment.setSlotTriggerType(slot, bean);
@@ -417,7 +417,7 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
                                     case KEY_MANUFACTURE_DATE:
                                         if (length > 0) {
                                             String year = String.valueOf(MokoUtils.toInt(Arrays.copyOfRange(value, 4, 6)));
-                                            String month = (value[6] & 0xff) < 10 ? "0" + (value[4] & 0xff) : String.valueOf(value[4] & 0xff);
+                                            String month = (value[6] & 0xff) < 10 ? "0" + (value[6] & 0xff) : String.valueOf(value[6] & 0xff);
                                             String day = (value[7] & 0xff) < 10 ? "0" + (value[7] & 0xff) : String.valueOf(value[7] & 0xff);
                                             deviceFragment.setProductDate(year + "/" + month + "/" + day);
                                         }

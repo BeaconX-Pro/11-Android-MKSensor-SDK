@@ -93,7 +93,7 @@ public class SlotFragment extends BaseFragment<FragmentSlotSBinding> {
         intent.putExtra(AppConstants.EXTRA_KEY3, thStatus);
         intent.putExtra(AppConstants.EXTRA_KEY4, isButtonReset);
         intent.putExtra(AppConstants.EXTRA_KEY5, isButtonPowerEnable);
-        startActivity(intent);
+        launcher.launch(intent);
     }
 
     private void toSlotDataActivity(int slot) {

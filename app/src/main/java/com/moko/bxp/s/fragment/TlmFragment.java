@@ -30,7 +30,6 @@ import java.util.Objects;
 public class TlmFragment extends BaseFragment<FragmentTlmSBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
     private boolean isLowPowerMode;
     private SlotData slotData;
-    private int mTxPower;
     private boolean isTriggerAfter;
     private TriggerStep1Bean step1Bean;
     private int maxAdvDuration;
@@ -124,7 +123,7 @@ public class TlmFragment extends BaseFragment<FragmentTlmSBinding> implements Se
             if (null == txPowerEnum) return;
             int txPower = txPowerEnum.getTxPower();
             mBind.tvTxPower.setText(String.format("%ddBm", txPower));
-            mTxPower = txPower;
+            slotData.txPower = txPower;
         }
     }
 
@@ -184,10 +183,9 @@ public class TlmFragment extends BaseFragment<FragmentTlmSBinding> implements Se
         } else {
             mAdvDuration = 10;
         }
-        slotData.advInterval = advIntervalInt;
+        slotData.advInterval = advIntervalInt * 100;
         slotData.advDuration = mAdvDuration;
         slotData.standbyDuration = mStandbyDuration;
-        slotData.txPower = mTxPower;
         return true;
     }
 
@@ -199,8 +197,7 @@ public class TlmFragment extends BaseFragment<FragmentTlmSBinding> implements Se
     @Override
     public void setParams(@NonNull SlotData slotData) {
         this.slotData = slotData;
-//        if (slotData.currentFrameType == NO_DATA) return;
-        if (slotData.step1TriggerType != MOTION_TRIGGER || slotData.realType != NO_DATA){
+        if (slotData.step1TriggerType != MOTION_TRIGGER || slotData.realType != NO_DATA) {
             mBind.etAdvDuration.setText(String.valueOf(slotData.advDuration));
         }
         mBind.etAdvInterval.setText(String.valueOf(slotData.advInterval / 100));
@@ -213,6 +210,7 @@ public class TlmFragment extends BaseFragment<FragmentTlmSBinding> implements Se
         }
         int txPowerProgress = Objects.requireNonNull(TxPowerEnum.fromTxPower(slotData.txPower)).ordinal();
         mBind.sbTxPower.setProgress(txPowerProgress);
+        mBind.tvTxPower.setText(TxPowerEnum.fromTxPower(slotData.txPower).getTxPower() + "dBm");
     }
 
     @Override

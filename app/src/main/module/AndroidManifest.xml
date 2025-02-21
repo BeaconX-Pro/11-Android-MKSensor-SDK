@@ -100,6 +100,9 @@
         <activity
             android:name="com.moko.bxp.s.activity.SlotDataActivity"
             android:screenOrientation="portrait" />
+
+        <activity android:name=".activity.DfuActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

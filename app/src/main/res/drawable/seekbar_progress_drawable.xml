@@ -4,7 +4,7 @@
     <!--定义seekbar滑动条的底色-->
     <item
         android:id="@android:id/background"
-        android:height="2dp"
+        android:height="1.5dp"
         android:gravity="center_vertical">
         <shape>
             <corners android:radius="1dp" />
@@ -14,7 +14,7 @@
     <!--定义seekbar滑动条进度颜色-->
     <item
         android:id="@android:id/progress"
-        android:height="2dp"
+        android:height="1.5dp"
         android:gravity="center_vertical">
         <clip>
             <shape>

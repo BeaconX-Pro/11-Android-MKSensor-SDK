@@ -33,8 +33,6 @@ public class SensorInfoFragment extends BaseFragment<FragmentSensorInfoSBinding>
     private final String FILTER_ASCII = "[ -~]*";
     private boolean isLowPowerMode;
     private SlotData slotData;
-    private int mRssi;
-    private int mTxPower;
     private boolean isTriggerAfter;
     private TriggerStep1Bean step1Bean;
     private int maxAdvDuration;
@@ -133,13 +131,13 @@ public class SensorInfoFragment extends BaseFragment<FragmentSensorInfoSBinding>
         if (viewId == R.id.sb_rssi) {
             int rssi = progress - 100;
             mBind.tvRssi.setText(String.format("%ddBm", rssi));
-            mRssi = rssi;
+            slotData.rssi = rssi;
         } else if (viewId == R.id.sb_tx_power) {
             TxPowerEnum txPowerEnum = TxPowerEnum.fromOrdinal(progress);
             if (null == txPowerEnum) return;
             int txPower = txPowerEnum.getTxPower();
             mBind.tvTxPower.setText(String.format("%ddBm", txPower));
-            mTxPower = txPower;
+            slotData.txPower = txPower;
         }
     }
 
@@ -211,11 +209,9 @@ public class SensorInfoFragment extends BaseFragment<FragmentSensorInfoSBinding>
         }
         slotData.deviceName = mBind.etDeviceName.getText().toString();
         slotData.tagId = mBind.etTagId.getText().toString();
-        slotData.advInterval = advIntervalInt;
+        slotData.advInterval = advIntervalInt * 100;
         slotData.advDuration = mAdvDuration;
         slotData.standbyDuration = mStandbyDuration;
-        slotData.rssi = mRssi;
-        slotData.txPower = mTxPower;
         return true;
     }
 
@@ -239,7 +235,7 @@ public class SensorInfoFragment extends BaseFragment<FragmentSensorInfoSBinding>
     @Override
     public void setParams(@NonNull SlotData slotData) {
         this.slotData = slotData;
-        if (slotData.step1TriggerType != MOTION_TRIGGER || slotData.realType != NO_DATA){
+        if (slotData.step1TriggerType != MOTION_TRIGGER || slotData.realType != NO_DATA) {
             mBind.etAdvDuration.setText(String.valueOf(slotData.advDuration));
         }
         mBind.etAdvInterval.setText(String.valueOf(slotData.advInterval / 100));
@@ -252,8 +248,10 @@ public class SensorInfoFragment extends BaseFragment<FragmentSensorInfoSBinding>
         }
         int rssiProgress = slotData.rssi + 100;
         mBind.sbRssi.setProgress(rssiProgress);
+        mBind.tvRssi.setText(slotData.rssi + "dBm");
         int txPowerProgress = Objects.requireNonNull(TxPowerEnum.fromTxPower(slotData.txPower)).ordinal();
         mBind.sbTxPower.setProgress(txPowerProgress);
+        mBind.tvTxPower.setText(TxPowerEnum.fromTxPower(slotData.txPower).getTxPower() + "dBm");
         mBind.etDeviceName.setText(slotData.deviceName);
         mBind.etTagId.setText(slotData.tagId);
     }

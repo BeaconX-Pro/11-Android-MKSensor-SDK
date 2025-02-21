@@ -3,6 +3,7 @@ package com.moko.bxp.s.dialog;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import com.elvishew.xlog.XLog;
 import com.moko.bxp.s.databinding.DialogUrlSchemeSBinding;
 import com.moko.support.s.entity.UrlSchemeEnum;
 
@@ -12,6 +13,7 @@ public class UrlSchemeDialog extends MokoBaseDialog<DialogUrlSchemeSBinding> {
     public UrlSchemeDialog(){}
     public UrlSchemeDialog(String urlScheme){
         this.urlScheme = urlScheme;
+        XLog.i("*************");
     }
 
     private void renderConvertView() {
@@ -35,6 +37,7 @@ public class UrlSchemeDialog extends MokoBaseDialog<DialogUrlSchemeSBinding> {
 
     @Override
     protected void onCreateView() {
+        XLog.i("*************/////////////");
         renderConvertView();
         mBind.tvCancel.setOnClickListener(v -> dismiss());
         mBind.tvEnsure.setOnClickListener(v -> {
