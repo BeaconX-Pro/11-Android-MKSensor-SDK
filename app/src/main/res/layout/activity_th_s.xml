@@ -47,14 +47,11 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:layout_marginRight="12dp"
+        android:layout_marginRight="10dp"
         android:background="@drawable/shape_radius_white_bg"
-        android:paddingLeft="15dp"
-        android:paddingTop="10dp"
-        android:paddingRight="15dp"
-        android:paddingBottom="10dp">
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/temp_title"
@@ -187,13 +184,13 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginLeft="12dp"
+        android:layout_height="55dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:layout_marginRight="12dp"
+        android:layout_marginRight="10dp"
         android:background="@drawable/shape_radius_white_bg"
         android:orientation="horizontal"
-        android:paddingLeft="15dp"
+        android:paddingLeft="10dp"
         android:paddingRight="5dp">
 
         <TextView
@@ -219,13 +216,13 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginLeft="12dp"
+        android:layout_height="55dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:layout_marginRight="12dp"
+        android:layout_marginRight="10dp"
         android:background="@drawable/shape_radius_white_bg"
         android:gravity="center_vertical"
-        android:paddingStart="15dp">
+        android:paddingStart="10dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -266,14 +263,11 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:layout_marginRight="12dp"
+        android:layout_marginRight="10dp"
         android:background="@drawable/shape_radius_white_bg"
-        android:paddingLeft="15dp"
-        android:paddingTop="10dp"
-        android:paddingRight="15dp"
-        android:paddingBottom="10dp">
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/update_date_title"
@@ -313,16 +307,16 @@
     <TextView
         android:id="@+id/tvExportDataTitle"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginLeft="12dp"
+        android:layout_height="55dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:layout_marginRight="12dp"
+        android:layout_marginRight="10dp"
         android:background="@drawable/shape_radius_white_bg"
         android:drawableEnd="@drawable/arrow_right"
         android:gravity="center_vertical"
         android:onClick="onExportData"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:text="Export T\u0026H data"
         android:textColor="@color/black_333333"
         android:textSize="15sp" />

@@ -1,13 +1,8 @@
 package com.moko.bxp.s.activity;
 
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -43,7 +38,6 @@ import com.moko.support.s.entity.DeviceInfo;
 import com.moko.support.s.entity.OrderCHAR;
 import com.moko.support.s.entity.ParamsKeyEnum;
 
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -53,9 +47,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCallback, BaseQuickAdapter.OnItemChildClickListener {
-    private ActivityMainSBinding mBind;
-    private boolean mReceiverTag = false;
+public class BXPSMainActivity extends BaseActivity<ActivityMainSBinding> implements MokoScanDeviceCallback, BaseQuickAdapter.OnItemChildClickListener {
     private final ConcurrentHashMap<String, AdvInfo> advInfoHashMap = new ConcurrentHashMap<>();
     private final ArrayList<AdvInfo> advInfoList = new ArrayList<>();
     private final DeviceListAdapter adapter = new DeviceListAdapter();
@@ -78,10 +70,7 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
     private boolean isOTA;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBind = ActivityMainSBinding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
+    protected void onCreate() {
         // 初始化Xlog
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             // 优先保存到SD卡中
@@ -101,13 +90,7 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
         mBind.rvDevices.setAdapter(adapter);
 
         mHandler = new Handler(Looper.getMainLooper());
-        EventBus.getDefault().register(this);
         mSavedPassword = SPUtiles.getStringValue(this, AppConstants.SP_KEY_SAVED_PASSWORD, "");
-        // 注册广播接收器
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(mReceiver, filter);
-        mReceiverTag = true;
         if (!MokoSupport.getInstance().isBluetoothOpen()) {
             // 蓝牙未打开，开启蓝牙
             MokoSupport.getInstance().enableBluetooth();
@@ -116,30 +99,19 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
         }
     }
 
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent != null) {
-                String action = intent.getAction();
-                if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                    int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-                    switch (blueState) {
-                        case BluetoothAdapter.STATE_TURNING_OFF:
-                            if (animation != null) {
-                                mHandler.removeMessages(0);
-                                mokoBleScanner.stopScanDevice();
-                                onStopScan();
-                            }
-                            break;
-                        case BluetoothAdapter.STATE_ON:
-                            if (animation == null) startScan();
-                            break;
+    @Override
+    protected ActivityMainSBinding getViewBinding() {
+        return ActivityMainSBinding.inflate(getLayoutInflater());
+    }
 
-                    }
-                }
-            }
+    @Override
+    protected void onSystemBleTurnOff() {
+        if (animation != null) {
+            mHandler.removeMessages(0);
+            mokoBleScanner.stopScanDevice();
+            onStopScan();
         }
-    };
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onConnectStatusEvent(ConnectStatusEvent event) {
@@ -260,17 +232,6 @@ public class BXPSMainActivity extends BaseActivity implements MokoScanDeviceCall
             mPassword = "";
             if (animation == null) startScan();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mReceiverTag) {
-            mReceiverTag = false;
-            // 注销广播
-            unregisterReceiver(mReceiver);
-        }
-        EventBus.getDefault().unregister(this);
     }
 
     @SuppressLint("DefaultLocale")

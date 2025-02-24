@@ -3,14 +3,12 @@ package com.moko.bxp.s.activity;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Window;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
 
 import com.elvishew.xlog.XLog;
 import com.moko.ble.lib.MokoConstants;
@@ -42,9 +40,7 @@ import java.util.Arrays;
  * @date: 2025/2/20 15:28
  * @des:
  */
-public class DfuActivity extends BaseActivity{
-    private ActivityDfuBinding mBind;
-    //ota
+public class DfuActivity extends BaseActivity<ActivityDfuBinding> {
     private int mIndex = 0;
     private boolean mLastPackage = false;
     private int mPackageCount = 0;
@@ -54,12 +50,9 @@ public class DfuActivity extends BaseActivity{
     private boolean isOTAMode;
     private byte[] mFirmwareFileBytes;
     private String mDeviceMac;
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBind = ActivityDfuBinding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
-        EventBus.getDefault().register(this);
+    protected void onCreate() {
         mBind.tvBack.setOnClickListener(v -> back());
         mDeviceMac = getIntent().getStringExtra("mac");
         mBind.tvDfu.setOnClickListener(v -> {
@@ -71,6 +64,11 @@ public class DfuActivity extends BaseActivity{
             }
             chooseLauncher.launch("*/*");
         });
+    }
+
+    @Override
+    protected ActivityDfuBinding getViewBinding() {
+        return ActivityDfuBinding.inflate(getLayoutInflater());
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 100)
@@ -241,12 +239,6 @@ public class DfuActivity extends BaseActivity{
             XLog.i("OTA END");
             MokoSupport.getInstance().sendOrder(OrderTaskAssembler.endDFU());
         }, 500);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     private ProgressDialog mDFUDialog;

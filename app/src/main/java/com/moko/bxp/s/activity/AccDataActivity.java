@@ -1,12 +1,6 @@
 package com.moko.bxp.s.activity;
 
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
@@ -21,7 +15,6 @@ import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityAccDataSBinding;
 import com.moko.bxp.s.dialog.BottomDialog;
-import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
@@ -35,27 +28,15 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class AccDataActivity extends BaseActivity {
-    private boolean mReceiverTag = false;
+public class AccDataActivity extends BaseActivity<ActivityAccDataSBinding> {
     private final String[] axisDataRates = {"1Hz", "10Hz", "25Hz", "50Hz", "100Hz"};
     private final String[] axisScales = {"±2g", "±4g", "±8g", "±16g"};
     private boolean isSync;
     private int mSelectedRate;
     private int mSelectedScale;
-    private ActivityAccDataSBinding mBind;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBind = ActivityAccDataSBinding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
-        EventBus.getDefault().register(this);
-
-        // 注册广播接收器
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(mReceiver, filter);
-        mReceiverTag = true;
+    protected void onCreate() {
         if (!MokoSupport.getInstance().isBluetoothOpen()) {
             // 蓝牙未打开，开启蓝牙
             MokoSupport.getInstance().enableBluetooth();
@@ -66,6 +47,11 @@ public class AccDataActivity extends BaseActivity {
             orderTasks.add(OrderTaskAssembler.getAxisParams());
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         }
+    }
+
+    @Override
+    protected ActivityAccDataSBinding getViewBinding() {
+        return ActivityAccDataSBinding.inflate(getLayoutInflater());
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
@@ -160,46 +146,6 @@ public class AccDataActivity extends BaseActivity {
         });
     }
 
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent != null) {
-                String action = intent.getAction();
-                if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                    int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-                    if (blueState == BluetoothAdapter.STATE_TURNING_OFF) {
-                        dismissSyncProgressDialog();
-                        finish();
-                    }
-                }
-            }
-        }
-    };
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mReceiverTag) {
-            mReceiverTag = false;
-            // 注销广播
-            unregisterReceiver(mReceiver);
-        }
-        EventBus.getDefault().unregister(this);
-    }
-
-    private LoadingMessageDialog mLoadingMessageDialog;
-
-    public void showSyncingProgressDialog() {
-        mLoadingMessageDialog = new LoadingMessageDialog();
-        mLoadingMessageDialog.setMessage("Syncing..");
-        mLoadingMessageDialog.show(getSupportFragmentManager());
-    }
-
-    public void dismissSyncProgressDialog() {
-        if (mLoadingMessageDialog != null)
-            mLoadingMessageDialog.dismissAllowingStateLoss();
-    }
-
     private void back() {
         // 关闭通知
         MokoSupport.getInstance().disableAccNotify();
@@ -227,7 +173,6 @@ public class AccDataActivity extends BaseActivity {
             ToastUtils.showToast(this, "Opps！Save failed. Please check the input characters and try again.");
             return;
         }
-        // 保存
         showSyncingProgressDialog();
         MokoSupport.getInstance().sendOrder(OrderTaskAssembler.setAxisParams(mSelectedRate, mSelectedScale, threshold));
     }

@@ -1,11 +1,6 @@
 package com.moko.bxp.s.activity;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,7 +14,6 @@ import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityQuickSwitchSBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
-import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
@@ -33,8 +27,7 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuickSwitchActivity extends BaseActivity {
-    private ActivityQuickSwitchSBinding mBind;
+public class QuickSwitchActivity extends BaseActivity<ActivityQuickSwitchSBinding> {
     private boolean enablePasswordVerify;
     private boolean enableLedIndicator;
     private boolean enableConnect;
@@ -43,22 +36,13 @@ public class QuickSwitchActivity extends BaseActivity {
     private boolean turnOffByButton;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBind = ActivityQuickSwitchSBinding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
-        EventBus.getDefault().register(this);
-
-        // 注册广播接收器
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(mReceiver, filter);
+    protected void onCreate() {
         if (!MokoSupport.getInstance().isBluetoothOpen()) {
             // 蓝牙未打开，开启蓝牙
             MokoSupport.getInstance().enableBluetooth();
         } else {
             showSyncingProgressDialog();
-            ArrayList<OrderTask> orderTasks = new ArrayList<>(8);
+            ArrayList<OrderTask> orderTasks = new ArrayList<>(6);
             orderTasks.add(OrderTaskAssembler.getConnectStatus());
             orderTasks.add(OrderTaskAssembler.getTriggerLedStatus());
             orderTasks.add(OrderTaskAssembler.getVerifyPasswordEnable());
@@ -68,6 +52,11 @@ public class QuickSwitchActivity extends BaseActivity {
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
         }
         setListener();
+    }
+
+    @Override
+    protected ActivityQuickSwitchSBinding getViewBinding() {
+        return ActivityQuickSwitchSBinding.inflate(getLayoutInflater());
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 200)
@@ -284,42 +273,6 @@ public class QuickSwitchActivity extends BaseActivity {
         orderTasks.add(OrderTaskAssembler.setVerifyPasswordEnable(enable ? 1 : 0));
         orderTasks.add(OrderTaskAssembler.getVerifyPasswordEnable());
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
-    }
-
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (null == intent) return;
-            String action = intent.getAction();
-            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-                if (blueState == BluetoothAdapter.STATE_TURNING_OFF) {
-                    dismissSyncProgressDialog();
-                    finish();
-                }
-            }
-        }
-    };
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // 注销广播
-        unregisterReceiver(mReceiver);
-        EventBus.getDefault().unregister(this);
-    }
-
-    private LoadingMessageDialog mLoadingMessageDialog;
-
-    public void showSyncingProgressDialog() {
-        mLoadingMessageDialog = new LoadingMessageDialog();
-        mLoadingMessageDialog.setMessage("Syncing..");
-        mLoadingMessageDialog.show(getSupportFragmentManager());
-    }
-
-    public void dismissSyncProgressDialog() {
-        if (mLoadingMessageDialog != null)
-            mLoadingMessageDialog.dismissAllowingStateLoss();
     }
 
     public void onBack(View view) {

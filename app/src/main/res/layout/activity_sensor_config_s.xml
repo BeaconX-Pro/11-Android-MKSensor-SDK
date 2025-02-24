@@ -36,7 +36,7 @@
     <TextView
         android:id="@+id/tv_acc_config"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="55dp"
         android:background="@color/white_ffffff"
         android:drawableRight="@drawable/arrow_right"
         android:gravity="center_vertical"
@@ -50,7 +50,7 @@
     <TextView
         android:id="@+id/tvHall"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="55dp"
         android:layout_marginTop="1dp"
         android:background="@color/white_ffffff"
         android:drawableRight="@drawable/arrow_right"
@@ -67,7 +67,7 @@
     <TextView
         android:id="@+id/tvTH"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="55dp"
         android:layout_marginTop="1dp"
         android:background="@color/white_ffffff"
         android:drawableRight="@drawable/arrow_right"

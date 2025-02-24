@@ -1,9 +1,6 @@
 package com.moko.bxp.s.activity;
 
 import android.content.Intent;
-import android.os.Bundle;
-
-import androidx.annotation.Nullable;
 
 import com.moko.bxp.s.BuildConfig;
 import com.moko.bxp.s.R;
@@ -15,15 +12,22 @@ import com.moko.bxp.s.dialog.AlertMessageDialog;
  * @date: 2024/2/19 17:13
  * @des:
  */
-public class DeviceTypeSelectActivity extends BaseActivity {
+public class DeviceTypeSelectActivity extends BaseActivity<ActivityDeviceTypeSelectSBinding> {
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ActivityDeviceTypeSelectSBinding mBind = ActivityDeviceTypeSelectSBinding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
+    protected void onCreate() {
         mBind.layoutCommon.setOnClickListener(v -> onTypeClick(1));
         mBind.layoutTH.setOnClickListener(v -> onTypeClick(2));
         mBind.layoutHum.setOnClickListener(v -> onTypeClick(3));
+    }
+
+    @Override
+    protected ActivityDeviceTypeSelectSBinding getViewBinding() {
+        return ActivityDeviceTypeSelectSBinding.inflate(getLayoutInflater());
+    }
+
+    @Override
+    protected boolean registerEvent() {
+        return false;
     }
 
     private void onTypeClick(int flag) {

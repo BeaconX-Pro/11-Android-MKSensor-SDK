@@ -38,15 +38,15 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:background="@drawable/shape_radius_white_bg"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:paddingBottom="15dp">
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp">
 
         <TextView
             android:id="@+id/tvLedNotification"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="35dp"
+            android:layout_marginTop="25dp"
             android:text="LED notification"
             android:textColor="#000000"
             android:textSize="18sp"
@@ -152,15 +152,15 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:background="@drawable/shape_radius_white_bg"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:paddingBottom="15dp">
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="10dp">
 
         <TextView
             android:id="@+id/tvBuzzerNotification"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="35dp"
+            android:layout_marginTop="25dp"
             android:text="Buzzer notification"
             android:textColor="#000000"
             android:textSize="18sp"

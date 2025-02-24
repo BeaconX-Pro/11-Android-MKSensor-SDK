@@ -7,15 +7,9 @@ import static com.moko.support.s.entity.SlotAdvType.TLM;
 import static com.moko.support.s.entity.SlotAdvType.UID;
 import static com.moko.support.s.entity.SlotAdvType.URL;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -29,7 +23,6 @@ import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep2Binding;
 import com.moko.bxp.s.dialog.BottomDialog;
-import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.fragment.IBeaconFragment;
 import com.moko.bxp.s.fragment.SensorInfoFragment;
 import com.moko.bxp.s.fragment.TlmFragment;
@@ -54,9 +47,7 @@ import java.util.Arrays;
  * @date: 2024/10/10 10:05
  * @des:
  */
-public class TriggerStep2Activity extends BaseActivity {
-    private ActivityTriggerStep2Binding mBind;
-    private boolean mReceiverTag;
+public class TriggerStep2Activity extends BaseActivity<ActivityTriggerStep2Binding> {
     private int slot;
     private final String[] frameTypeArray = {"Sensor info", "TLM", "UID", "URL", "iBeacon"};
     private int rawFrameType;
@@ -73,16 +64,7 @@ public class TriggerStep2Activity extends BaseActivity {
     private SlotData originSlotData;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBind = ActivityTriggerStep2Binding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
-        EventBus.getDefault().register(this);
-        // 注册广播接收器
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(mReceiver, filter);
-        mReceiverTag = true;
+    protected void onCreate() {
         slot = getIntent().getIntExtra(AppConstants.SLOT, 0);
         step1Bean = getIntent().getParcelableExtra("step1");
         fragmentManager = getSupportFragmentManager();
@@ -98,6 +80,11 @@ public class TriggerStep2Activity extends BaseActivity {
         }
         mBind.tvTitle.setText("SLOT" + (slot + 1));
         mBind.tvBack.setOnClickListener(v -> finish());
+    }
+
+    @Override
+    protected ActivityTriggerStep2Binding getViewBinding() {
+        return ActivityTriggerStep2Binding.inflate(getLayoutInflater());
     }
 
     private void createFragments() {
@@ -230,47 +217,6 @@ public class TriggerStep2Activity extends BaseActivity {
                 }
             }
         });
-    }
-
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent != null) {
-                String action = intent.getAction();
-                if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                    int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-                    if (blueState == BluetoothAdapter.STATE_TURNING_OFF) {
-                        dismissSyncProgressDialog();
-                        finish();
-                    }
-                }
-            }
-        }
-    };
-
-    private LoadingMessageDialog mLoadingMessageDialog;
-
-    public void showSyncingProgressDialog() {
-        mLoadingMessageDialog = new LoadingMessageDialog();
-        mLoadingMessageDialog.setMessage("Syncing..");
-        mLoadingMessageDialog.show(getSupportFragmentManager());
-    }
-
-    public void dismissSyncProgressDialog() {
-        if (mLoadingMessageDialog != null)
-            mLoadingMessageDialog.dismissAllowingStateLoss();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mReceiverTag) {
-            mReceiverTag = false;
-            // 注销广播
-            unregisterReceiver(mReceiver);
-        }
-        if (EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().unregister(this);
     }
 
     private void setSlotAdvParams(@NonNull byte[] value) {

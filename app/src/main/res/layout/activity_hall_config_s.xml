@@ -37,12 +37,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="55dp"
-        android:layout_margin="12dp"
+        android:layout_margin="10dp"
         android:background="@drawable/shape_radius_white_bg"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp">
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
 
         <TextView
             android:layout_width="0px"

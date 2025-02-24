@@ -9,7 +9,6 @@ import static com.moko.support.s.entity.SlotAdvType.UID;
 import static com.moko.support.s.entity.SlotAdvType.URL;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.View;
 
 import androidx.fragment.app.FragmentManager;
@@ -25,7 +24,6 @@ import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivitySlotDataSBinding;
-import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.fragment.IBeaconFragment;
 import com.moko.bxp.s.fragment.SensorInfoFragment;
 import com.moko.bxp.s.fragment.TlmFragment;
@@ -47,8 +45,7 @@ import java.util.Arrays;
 
 import cn.carbswang.android.numberpickerview.library.NumberPickerView;
 
-public class SlotDataActivity extends BaseActivity implements NumberPickerView.OnValueChangeListener {
-    private ActivitySlotDataSBinding mBind;
+public class SlotDataActivity extends BaseActivity<ActivitySlotDataSBinding> implements NumberPickerView.OnValueChangeListener {
     private FragmentManager fragmentManager;
     private SensorInfoFragment sensorInfoFragment;
     private UidFragment uidFragment;
@@ -66,10 +63,7 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
     private boolean isButtonReset;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBind = ActivitySlotDataSBinding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
+    protected void onCreate() {
         fragmentManager = getSupportFragmentManager();
         slot = getIntent().getIntExtra(AppConstants.SLOT, 0);
         accStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY2, 0);
@@ -82,7 +76,6 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
         mBind.npvSlotType.setMaxValue(5);
         mBind.npvSlotType.setOnValueChangedListener(this);
         mBind.tvSlotTitle.setText("SLOT" + (slot + 1));
-        EventBus.getDefault().register(this);
         mBind.rlTriggerSwitch.setOnClickListener(v -> {
             Intent intent = new Intent(this, TriggerStep1Activity.class);
             intent.putExtra(AppConstants.SLOT, slot);
@@ -98,6 +91,11 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
         if (accStatus == 0 && thStatus == 0 && (isButtonReset || isButtonPowerOff)) {
             mBind.rlTriggerSwitch.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    protected ActivitySlotDataSBinding getViewBinding() {
+        return ActivitySlotDataSBinding.inflate(getLayoutInflater());
     }
 
     private void createFragments() {
@@ -199,26 +197,6 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().unregister(this);
-    }
-
-    private LoadingMessageDialog mLoadingMessageDialog;
-
-    public void showSyncingProgressDialog() {
-        mLoadingMessageDialog = new LoadingMessageDialog();
-        mLoadingMessageDialog.setMessage("Syncing..");
-        mLoadingMessageDialog.show(getSupportFragmentManager());
-    }
-
-    public void dismissSyncProgressDialog() {
-        if (mLoadingMessageDialog != null)
-            mLoadingMessageDialog.dismissAllowingStateLoss();
-    }
-
-    @Override
     public void onValueChange(NumberPickerView picker, int oldVal, int newVal) {
         XLog.i(newVal + "");
         XLog.i(picker.getContentByCurrValue());
@@ -237,6 +215,7 @@ public class SlotDataActivity extends BaseActivity implements NumberPickerView.O
 
     private void showFragment(int index) {
         currentFrameType = SlotAdvType.SLOT_TYPE[index];
+        mBind.frameSlotContainer.setVisibility(currentFrameType == NO_DATA ? View.GONE : View.VISIBLE);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         switch (currentFrameType) {
             case TLM:

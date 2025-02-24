@@ -8,13 +8,8 @@ import static com.moko.support.s.entity.SlotAdvType.SLOT3;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -37,7 +32,6 @@ import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityDeviceInfoSBinding;
 import com.moko.bxp.s.dialog.AlertMessageDialog;
-import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.entity.TriggerEvent;
 import com.moko.bxp.s.fragment.DeviceFragment;
 import com.moko.bxp.s.fragment.SettingFragment;
@@ -61,15 +55,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnCheckedChangeListener {
-    private ActivityDeviceInfoSBinding mBind;
+public class DeviceInfoActivity extends BaseActivity<ActivityDeviceInfoSBinding> implements RadioGroup.OnCheckedChangeListener {
     private FragmentManager fragmentManager;
     private SlotFragment slotFragment;
     private SettingFragment settingFragment;
     private DeviceFragment deviceFragment;
     public String mDeviceMac;
     private boolean mIsClose;
-    private boolean mReceiverTag = false;
     private int mDisconnectType;
     private boolean isModifyPassword;
     private boolean isButtonPowerEnable;
@@ -89,26 +81,22 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
     private byte[] mFirmwareFileBytes;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBind = ActivityDeviceInfoSBinding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
+    protected void onCreate() {
         fragmentManager = getSupportFragmentManager();
         enablePwd = getIntent().getBooleanExtra("pwdEnable", false);
         mDeviceMac = getIntent().getStringExtra("mac");
         initFragment();
         mBind.rgOptions.setOnCheckedChangeListener(this);
-        EventBus.getDefault().register(this);
-        // 注册广播接收器
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(mReceiver, filter);
-        mReceiverTag = true;
         if (!MokoSupport.getInstance().isBluetoothOpen()) {
             // 蓝牙未打开，开启蓝牙
             MokoSupport.getInstance().enableBluetooth();
         }
         getSlotData();
+    }
+
+    @Override
+    protected ActivityDeviceInfoSBinding getViewBinding() {
+        return ActivityDeviceInfoSBinding.inflate(getLayoutInflater());
     }
 
     private void getSlotData() {
@@ -498,27 +486,17 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
         MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[]{}));
     }
 
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent != null) {
-                String action = intent.getAction();
-                if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                    int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-                    if (blueState == BluetoothAdapter.STATE_TURNING_OFF) {
-                        dismissSyncProgressDialog();
-                        AlertMessageDialog dialog = new AlertMessageDialog();
-                        dialog.setTitle("Dismiss");
-                        dialog.setCancelGone();
-                        dialog.setMessage("The current system of bluetooth is not available!");
-                        dialog.setConfirm(R.string.ok);
-                        dialog.setOnAlertConfirmListener(() -> finish());
-                        dialog.show(getSupportFragmentManager());
-                    }
-                }
-            }
-        }
-    };
+    @Override
+    protected void onSystemBleTurnOff() {
+        dismissSyncProgressDialog();
+        AlertMessageDialog dialog = new AlertMessageDialog();
+        dialog.setTitle("Dismiss");
+        dialog.setCancelGone();
+        dialog.setMessage("The current system of bluetooth is not available!");
+        dialog.setConfirm(R.string.ok);
+        dialog.setOnAlertConfirmListener(() -> finish());
+        dialog.show(getSupportFragmentManager());
+    }
 
     public void onQuickClick(View view) {
         quickLauncher.launch(new Intent(this, QuickSwitchActivity.class));
@@ -609,30 +587,6 @@ public class DeviceInfoActivity extends BaseActivity implements RadioGroup.OnChe
             XLog.i("OTA END");
             MokoSupport.getInstance().sendOrder(OrderTaskAssembler.endDFU());
         }, 500);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mReceiverTag) {
-            mReceiverTag = false;
-            // 注销广播
-            unregisterReceiver(mReceiver);
-        }
-        EventBus.getDefault().unregister(this);
-    }
-
-    private LoadingMessageDialog mLoadingMessageDialog;
-
-    public void showSyncingProgressDialog() {
-        mLoadingMessageDialog = new LoadingMessageDialog();
-        mLoadingMessageDialog.setMessage("Syncing..");
-        mLoadingMessageDialog.show(getSupportFragmentManager());
-    }
-
-    public void dismissSyncProgressDialog() {
-        if (mLoadingMessageDialog != null)
-            mLoadingMessageDialog.dismissAllowingStateLoss();
     }
 
     private void back() {

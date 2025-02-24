@@ -1,11 +1,6 @@
 package com.moko.bxp.s.activity;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -18,7 +13,6 @@ import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityThSBinding;
-import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
@@ -35,9 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public class THDataActivity extends BaseActivity {
-    private ActivityThSBinding mBind;
-    private boolean mReceiverTag = false;
+public class THDataActivity extends BaseActivity<ActivityThSBinding> {
     private boolean isTHStoreEnable;
     private final SimpleDateFormat sdf = new SimpleDateFormat(AppConstants.PATTERN_YYYY_MM_DD_HH_MM_SS, Locale.getDefault());
     private boolean isParamsError;
@@ -48,17 +40,7 @@ public class THDataActivity extends BaseActivity {
     private boolean hasSynTime;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBind = ActivityThSBinding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
-        EventBus.getDefault().register(this);
-
-        // 注册广播接收器
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(mReceiver, filter);
-        mReceiverTag = true;
+    protected void onCreate() {
         if (!MokoSupport.getInstance().isBluetoothOpen()) {
             // 蓝牙未打开，开启蓝牙
             MokoSupport.getInstance().enableBluetooth();
@@ -83,6 +65,11 @@ public class THDataActivity extends BaseActivity {
             mBind.tvDataStoreTitle.setText("Temperature Data Store");
             mBind.tvExportDataTitle.setText("Export Temperature data");
         }
+    }
+
+    @Override
+    protected ActivityThSBinding getViewBinding() {
+        return ActivityThSBinding.inflate(getLayoutInflater());
     }
 
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 300)
@@ -185,46 +172,6 @@ public class THDataActivity extends BaseActivity {
                 }
             }
         });
-    }
-
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent != null) {
-                String action = intent.getAction();
-                if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                    int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-                    if (blueState == BluetoothAdapter.STATE_TURNING_OFF) {
-                        dismissSyncProgressDialog();
-                        finish();
-                    }
-                }
-            }
-        }
-    };
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mReceiverTag) {
-            mReceiverTag = false;
-            // 注销广播
-            unregisterReceiver(mReceiver);
-        }
-        EventBus.getDefault().unregister(this);
-    }
-
-    private LoadingMessageDialog mLoadingMessageDialog;
-
-    public void showSyncingProgressDialog() {
-        mLoadingMessageDialog = new LoadingMessageDialog();
-        mLoadingMessageDialog.setMessage("Syncing..");
-        mLoadingMessageDialog.show(getSupportFragmentManager());
-    }
-
-    public void dismissSyncProgressDialog() {
-        if (mLoadingMessageDialog != null)
-            mLoadingMessageDialog.dismissAllowingStateLoss();
     }
 
     private void back() {

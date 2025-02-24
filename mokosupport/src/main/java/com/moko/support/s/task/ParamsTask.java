@@ -199,8 +199,7 @@ public class ParamsTask extends OrderTask {
     }
 
     //设置远程控制led
-    public void setLedRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
-                                     @IntRange(from = 10, to = 6000) int time) {
+    public void setLedRemoteReminder(@IntRange(from = 100, to = 10000) int interval, @IntRange(from = 10, to = 6000) int time) {
         byte[] bytesInterval = MokoUtils.toByteArray(interval, 2);
         byte[] bytesTime = MokoUtils.toByteArray(time, 2);
         response.responseValue = data = new byte[]{
@@ -216,8 +215,7 @@ public class ParamsTask extends OrderTask {
         };
     }
 
-    public void setBuzzerRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
-                                        @IntRange(from = 10, to = 6000) int time) {
+    public void setBuzzerRemoteReminder(@IntRange(from = 100, to = 10000) int interval, @IntRange(from = 10, to = 6000) int time) {
         byte[] bytesInterval = MokoUtils.toByteArray(interval, 2);
         byte[] bytesTime = MokoUtils.toByteArray(time, 2);
         response.responseValue = data = new byte[]{
@@ -366,9 +364,7 @@ public class ParamsTask extends OrderTask {
         return null;
     }
 
-    public void setAxisParams(@IntRange(from = 0, to = 4) int rate,
-                              @IntRange(from = 0, to = 3) int scale,
-                              @IntRange(from = 1, to = 255) int sensitivity) {
+    public void setAxisParams(@IntRange(from = 0, to = 4) int rate, @IntRange(from = 0, to = 3) int scale, @IntRange(from = 1, to = 255) int sensitivity) {
         response.responseValue = data = new byte[]{
                 (byte) 0xEA,
                 (byte) 0x01,

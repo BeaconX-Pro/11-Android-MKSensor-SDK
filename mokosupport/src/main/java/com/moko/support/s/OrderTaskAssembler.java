@@ -12,55 +12,36 @@ import com.moko.support.s.task.ParamsTask;
 import com.moko.support.s.task.PasswordTask;
 
 public class OrderTaskAssembler {
-
-    /**
-     * 获取制造商
-     */
     public static OrderTask getManufacturer() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_MANUFACTURE);
         return task;
     }
 
-    /**
-     * 获取设备型号
-     */
     public static OrderTask getDeviceModel() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_PRODUCT_MODEL);
         return task;
     }
 
-    /**
-     * 获取生产日期
-     */
     public static OrderTask getProductDate() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_MANUFACTURE_DATE);
         return task;
     }
 
-    /**
-     * 获取硬件版本
-     */
     public static OrderTask getHardwareVersion() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_HARDWARE_VERSION);
         return task;
     }
 
-    /**
-     * 获取固件版本
-     */
     public static OrderTask getFirmwareVersion() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_FIRMWARE_VERSION);
         return task;
     }
 
-    /**
-     * 获取软件版本
-     */
     public static OrderTask getSoftwareVersion() {
         ParamsTask task = new ParamsTask();
         task.getData(ParamsKeyEnum.KEY_SOFTWARE_VERSION);
@@ -181,9 +162,7 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask setAxisParams(@IntRange(from = 0, to = 4) int rate,
-                                          @IntRange(from = 0, to = 3) int scale,
-                                          @IntRange(from = 1, to = 255) int sensitivity) {
+    public static OrderTask setAxisParams(@IntRange(from = 0, to = 4) int rate, @IntRange(from = 0, to = 3) int scale, @IntRange(from = 1, to = 255) int sensitivity) {
         ParamsTask task = new ParamsTask();
         task.setAxisParams(rate, scale, sensitivity);
         return task;
@@ -309,15 +288,13 @@ public class OrderTaskAssembler {
         return task;
     }
 
-    public static OrderTask setLedRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
-                                                 @IntRange(from = 10, to = 6000) int time) {
+    public static OrderTask setLedRemoteReminder(@IntRange(from = 100, to = 10000) int interval, @IntRange(from = 10, to = 6000) int time) {
         ParamsTask task = new ParamsTask();
         task.setLedRemoteReminder(interval, time);
         return task;
     }
 
-    public static OrderTask setBuzzerRemoteReminder(@IntRange(from = 100, to = 10000) int interval,
-                                                    @IntRange(from = 10, to = 6000) int time) {
+    public static OrderTask setBuzzerRemoteReminder(@IntRange(from = 100, to = 10000) int interval, @IntRange(from = 10, to = 6000) int time) {
         ParamsTask task = new ParamsTask();
         task.setBuzzerRemoteReminder(interval, time);
         return task;

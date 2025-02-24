@@ -15,16 +15,10 @@ import static com.moko.support.s.entity.SlotAdvType.TEMP_TRIGGER;
 import static com.moko.support.s.entity.SlotAdvType.TEMP_TRIGGER_ABOVE;
 import static com.moko.support.s.entity.SlotAdvType.TEMP_TRIGGER_BELOW;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -37,7 +31,6 @@ import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep1Binding;
 import com.moko.bxp.s.dialog.BottomDialog;
-import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.entity.TriggerEvent;
 import com.moko.bxp.s.fragment.HallTriggerFragment;
 import com.moko.bxp.s.fragment.HumidityTriggerFragment;
@@ -64,13 +57,9 @@ import java.util.List;
  * @date: 2024/1/30 16:08
  * @des:
  */
-public class TriggerStep1Activity extends BaseActivity {
-    private ActivityTriggerStep1Binding mBind;
-    private boolean mReceiverTag;
+public class TriggerStep1Activity extends BaseActivity<ActivityTriggerStep1Binding> {
     private int slot;
     private int triggerType;
-    //1 2 3 4
-//    private final String[] triggerTypeArray = {"Temperature detection", "Humidity detection", "Motion detection", "Magnetic detection"};
     private final String[] tempTriggerEventArray = {"Temperature above threshold", "Temperature below threshold"};
     private final String[] humTriggerEventArray = {"Humidity above threshold", "Humidity below threshold"};
     private final String[] motionTriggerEventArray = {"Device start moving", "Device keep static"};
@@ -98,16 +87,7 @@ public class TriggerStep1Activity extends BaseActivity {
     private boolean isParamsError;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBind = ActivityTriggerStep1Binding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
-        EventBus.getDefault().register(this);
-        // 注册广播接收器
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(mReceiver, filter);
-        mReceiverTag = true;
+    protected void onCreate() {
         slot = getIntent().getIntExtra(AppConstants.SLOT, 0);
         triggerEvent = getIntent().getParcelableExtra(AppConstants.EXTRA_KEY1);
         accStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY2, 0);
@@ -136,6 +116,11 @@ public class TriggerStep1Activity extends BaseActivity {
         mBind.tvBack.setOnClickListener(v -> back());
         isTriggerOpen = null == triggerEvent || triggerEvent.triggerType == NO_TRIGGER;
         mBind.ivTrigger.callOnClick();
+    }
+
+    @Override
+    protected ActivityTriggerStep1Binding getViewBinding() {
+        return ActivityTriggerStep1Binding.inflate(getLayoutInflater());
     }
 
     private void back(){
@@ -456,46 +441,5 @@ public class TriggerStep1Activity extends BaseActivity {
         } else {
             return hallTriggerSelect;
         }
-    }
-
-    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent != null) {
-                String action = intent.getAction();
-                if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                    int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
-                    if (blueState == BluetoothAdapter.STATE_TURNING_OFF) {
-                        dismissSyncProgressDialog();
-                        finish();
-                    }
-                }
-            }
-        }
-    };
-
-    private LoadingMessageDialog mLoadingMessageDialog;
-
-    public void showSyncingProgressDialog() {
-        mLoadingMessageDialog = new LoadingMessageDialog();
-        mLoadingMessageDialog.setMessage("Syncing..");
-        mLoadingMessageDialog.show(getSupportFragmentManager());
-    }
-
-    public void dismissSyncProgressDialog() {
-        if (mLoadingMessageDialog != null)
-            mLoadingMessageDialog.dismissAllowingStateLoss();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mReceiverTag) {
-            mReceiverTag = false;
-            // 注销广播
-            unregisterReceiver(mReceiver);
-        }
-        if (EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().unregister(this);
     }
 }

@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
@@ -17,6 +16,7 @@ import androidx.core.content.ContextCompat;
 
 import com.elvishew.xlog.XLog;
 import com.moko.bxp.s.R;
+import com.moko.bxp.s.databinding.ActivityGuideBinding;
 import com.moko.bxp.s.dialog.PermissionDialog;
 import com.moko.bxp.s.utils.Utils;
 import com.permissionx.guolindev.PermissionX;
@@ -28,16 +28,20 @@ import com.permissionx.guolindev.PermissionX;
  * @Description
  * @ClassPath com.moko.bxp.button.d.activity.GuideActivity
  */
-public class GuideActivity extends BaseActivity {
+public class GuideActivity extends BaseActivity<ActivityGuideBinding> {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_guide);
-        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
-            finish();
-            return;
-        }
+    protected void onCreate() {
         requestPermission();
+    }
+
+    @Override
+    protected ActivityGuideBinding getViewBinding() {
+        return ActivityGuideBinding.inflate(getLayoutInflater());
+    }
+
+    @Override
+    protected boolean registerEvent() {
+        return false;
     }
 
     private void requestPermission() {

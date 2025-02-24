@@ -1,7 +1,6 @@
 package com.moko.bxp.s.activity;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.View;
 
 import com.moko.ble.lib.MokoConstants;
@@ -13,13 +12,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-public class SensorConfigActivity extends BaseActivity {
+public class SensorConfigActivity extends BaseActivity<ActivitySensorConfigSBinding> {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ActivitySensorConfigSBinding mBind = ActivitySensorConfigSBinding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
-        EventBus.getDefault().register(this);
+    protected void onCreate() {
         int accStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY1, 0);
         int thStatus = getIntent().getIntExtra(AppConstants.EXTRA_KEY2, 0);
         boolean isButtonPowerEnable = getIntent().getBooleanExtra(AppConstants.EXTRA_KEY3, false);
@@ -45,6 +40,11 @@ public class SensorConfigActivity extends BaseActivity {
         });
     }
 
+    @Override
+    protected ActivitySensorConfigSBinding getViewBinding() {
+        return ActivitySensorConfigSBinding.inflate(getLayoutInflater());
+    }
+
     @Subscribe(threadMode = ThreadMode.POSTING, priority = 200)
     public void onConnectStatusEvent(ConnectStatusEvent event) {
         final String action = event.getAction();
@@ -54,13 +54,6 @@ public class SensorConfigActivity extends BaseActivity {
                 SensorConfigActivity.this.finish();
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (EventBus.getDefault().isRegistered(this))
-            EventBus.getDefault().unregister(this);
     }
 
     @Override

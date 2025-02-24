@@ -3,7 +3,6 @@ package com.moko.bxp.s.activity;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.net.Uri;
-import android.os.Bundle;
 import android.view.View;
 
 import com.moko.bxp.s.BaseApplication;
@@ -16,12 +15,9 @@ import com.moko.bxp.s.utils.Utils;
 import java.io.File;
 import java.util.Calendar;
 
-public class AboutActivity extends BaseActivity {
+public class AboutActivity extends BaseActivity<ActivityAboutSBinding> {
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ActivityAboutSBinding mBind = ActivityAboutSBinding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
+    protected void onCreate() {
         if (!BuildConfig.IS_LIBRARY) {
             mBind.appVersion.setText(String.format("Version:V%s", Utils.getVersionInfo(this)));
             mBind.tvFeedbackLog.setVisibility(View.VISIBLE);
@@ -29,6 +25,15 @@ public class AboutActivity extends BaseActivity {
         mBind.tvCompanyWebsite.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
     }
 
+    @Override
+    protected ActivityAboutSBinding getViewBinding() {
+        return ActivityAboutSBinding.inflate(getLayoutInflater());
+    }
+
+    @Override
+    protected boolean registerEvent() {
+        return false;
+    }
 
     public void onBack(View view) {
         finish();

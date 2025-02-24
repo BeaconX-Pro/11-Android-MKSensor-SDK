@@ -6,7 +6,7 @@
     android:layout_marginBottom="10dp"
     android:background="@drawable/shape_radius_white_bg"
     android:orientation="vertical"
-    android:padding="15dp"
+    android:padding="12dp"
     tools:viewBindingIgnore="true">
 
     <RelativeLayout

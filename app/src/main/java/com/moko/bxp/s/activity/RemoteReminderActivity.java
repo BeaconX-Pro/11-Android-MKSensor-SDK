@@ -1,6 +1,5 @@
 package com.moko.bxp.s.activity;
 
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -11,7 +10,6 @@ import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.databinding.ActivityRemoteReminderSBinding;
 import com.moko.bxp.s.dialog.BottomDialog;
-import com.moko.bxp.s.dialog.LoadingMessageDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
@@ -30,17 +28,12 @@ import java.util.Arrays;
  * @date: 2024/10/28 15:25
  * @des: 远程提醒
  */
-public class RemoteReminderActivity extends BaseActivity {
-    private ActivityRemoteReminderSBinding mBind;
+public class RemoteReminderActivity extends BaseActivity<ActivityRemoteReminderSBinding> {
     private final String[] array = {"4000", "4500"};
     private int mSelect;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mBind = ActivityRemoteReminderSBinding.inflate(getLayoutInflater());
-        setContentView(mBind.getRoot());
-        EventBus.getDefault().register(this);
+    protected void onCreate() {
         mBind.btnRemind.setOnClickListener(v -> onLedRemindClick());
         mBind.btnBuzzerRemind.setOnClickListener(v -> onBuzzerRemindClick());
         showSyncingProgressDialog();
@@ -55,6 +48,11 @@ public class RemoteReminderActivity extends BaseActivity {
             });
             dialog.show(getSupportFragmentManager());
         });
+    }
+
+    @Override
+    protected ActivityRemoteReminderSBinding getViewBinding() {
+        return ActivityRemoteReminderSBinding.inflate(getLayoutInflater());
     }
 
     //远程提醒
@@ -163,24 +161,5 @@ public class RemoteReminderActivity extends BaseActivity {
                 }
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
-    }
-
-    private LoadingMessageDialog mLoadingMessageDialog;
-
-    public void showSyncingProgressDialog() {
-        mLoadingMessageDialog = new LoadingMessageDialog();
-        mLoadingMessageDialog.setMessage("Syncing..");
-        mLoadingMessageDialog.show(getSupportFragmentManager());
-    }
-
-    public void dismissSyncProgressDialog() {
-        if (mLoadingMessageDialog != null)
-            mLoadingMessageDialog.dismissAllowingStateLoss();
     }
 }
