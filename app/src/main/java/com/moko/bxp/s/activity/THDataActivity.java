@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
 
+import com.elvishew.xlog.XLog;
 import com.moko.ble.lib.MokoConstants;
 import com.moko.ble.lib.event.ConnectStatusEvent;
 import com.moko.ble.lib.event.OrderTaskResponseEvent;
@@ -89,7 +90,7 @@ public class THDataActivity extends BaseActivity<ActivityThSBinding> {
         final String action = event.getAction();
         runOnUiThread(() -> {
             if (MokoConstants.ACTION_ORDER_FINISH.equals(action)) {
-                dismissSyncProgressDialog();
+                mBind.group.postDelayed(this::dismissSyncProgressDialog, !hasSynTime ? 500 : 0);
             }
             if (MokoConstants.ACTION_ORDER_RESULT.equals(action)) {
                 OrderTaskResponse response = event.getResponse();

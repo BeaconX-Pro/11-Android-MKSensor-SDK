@@ -398,64 +398,64 @@ public class TriggerStep3Activity extends BaseActivity<ActivityTriggerStep3Bindi
                 break;
 
             case HALL_TRIGGER:
-                if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and stop advertising immediately when door close";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms when door open.\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before stopping)";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after door open, and stop advertising immediately when door close";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after door open, and stop advertising when door close\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the 5s post-trigger broadcast before stopping)";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door close";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door close\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door close";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door open, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door close\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door open, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door close";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms when door open, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door close\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state）";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door open, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door close";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door open, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door close\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state)";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close, and stop advertising immediately when door open";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will start advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close.\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before stopping)";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after door close, and stop advertising immediately when door open";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && !isAdvBeforeTrigger && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising  at the interval of " + step2Bean.advInterval + "ms after door close, and stop advertising when door open\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the 5s post-trigger broadcast before stopping)";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door open";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door open\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door open";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration > 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will advertising for " + step2Bean.advDuration + "s at the interval of " + step2Bean.advInterval + "ms after door close, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door open\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered, the beacon will be locked to complete the Total adv duration broadcast before switching to the pre-trigger broadcast state)";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door close, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door open";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration > 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door close, and advertising for " + step3Bean.advDuration + "s every " + step3Bean.standbyDuration + "s at the interval of " + step3Bean.advInterval + "ms when door open\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state)";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && !step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door close, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door open";
-                } else if (step1Bean.triggerCondition == HALL_TRIGGER_AWAY && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
+                } else if (step1Bean.triggerCondition == HALL_TRIGGER_NEAR && isAdvBeforeTrigger && step3Bean.standbyDuration == 0 && step2Bean.advDuration == 0 && step1Bean.lockedAdv) {
                     tips = "*The Beacon will keep advertising at the interval of  " + step2Bean.advInterval + "ms after door close, and  keep advertising at the interval of  " + step3Bean.advInterval + "ms when door open\n" +
                             "(If the beacon quickly returns to a state where the trigger condition is no longer met shortly after the event is triggered,the beacon will be locked to complete the 5s post-trigger broadcast before switching to the pre-trigger broadcast state)";
                 }

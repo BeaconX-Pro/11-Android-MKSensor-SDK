@@ -123,7 +123,7 @@ public class TriggerStep1Activity extends BaseActivity<ActivityTriggerStep1Bindi
         return ActivityTriggerStep1Binding.inflate(getLayoutInflater());
     }
 
-    private void back(){
+    private void back() {
         EventBus.getDefault().unregister(this);
         setResult(RESULT_OK);
         finish();
@@ -252,7 +252,7 @@ public class TriggerStep1Activity extends BaseActivity<ActivityTriggerStep1Bindi
                 hallTriggerFragment.setValue(triggerEvent.lockAdvDuration);
             } else {
                 hallTriggerSelect = 0;
-                triggerCondition = HALL_TRIGGER_NEAR;
+                triggerCondition = HALL_TRIGGER_AWAY;
                 hallTriggerFragment.setValue(0);
             }
             mBind.tvTriggerEvent.setText(hallTriggerEventArray[hallTriggerSelect]);
@@ -299,6 +299,12 @@ public class TriggerStep1Activity extends BaseActivity<ActivityTriggerStep1Bindi
                                 case KEY_SLOT_PARAMS_AFTER:
                                     if ((value[4] & 0xff) != 0xAA) isParamsError = true;
                                     ToastUtils.showToast(this, isParamsError ? "set fail" : "set success");
+                                    if (!isParamsError) {
+                                        EventBus.getDefault().unregister(this);
+                                        Intent intent = new Intent(this, DeviceInfoActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    }
                                     break;
                             }
                         }
@@ -377,13 +383,11 @@ public class TriggerStep1Activity extends BaseActivity<ActivityTriggerStep1Bindi
             SlotData beforeBean = new SlotData();
             beforeBean.slot = this.slot;
             beforeBean.currentFrameType = NO_DATA;
-            beforeBean.advInterval = 10;
             orderTasks.add(OrderTaskAssembler.setSlotAdvParamsBefore(beforeBean));
             //配置触发后参数 协议0x33
             SlotData afterBean = new SlotData();
             afterBean.slot = this.slot;
             afterBean.currentFrameType = NO_DATA;
-            afterBean.advInterval = 10;
             orderTasks.add(OrderTaskAssembler.setSlotAdvParamsAfter(afterBean));
             MokoSupport.getInstance().sendOrder(orderTasks.toArray(new OrderTask[0]));
             return;

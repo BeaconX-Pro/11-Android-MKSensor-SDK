@@ -41,7 +41,7 @@ final class MokoBleConfig extends MokoBleManager {
     }
 
     @Override
-    public boolean init(BluetoothGatt gatt) {
+    public boolean checkServiceCharacteristicSupported(BluetoothGatt gatt) {
         final BluetoothGattService service = gatt.getService(OrderServices.SERVICE_CUSTOM.getUuid());
         final BluetoothGattService serviceOTA = gatt.getService(OrderServices.SERVICE_OTA.getUuid());
         if (service != null) {
@@ -77,7 +77,8 @@ final class MokoBleConfig extends MokoBleManager {
     }
 
     @Override
-    public void discovered(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+    public void init() {
+
     }
 
     @Override

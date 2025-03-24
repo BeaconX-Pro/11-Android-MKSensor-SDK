@@ -14,8 +14,8 @@ android {
         namespace = "com.moko.bxp.s"
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 101
-        versionName "1.0.1"
+        versionCode 102
+        versionName "1.0.2"
 
         def formatDate = new Date().format("yyyyMMddHHmm")
         setProperty("archivesBaseName", "BXP_S_${versionName}_${formatDate}")
@@ -118,6 +118,6 @@ dependencies {
         implementation 'no.nordicsemi.android.support.v18:scanner:1.6.0'
         implementation 'org.greenrobot:eventbus:3.2.0'
         implementation 'com.elvishew:xlog:1.6.1'
-        implementation 'no.nordicsemi.android:ble:2.7.2'
+        implementation 'no.nordicsemi.android:ble:2.7.3'
     }
 }
