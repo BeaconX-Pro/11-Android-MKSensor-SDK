@@ -1,6 +1,7 @@
 package com.moko.bxp.s.activity;
 
 import android.content.Intent;
+import android.view.View;
 
 import com.moko.bxp.s.BuildConfig;
 import com.moko.bxp.s.R;
@@ -18,6 +19,10 @@ public class DeviceTypeSelectActivity extends BaseActivity<ActivityDeviceTypeSel
         mBind.layoutCommon.setOnClickListener(v -> onTypeClick(1));
         mBind.layoutTH.setOnClickListener(v -> onTypeClick(2));
         mBind.layoutHum.setOnClickListener(v -> onTypeClick(3));
+        mBind.tvBack.setVisibility(BuildConfig.IS_LIBRARY? View.VISIBLE:View.GONE);
+        if (BuildConfig.IS_LIBRARY){
+            mBind.tvBack.setOnClickListener(v -> back());
+        }
     }
 
     @Override
@@ -36,6 +41,10 @@ public class DeviceTypeSelectActivity extends BaseActivity<ActivityDeviceTypeSel
         startActivity(intent);
     }
 
+    private void back(){
+        finish();
+    }
+
     @Override
     public void onBackPressed() {
         if (!BuildConfig.IS_LIBRARY) {
@@ -44,7 +53,7 @@ public class DeviceTypeSelectActivity extends BaseActivity<ActivityDeviceTypeSel
             dialog.setOnAlertConfirmListener(this::finish);
             dialog.show(getSupportFragmentManager());
         } else {
-            finish();
+            back();
         }
     }
 }
