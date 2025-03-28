@@ -337,7 +337,7 @@ public class ParamsTask extends OrderTask {
                 System.arraycopy(idBytes, 0, uidBytes, 10, idBytes.length);
                 return uidBytes;
             case URL:
-                byte[] contentBytes = slotData.urlContent.getBytes();
+                byte[] contentBytes = MokoUtils.hex2bytes(slotData.urlContent);
                 byte[] urlBytes = new byte[contentBytes.length + 1];
                 urlBytes[0] = (byte) slotData.urlScheme;
                 System.arraycopy(contentBytes, 0, urlBytes, 1, contentBytes.length);

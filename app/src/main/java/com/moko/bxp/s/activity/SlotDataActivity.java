@@ -180,7 +180,7 @@ public class SlotDataActivity extends BaseActivity<ActivitySlotDataSBinding> imp
             slotData.instanceId = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 24, 30));
         } else if (currentFrameType == URL) {
             slotData.urlScheme = value[14] & 0xff;
-            slotData.urlContent = new String(Arrays.copyOfRange(value, 15, value.length));
+            slotData.urlContent = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 15, value.length));
         } else if (currentFrameType == I_BEACON) {
             slotData.uuid = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 14, 30));
             slotData.major = MokoUtils.toInt(Arrays.copyOfRange(value, 30, 32));

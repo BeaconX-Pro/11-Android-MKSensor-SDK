@@ -65,11 +65,11 @@ public class AdvInfoParser {
         long seconds = Long.parseLong(data.substring(20, 28), 16) / 10;
         int day = 0, hours = 0, minutes = 0;
         day = (int) (seconds / (60 * 60 * 24));
-        seconds -= day * 60 * 60 * 24;
+        seconds -= day * 60L * 60 * 24;
         hours = (int) (seconds / (60 * 60));
-        seconds -= hours * 60 * 60;
+        seconds -= hours * 60L * 60;
         minutes = (int) (seconds / 60);
-        seconds -= minutes * 60;
+        seconds -= minutes * 60L;
         tlm.sec_cnt = String.format("%dd%dh%dm%ds", day, hours, minutes, seconds);
         return tlm;
     }

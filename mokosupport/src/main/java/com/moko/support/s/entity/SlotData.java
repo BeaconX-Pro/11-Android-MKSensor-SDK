@@ -10,7 +10,7 @@ public class SlotData implements Parcelable {
     public int minor;
     // URL
     public int urlScheme = 1;
-    public String urlContent = "mokobule.com/";
+    public String urlContent = "6D6F6B6F626C756500";
     // UID
     public String namespace;
     public String instanceId;

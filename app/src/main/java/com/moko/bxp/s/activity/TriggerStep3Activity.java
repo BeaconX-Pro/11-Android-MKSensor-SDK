@@ -496,7 +496,7 @@ public class TriggerStep3Activity extends BaseActivity<ActivityTriggerStep3Bindi
             slotData.instanceId = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 20, 26));
         } else if (frameType == URL) {
             slotData.urlScheme = value[10] & 0xff;
-            slotData.urlContent = new String(Arrays.copyOfRange(value, 11, value.length));
+            slotData.urlContent = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 11, value.length));
         } else if (frameType == I_BEACON) {
             slotData.uuid = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 10, 26));
             slotData.major = MokoUtils.toInt(Arrays.copyOfRange(value, 26, 28));

@@ -242,7 +242,7 @@ public class TriggerStep2Activity extends BaseActivity<ActivityTriggerStep2Bindi
             slotData.instanceId = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 18, 24));
         } else if (type == URL) {
             slotData.urlScheme = value[8] & 0xff;
-            slotData.urlContent = new String(Arrays.copyOfRange(value, 9, value.length));
+            slotData.urlContent = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 9, value.length));
         } else if (type == I_BEACON) {
             slotData.uuid = MokoUtils.bytesToHexString(Arrays.copyOfRange(value, 8, 24));
             slotData.major = MokoUtils.toInt(Arrays.copyOfRange(value, 24, 26));
