@@ -16,7 +16,6 @@ import android.widget.SeekBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.elvishew.xlog.XLog;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
@@ -31,7 +30,6 @@ import com.moko.support.s.entity.TxPowerEnum;
 import com.moko.support.s.entity.UrlExpansionEnum;
 import com.moko.support.s.entity.UrlSchemeEnum;
 
-import java.sql.SQLXML;
 import java.util.Objects;
 
 public class UrlFragment extends BaseFragment<FragmentUrlSBinding> implements SeekBar.OnSeekBarChangeListener, ISlotDataAction {
