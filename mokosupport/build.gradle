@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
+    namespace "com.moko.support.s"
     compileSdk 34
 
     defaultConfig {
-        namespace = "com.moko.support.s"
-        minSdkVersion 21
-        targetSdkVersion 34
+        minSdk 26
+        targetSdk 34
         versionCode 100
         versionName "1.0.0"
     }
@@ -26,12 +26,7 @@ android {
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api 'no.nordicsemi.android.support.v18:scanner:1.6.0'
-    api 'org.greenrobot:eventbus:3.2.0'
-    api 'com.elvishew:xlog:1.6.1'
-    implementation 'no.nordicsemi.android:ble:2.7.3'
-    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
+    api 'com.github.MOKO-Android-Base-Library:MKBleLib:1.0.0-beacon'
 }
 
 //修改jar名字+将指定jar生成的地方

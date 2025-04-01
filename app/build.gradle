@@ -6,16 +6,13 @@ if (!isLibrary.toBoolean()) {
 
 android {
     compileSdk 34
+    namespace "com.moko.bxp.s"
 
     defaultConfig {
-        if (!isLibrary.toBoolean()) {
-            applicationId "com.moko.bxp.s"
-        }
-        namespace = "com.moko.bxp.s"
-        minSdkVersion 21
-        targetSdkVersion 34
-        versionCode 102
-        versionName "1.0.2"
+        minSdk 26
+        targetSdk 34
+        versionCode 103
+        versionName "1.0.3"
 
         def formatDate = new Date().format("yyyyMMddHHmm")
         setProperty("archivesBaseName", "BXP_S_${versionName}_${formatDate}")
@@ -103,7 +100,7 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
     implementation 'com.github.GrenderG:Toasty:1.4.1'
-    implementation 'cn.carbswang.android:NumberPickerView:1.1.1'
+    implementation 'com.github.Carbs0126:NumberPickerView:master-SNAPSHOT'
     implementation 'com.guolindev.permissionx:permissionx:1.7.1'
     implementation files('libs/jxl.jar')
     if (!isLibrary.toBoolean()) {
@@ -112,12 +109,8 @@ dependencies {
         implementation(name: 'wheelview', ext: 'aar')
     } else {
         implementation files('libs/mokoSupport.jar')
-        compileOnly files('libs/mokoBleLib.jar')
+        compileOnly 'com.github.MOKO-Android-Base-Library:MKBleLib:1.0.0-beacon'
         compileOnly(name: 'pickerview', ext: 'aar')
         compileOnly(name: 'wheelview', ext: 'aar')
-        implementation 'no.nordicsemi.android.support.v18:scanner:1.6.0'
-        implementation 'org.greenrobot:eventbus:3.2.0'
-        implementation 'com.elvishew:xlog:1.6.1'
-        implementation 'no.nordicsemi.android:ble:2.7.3'
     }
 }
