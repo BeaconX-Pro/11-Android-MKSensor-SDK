@@ -223,7 +223,7 @@ public class ParamsTask extends OrderTask {
                 (byte) 0x01,
                 (byte) ParamsKeyEnum.KEY_BUZZER_REMOTE_REMINDER.getParamsKey(),
                 (byte) 0x05,
-                (byte) 0x04,
+                (byte) 0x0E,
                 bytesInterval[0],
                 bytesInterval[1],
                 bytesTime[0],
