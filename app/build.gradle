@@ -70,7 +70,7 @@ android {
 
     if (isLibrary.toBoolean()) {
         libraryVariants.all { variant ->
-            if (variant.buildType.name == "release") {
+            if (variant.buildType.name == "debug") {
                 // 修改aar名称
                 variant.outputs.all { output ->
                     def formatDate = new Date().format("yyyyMMddHHmm")
@@ -93,22 +93,15 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.3.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
-    implementation 'com.github.GrenderG:Toasty:1.4.1'
-    implementation 'com.github.Carbs0126:NumberPickerView:master-SNAPSHOT'
-    implementation 'com.guolindev.permissionx:permissionx:1.7.1'
     implementation files('libs/jxl.jar')
     if (!isLibrary.toBoolean()) {
         implementation project(path: ':mokosupport')
+        implementation 'com.github.MOKO-Android-Base-Library:MKBXPUILib:1.0.3'
         implementation(name: 'pickerview', ext: 'aar')
         implementation(name: 'wheelview', ext: 'aar')
     } else {
         implementation files('libs/mokoSupport.jar')
+        compileOnly 'com.github.MOKO-Android-Base-Library:MKBXPUILib:1.0.3'
         compileOnly 'com.github.MOKO-Android-Base-Library:MKBleLib:1.0.0-beacon'
         compileOnly(name: 'pickerview', ext: 'aar')
         compileOnly(name: 'wheelview', ext: 'aar')

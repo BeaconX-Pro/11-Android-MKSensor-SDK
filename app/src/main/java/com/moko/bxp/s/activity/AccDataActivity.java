@@ -14,7 +14,7 @@ import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityAccDataSBinding;
-import com.moko.bxp.s.dialog.BottomDialog;
+import com.moko.lib.bxpui.dialog.BottomDialog;
 import com.moko.bxp.s.utils.ToastUtils;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;

@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewbinding.ViewBinding;
 
-import com.moko.bxp.s.dialog.AlertMessageDialog;
+import com.moko.lib.bxpui.dialog.AlertMessageDialog;
 
 /**
  * @author: jun.liu

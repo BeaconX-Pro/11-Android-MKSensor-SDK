@@ -22,7 +22,7 @@ import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep2Binding;
-import com.moko.bxp.s.dialog.BottomDialog;
+import com.moko.lib.bxpui.dialog.BottomDialog;
 import com.moko.bxp.s.fragment.IBeaconFragment;
 import com.moko.bxp.s.fragment.SensorInfoFragment;
 import com.moko.bxp.s.fragment.TlmFragment;

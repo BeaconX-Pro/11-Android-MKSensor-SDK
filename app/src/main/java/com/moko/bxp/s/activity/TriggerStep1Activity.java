@@ -30,7 +30,7 @@ import com.moko.ble.lib.task.OrderTaskResponse;
 import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep1Binding;
-import com.moko.bxp.s.dialog.BottomDialog;
+import com.moko.lib.bxpui.dialog.BottomDialog;
 import com.moko.bxp.s.entity.TriggerEvent;
 import com.moko.bxp.s.fragment.HallTriggerFragment;
 import com.moko.bxp.s.fragment.HumidityTriggerFragment;

@@ -36,7 +36,7 @@ import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.ISlotDataAction;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityTriggerStep3Binding;
-import com.moko.bxp.s.dialog.AlertMessageDialog;
+import com.moko.lib.bxpui.dialog.AlertMessageDialog;
 import com.moko.bxp.s.fragment.IBeaconFragment;
 import com.moko.bxp.s.fragment.SensorInfoFragment;
 import com.moko.bxp.s.fragment.TlmFragment;

@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 
 import com.elvishew.xlog.XLog;
 import com.moko.bxp.s.databinding.DialogUrlSchemeSBinding;
+import com.moko.lib.bxpui.dialog.MokoBaseDialog;
 import com.moko.support.s.entity.UrlSchemeEnum;
 
 public class UrlSchemeDialog extends MokoBaseDialog<DialogUrlSchemeSBinding> {

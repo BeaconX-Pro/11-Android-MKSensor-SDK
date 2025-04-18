@@ -26,7 +26,7 @@ import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.adapter.THDataListAdapter;
 import com.moko.bxp.s.databinding.ActivityExportThDataSBinding;
-import com.moko.bxp.s.dialog.AlertMessageDialog;
+import com.moko.lib.bxpui.dialog.AlertMessageDialog;
 import com.moko.bxp.s.dialog.TipsDialogFragment;
 import com.moko.bxp.s.entity.THStoreData;
 import com.moko.bxp.s.utils.ExcelHelper;
@@ -115,7 +115,7 @@ public class ExportTHDataActivity extends BaseActivity<ActivityExportThDataSBind
             mBind.tvFilterRecord.setText("Filter records:" + thStoreData.size());
             Drawable top;
             if (!thStoreData.isEmpty()) {
-                top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
+                top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_checked, null);
             } else {
                 top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download, null);
             }
@@ -181,7 +181,7 @@ public class ExportTHDataActivity extends BaseActivity<ActivityExportThDataSBind
         }
         Drawable top;
         if (!filterThStoreData.isEmpty()) {
-            top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
+            top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_checked, null);
         } else {
             top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download, null);
         }
@@ -324,7 +324,7 @@ public class ExportTHDataActivity extends BaseActivity<ActivityExportThDataSBind
                                     mBind.tvSumRecord.setText("Sum records:" + totalHistoryCount);
                                     mBind.tvFilterRecord.setText("Filter records:" + thStoreData.size());
                                     if (!thStoreData.isEmpty()) {
-                                        Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_enable, null);
+                                        Drawable top = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_download_checked, null);
                                         mBind.tvExport.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
                                     }
                                 }

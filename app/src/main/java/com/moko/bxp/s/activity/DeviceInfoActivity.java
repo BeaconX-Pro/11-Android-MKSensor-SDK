@@ -31,7 +31,7 @@ import com.moko.ble.lib.utils.MokoUtils;
 import com.moko.bxp.s.AppConstants;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityDeviceInfoSBinding;
-import com.moko.bxp.s.dialog.AlertMessageDialog;
+import com.moko.lib.bxpui.dialog.AlertMessageDialog;
 import com.moko.bxp.s.entity.TriggerEvent;
 import com.moko.bxp.s.fragment.DeviceFragment;
 import com.moko.bxp.s.fragment.SettingFragment;

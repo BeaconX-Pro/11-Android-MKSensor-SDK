@@ -6,7 +6,7 @@ import android.view.View;
 import com.moko.bxp.s.BuildConfig;
 import com.moko.bxp.s.R;
 import com.moko.bxp.s.databinding.ActivityDeviceTypeSelectSBinding;
-import com.moko.bxp.s.dialog.AlertMessageDialog;
+import com.moko.lib.bxpui.dialog.AlertMessageDialog;
 
 /**
  * @author: jun.liu

@@ -14,9 +14,9 @@ import com.moko.bxp.s.activity.DeviceInfoActivity;
 import com.moko.bxp.s.activity.RemoteReminderActivity;
 import com.moko.bxp.s.activity.SensorConfigActivity;
 import com.moko.bxp.s.databinding.FragmentSettingSBinding;
-import com.moko.bxp.s.dialog.AlertMessageDialog;
-import com.moko.bxp.s.dialog.BottomDialog;
-import com.moko.bxp.s.dialog.ModifyPasswordDialog;
+import com.moko.lib.bxpui.dialog.AlertMessageDialog;
+import com.moko.lib.bxpui.dialog.BottomDialog;
+import com.moko.lib.bxpui.dialog.ModifyPasswordDialog;
 import com.moko.support.s.MokoSupport;
 import com.moko.support.s.OrderTaskAssembler;
 

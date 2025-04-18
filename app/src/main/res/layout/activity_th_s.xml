@@ -16,7 +16,7 @@
             android:id="@+id/tv_back"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:drawableStart="@drawable/back"
+            android:drawableStart="@drawable/ic_back"
             android:drawablePadding="6dp"
             android:gravity="center_vertical"
             android:onClick="onBack"
@@ -41,7 +41,7 @@
             android:onClick="onSave"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:src="@drawable/save" />
+            android:src="@drawable/ic_save" />
     </RelativeLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -57,7 +57,7 @@
             android:id="@+id/temp_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_temp"
+            android:drawableLeft="@drawable/ic_sensor_temp"
             android:drawablePadding="7dp"
             android:gravity="center"
             android:text="Temperature"
@@ -96,7 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:drawableLeft="@drawable/ic_humidity"
+            android:drawableLeft="@drawable/ic_sensor_humidity"
             android:drawablePadding="7dp"
             android:gravity="center"
             android:text="Humidity"
@@ -312,7 +312,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
         android:background="@drawable/shape_radius_white_bg"
-        android:drawableEnd="@drawable/arrow_right"
+        android:drawableEnd="@drawable/ic_arrow_right"
         android:gravity="center_vertical"
         android:onClick="onExportData"
         android:paddingLeft="10dp"

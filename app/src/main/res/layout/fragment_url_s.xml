@@ -17,7 +17,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/adv_content"
+            android:drawableLeft="@drawable/ic_slot_adv"
             android:drawablePadding="10dp"
             android:gravity="center"
             android:text="Adv content"
@@ -79,7 +79,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/base_params"
+            android:drawableLeft="@drawable/ic_slot_params"
             android:drawablePadding="10dp"
             android:gravity="center"
             android:text="Parameters"
